@@ -16,6 +16,7 @@ out
 # gradle
 run
 run-data
+run-gametest
 build
 .gradle
 

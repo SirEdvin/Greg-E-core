@@ -108,6 +108,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(GenesisCrucibleCases.GENESISCRUCIBLECASE3.getItem());
                         pOutput.accept(AssemblyHall.ASSEMBLYHALL.getItem());
                         pOutput.accept(PrecisionFabricationArray.PFARRAY.getItem());
+                        pOutput.accept(IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.getItem());
 
                         for (MachineDefinition box : UHVMultiRegistry.ALL_MACHINES) {
                             pOutput.accept(box.getItem());

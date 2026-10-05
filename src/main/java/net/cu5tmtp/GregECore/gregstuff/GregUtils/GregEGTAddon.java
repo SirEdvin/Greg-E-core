@@ -7,6 +7,12 @@ import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import net.cu5tmtp.GregECore.block.GreggyBlocks;
 import net.cu5tmtp.GregECore.item.GreggyItems;
 import net.minecraft.data.recipes.FinishedRecipe;
+import com.gregtechceu.gtceu.common.data.GTItems;
+import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterReport;
+import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterScanDomain;
+import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
@@ -33,6 +39,13 @@ public class GregEGTAddon implements IGTAddon {
 
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
+        GregERecipeTypes.WORLD_EATER_TAMER.recipeBuilder(GregECore.id("information_collection"))
+                .inputItems(GTItems.SENSOR_IV, 1)
+                .outputItems(WorldEaterReport.create(Map.of(), true, 0, 0))
+                .duration(WorldEaterScanDomain.SCAN_TICKS)
+                .addData("required_state", "DORMANT")
+                .addData("operation", WorldEaterTamerRecipeLogic.OPERATION)
+                .save(provider);
     }
 
     @Override

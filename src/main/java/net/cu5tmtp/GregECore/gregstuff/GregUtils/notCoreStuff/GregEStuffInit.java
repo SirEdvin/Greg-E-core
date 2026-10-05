@@ -67,6 +67,7 @@ public class GregEStuffInit {
         GenesisCrucibleCases.init();
         AssemblyHall.init();
         PrecisionFabricationArray.init();
+        IncompleteWorldEaterTamer.init();
     }
 
     public static void initGregEParts(){

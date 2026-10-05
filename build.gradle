@@ -17,6 +17,14 @@ base {
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+// Loader-dependent fixtures are opt-in and never part of the production jar.
+sourceSets {
+    gameTest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
@@ -89,6 +97,17 @@ minecraft {
         client {
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
+            if (providers.gradleProperty('worldEaterClientVerification').isPresent()) {
+                mods { "${mod_id}" { source sourceSets.gameTest } }
+                property 'gregecore.worldEaterClientVerification', 'true'
+                if (providers.gradleProperty('worldEaterClientWorld').isPresent()) {
+                    if (!providers.gradleProperty('worldEaterClientWorld').get().startsWith('albina-world-eater-verification-')) {
+                        throw new GradleException('Client verification requires an isolated albina-world-eater-verification-* world copy')
+                    }
+                    args '--quickPlaySingleplayer', providers.gradleProperty('worldEaterClientWorld').get()
+                    property 'gregecore.worldEaterClientWorld', 'true'
+                }
+            }
         }
 
         server {
@@ -101,6 +120,11 @@ minecraft {
         // The gametest system is also enabled by default for other run configs under the /test command.
         gameTestServer {
             property 'forge.enabledGameTestNamespaces', mod_id
+            property 'forge.logging.console.level', 'info'
+            workingDirectory project.file('run-gametest')
+            mods {
+                "${mod_id}" { source sourceSets.gameTest }
+            }
         }
 
         data {

@@ -20,6 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GregERecipeTypes {
+    public static final GTRecipeType WORLD_EATER_TAMER = GTRecipeTypes.register("world_eater_tamer", "endgame")
+            .setMaxIOSize(1, 1, 0, 0)
+            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+            .addDataInfo(data -> "Required state: " + data.getString("required_state"))
+            .addDataInfo(data -> "Operation: " + data.getString("operation"));
+
     public static GTRecipeType LAUNCH_SAILS = GTRecipeTypes.register("launch_sails", GTRecipeTypes.MULTIBLOCK)
             .setMaxIOSize(3,3,3,3)
             .setEUIO(IO.IN)

@@ -1,4 +1,5 @@
 {
+  "config.jade.plugin_gregecore.multithread_info": "Multithreaded Machine Information",
   "block.gregecore.acceleratedebf": "§lAccelerated EBF§g",
   "block.gregecore.giantacceleratedebf": "§lGiant Accelerated EBF§g",
   "block.gregecore.giantchr": "§lGiant Chemical Reactor§g",

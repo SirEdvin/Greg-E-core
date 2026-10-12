@@ -25,6 +25,7 @@ import com.gregtechceu.gtceu.common.data.GTBlocks;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.Vec3;
 
 import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
 
@@ -36,11 +37,11 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             .appearanceBlock(GTBlocks.MACHINE_CASING_UHV)
             .recipeTypes(GregERecipeTypes.WORLD_EATER_TAMER)
             .pattern(definition -> FactoryBlockPattern.start(RelativeDirection.LEFT, RelativeDirection.UP, RelativeDirection.BACK)
-                    .aisle("CCCCC", "CCCCC", "CCSCC", "CCCCC", "CCCCC")
+                    .aisle("CCSCC", "C###C", "C###C", "C###C", "CCCCC")
+                    .aisle("C###C", "#####", "#####", "#####", "C###C")
+                    .aisle("C###C", "#####", "#####", "#####", "C###C")
+                    .aisle("C###C", "#####", "#####", "#####", "C###C")
                     .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
-                    .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
-                    .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
-                    .aisle("CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC")
                     .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                     .where('#', Predicates.any())
                     .where('C', Predicates.blocks(GTBlocks.MACHINE_CASING_UHV.get())
@@ -57,6 +58,10 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
 
+    public Vec3 getStructureCenter() {
+        return Vec3.atCenterOf(getPos().relative(getFrontFacing().getOpposite(), 2).above(2));
+    }
+
     @Override
     protected RecipeLogic createRecipeLogic(Object... args) { return new WorldEaterTamerRecipeLogic(this); }
 
@@ -70,6 +75,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     public void addDisplayText(List<Component> text) {
         IDisplayUIMachine.super.addDisplayText(text);
         text.add(getRecipeLogic().getCustomProgressLine());
+        text.add(((WorldEaterTamerRecipeLogic) getRecipeLogic()).getCurrentChunkLine());
     }
 
     @Override

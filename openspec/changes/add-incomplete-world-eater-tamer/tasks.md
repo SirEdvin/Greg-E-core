@@ -4,7 +4,7 @@
 
 - [x] 1.1 Add the `world_eater_tamer` recipe type to `src/main/java/net/cu5tmtp/GregECore/gregstuff/GregUtils/notCoreStuff/GregERecipeTypes.java`, with state/operation data display and no EU capability; verify its exact registry identity and item/fluid IO sizes in a Forge runtime registry assertion and compile against GTCEu 7.5.2.
 - [x] 1.2 Add the proposed non-electric `IncompleteWorldEaterTamer` class in `gregstuff/GregMachines/machines/endgame/` and initialize it in `GregEStuffInit.initGregEMulti()`; verify controller lookup succeeds, its display name is `Incomplete World Eater tamer`, and it is accessible through the intended creative registration.
-- [x] 1.3 Implement the five-aisle 5×5×5 pattern using UHV machine casing, a front-center controller, unrestricted interior, and separate maximum-five predicates for the four item/fluid part types without energy/maintenance/parallel abilities; verify formation with filled interior and five of each allowed type, rejection of a sixth of each type, energy-hatch rejection, and rotated formation.
+- [x] 1.3 Implement the five-aisle 5×5×5 pattern using UHV machine casing, a lower-front-edge-center controller, unrestricted face panels/interior, and separate maximum-five predicates for the four item/fluid part types without energy/maintenance/parallel abilities; verify formation with filled interior and five of each allowed type, rejection of a sixth of each type, energy-hatch rejection, and rotated formation. The follow-up edge-only revision is verified by task 7.1.
 
 ## 2. Persistent state and recipe setup
 
@@ -38,3 +38,9 @@
 - [x] 6.2 Run `./gradlew --no-daemon compileJava`, the discovered tests/GameTest run, and the configured data-generation/build tasks; verify fresh named test results rather than exit status alone, inspect generated recipe/model/name assets, and document any actual dedicated-server or client validation blocker without claiming unexecuted checks passed.
 - [x] 6.3 Exercise a dense loaded scan in a disposable world and record worst batch size and tick-time measurements, then let a target chunk actually unload and verify scans/retries neither create tickets nor prevent eviction; verify successful scanning still ends on its final 2400th scanning tick, recovery extends elapsed run ticks only by its delays, and exhaustion emits the failure report without waiting out the base recipe remainder.
 - [x] 6.4 Review the final feature diff against the proposal and delta specification; verify unrelated machines/dependencies remain unchanged, the 15×15×15 version and unrequested acquisition/ACTIVE recipes are absent, test-only artifacts are excluded from production packaging, and all implemented behaviors have recorded evidence.
+
+## 7. Skeleton and live scan feedback revision
+
+- [x] 7.1 Replace the solid shell requirement with a 44-block edge-only frame and a controller at the middle of the lower front edge. Verify empty faces/interior, arbitrary filled panels/interior, every required edge/corner, independent hatch limits, rotated formation, and the geometric center.
+- [x] 7.2 Show current chunk X/Z coordinates through the native UI. Verify deterministic chunk transitions, negative coordinates, suspension, retries, native NBT reconstruction, completed-report clearing, and actual server/client UI synchronization.
+- [x] 7.3 Add a purple discovery particle from each counted machine to the geometric cube center using native networking and a client-only provider. Verify real scan packets, eligibility exclusions, exact source/midpoint/destination/lifetime, long/zero displacements, visible rendering, server safety, and production packaging.

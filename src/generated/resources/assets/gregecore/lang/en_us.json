@@ -1,5 +1,7 @@
 {
   "config.jade.plugin_gregecore.multithread_info": "Multithreaded Machine Information",
+  "gregecore.world_eater.current_chunk": "Currently scanning chunk: X %s, Z %s",
+  "gregecore.world_eater.no_current_chunk": "Currently scanning chunk: none",
   "block.gregecore.acceleratedebf": "§lAccelerated EBF§g",
   "block.gregecore.giantacceleratedebf": "§lGiant Accelerated EBF§g",
   "block.gregecore.giantchr": "§lGiant Chemical Reactor§g",

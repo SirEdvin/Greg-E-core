@@ -37,9 +37,10 @@ public class WorldEaterStructureTests {
         Direction right = facing.getClockWise();
         for (int back = 0; back < 5; back++) {
             for (int x = -2; x <= 2; x++) {
-                for (int y = -2; y <= 2; y++) {
+                for (int y = 0; y < 5; y++) {
                     BlockPos pos = center.relative(facing.getOpposite(), back).relative(right, x).above(y);
-                    boolean edge = back == 0 || back == 4 || Math.abs(x) == 2 || Math.abs(y) == 2;
+                    int boundaries = (back == 0 || back == 4 ? 1 : 0) + (Math.abs(x) == 2 ? 1 : 0) + (y == 0 || y == 4 ? 1 : 0);
+                    boolean edge = boundaries >= 2;
                     helper.getLevel().setBlockAndUpdate(pos, edge ? GTBlocks.MACHINE_CASING_UHV.getDefaultState() : Blocks.STONE.defaultBlockState());
                 }
             }
@@ -54,9 +55,9 @@ public class WorldEaterStructureTests {
     static List<BlockPos> shellPositions(IncompleteWorldEaterTamer controller) {
         List<BlockPos> positions = new ArrayList<>();
         Direction facing = controller.getFrontFacing(), right = facing.getClockWise();
-        for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = -2; y <= 2; y++) {
+        for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = 0; y < 5; y++) {
             if (back == 0 && x == 0 && y == 0) continue;
-            if (back == 0 || back == 4 || Math.abs(x) == 2 || Math.abs(y) == 2)
+            if ((back == 0 || back == 4 ? 1 : 0) + (Math.abs(x) == 2 ? 1 : 0) + (y == 0 || y == 4 ? 1 : 0) >= 2)
                 positions.add(controller.getPos().relative(facing.getOpposite(), back).relative(right, x).above(y));
         }
         return positions;
@@ -71,8 +72,20 @@ public class WorldEaterStructureTests {
     public static void structureLimits(GameTestHelper helper) {
         var machine = shell(helper, Direction.NORTH);
         helper.runAfterDelay(2, () -> {
-            helper.assertTrue(machine.checkPattern(), "Filled interior forms");
+            helper.assertTrue(machine.checkPattern(), "Edge-only frame forms with arbitrary face panels and interior");
             var positions = shellPositions(machine);
+            helper.assertTrue(positions.size() == 43, "Exactly 44 frame blocks including the edge-centered controller");
+            for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = 0; y < 5; y++) {
+                var pos = machine.getPos().south(back).east(x).above(y);
+                if (!pos.equals(machine.getPos()) && !positions.contains(pos))
+                    helper.getLevel().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+            }
+            helper.assertTrue(machine.checkPattern(), "Open faces and empty interior form");
+            for (var pos : positions) {
+                helper.getLevel().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                helper.assertTrue(!machine.checkPattern(), "Every frame edge and corner is required: " + pos);
+                helper.getLevel().setBlockAndUpdate(pos, GTBlocks.MACHINE_CASING_UHV.getDefaultState());
+            }
             MachineDefinition[] types = {GTMachines.ITEM_IMPORT_BUS[GTValues.LV], GTMachines.ITEM_EXPORT_BUS[GTValues.LV],
                     GTMachines.FLUID_IMPORT_HATCH[GTValues.LV], GTMachines.FLUID_EXPORT_HATCH[GTValues.LV]};
             for (int type = 0; type < types.length; type++) for (int count = 0; count < 5; count++)
@@ -101,6 +114,7 @@ public class WorldEaterStructureTests {
         var machine = shell(helper, Direction.EAST);
         helper.runAfterDelay(2, () -> {
             helper.assertTrue(machine.checkPattern(), "Rotated shell forms");
+            helper.assertTrue(machine.getStructureCenter().equals(net.minecraft.world.phys.Vec3.atCenterOf(machine.getPos().west(2).above(2))), "Rotated geometric center is two blocks behind and above the controller");
             var tab = ModCreativeModTabs.GREGE_TAB.get();
             tab.buildContents(new CreativeModeTab.ItemDisplayParameters(FeatureFlags.DEFAULT_FLAGS, true, helper.getLevel().registryAccess()));
             helper.assertTrue(tab.getDisplayItems().stream().anyMatch(stack -> stack.is(machine.getDefinition().getItem())), "Creative registration");

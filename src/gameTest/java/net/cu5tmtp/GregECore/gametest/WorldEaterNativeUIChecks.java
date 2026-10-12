@@ -45,14 +45,14 @@ public final class WorldEaterNativeUIChecks {
             player.onUpdateAbilities();
             player.teleportTo(CENTER.getX() + .5, CENTER.getY(), CENTER.getZ() - 5.5);
             player.setYRot(0); player.setXRot(10);
-            for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = -2; y <= 2; y++) {
+            for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = -2; y < 5; y++) {
                 var pos = CENTER.south(back).east(x).above(y);
-                boolean edge = back == 0 || back == 4 || Math.abs(x) == 2 || Math.abs(y) == 2;
-                level.setBlockAndUpdate(pos, edge ? GTBlocks.MACHINE_CASING_UHV.getDefaultState() : Blocks.STONE.defaultBlockState());
+                boolean edge = y >= 0 && (back == 0 || back == 4 ? 1 : 0) + (Math.abs(x) == 2 ? 1 : 0) + (y == 0 || y == 4 ? 1 : 0) >= 2;
+                level.setBlockAndUpdate(pos, edge ? GTBlocks.MACHINE_CASING_UHV.getDefaultState() : Blocks.AIR.defaultBlockState());
             }
             level.setBlockAndUpdate(CENTER, IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.defaultBlockState());
-            level.setBlockAndUpdate(CENTER.west(2).below(2), GTMachines.ITEM_IMPORT_BUS[GTValues.LV].defaultBlockState());
-            level.setBlockAndUpdate(CENTER.east(2).below(2), GTMachines.ITEM_EXPORT_BUS[GTValues.LV].defaultBlockState());
+            level.setBlockAndUpdate(CENTER.west(2), GTMachines.ITEM_IMPORT_BUS[GTValues.LV].defaultBlockState());
+            level.setBlockAndUpdate(CENTER.east(2), GTMachines.ITEM_EXPORT_BUS[GTValues.LV].defaultBlockState());
             var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CENTER);
             machine.setFrontFacing(Direction.NORTH);
             machine.getRecipeLogic().setWorkingEnabled(false);
@@ -60,8 +60,14 @@ public final class WorldEaterNativeUIChecks {
     }
 
     static void tick() {
+        if (done) return;
         Minecraft client = Minecraft.getInstance();
         frame++;
+        if (stage == 3) {
+            WorldEaterParticleChecks.tick();
+            done = WorldEaterParticleChecks.done;
+            return;
+        }
         if (frame == 40) client.getSingleplayerServer().execute(() -> {
             var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
             var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CENTER);
@@ -80,11 +86,13 @@ public final class WorldEaterNativeUIChecks {
             var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(client.level, CENTER);
             var logic = (WorldEaterTamerRecipeLogic) machine.getRecipeLogic();
             var expected = stage == 1 ? WorldEaterTamerRecipeLogic.State.ACTIVE : WorldEaterTamerRecipeLogic.State.DORMANT;
-            if (logic.getProgressionState() != expected || (stage == 2 && logic.getRetryAttempts() == 0)) {
+            if (logic.getProgressionState() != expected || (stage == 2 && (logic.getRetryAttempts() == 0 || logic.getCurrentChunk() == null))) {
                 if (frame > 1200) { failures.add("Native state/retry synchronization failed at stage " + stage
                         + ": " + logic.getCustomProgressLine().getString()); done = true; }
                 return;
             }
+            if (stage == 2 && !logic.getCurrentChunkLine().getString().contains("X " + logic.getCurrentChunk().x))
+                failures.add("Current chunk translation did not resolve on native client");
             screenshot(client, "ui-" + stage + ".png");
             stage++;
             if (stage < 3) client.getSingleplayerServer().execute(() -> {
@@ -106,7 +114,7 @@ public final class WorldEaterNativeUIChecks {
                     }
                 }
             });
-            else client.setScreen(null);
+            else WorldEaterParticleChecks.begin(CENTER);
         } else {
             screenshot(client, "controller.png");
             done = true;

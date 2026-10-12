@@ -19,6 +19,51 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public class WorldEaterScanTests {
     @GameTest(template = "empty", timeoutTicks = 400)
+    public static void currentChunkTracksScanAndRetry(GameTestHelper helper) {
+        var fixture = WorldEaterRunTests.fixture(helper, -65000);
+        helper.runAfterDelay(4, () -> {
+            WorldEaterRunTests.form(helper, fixture);
+            var logic = fixture.logic();
+            var level = helper.getLevel();
+            int cx = fixture.controller().getPos().getX() >> 4, cz = fixture.controller().getPos().getZ() >> 4;
+            var domain = new WorldEaterScanDomain(cx, cz, level.getMinBuildHeight(), level.getMaxBuildHeight());
+            helper.assertTrue(logic.getCurrentChunk() == null, "Idle has no scanned chunk");
+            logic.setWorkingEnabled(true);
+            logic.setupRecipe(WorldEaterRunTests.recipe());
+            WorldEaterRunTests.blockOutput(fixture);
+            var first = new net.minecraft.world.level.ChunkPos(cx - 4, cz - 4);
+            helper.assertTrue(first.equals(logic.getCurrentChunk()), "Setup shows first chunk including negative coordinates");
+            logic.serverTick();
+            helper.assertTrue(first.equals(logic.getCurrentChunk()) && logic.getRetryAttempts() == 1, "Unavailable chunk remains visible during retry");
+            var holder = (net.minecraft.world.level.block.entity.BlockEntity) fixture.controller().getHolder();
+            holder.load(holder.saveWithFullMetadata());
+            helper.assertTrue(first.equals(logic.getCurrentChunk()), "Retry chunk reconstructed after reload");
+            logic.setWorkingEnabled(false);
+            for (int i = 0; i < 30; i++) logic.serverTick();
+            helper.assertTrue(first.equals(logic.getCurrentChunk()) && logic.getProgress() == 1, "Suspension retains pending chunk");
+            for (int x = cx - 4; x <= cx + 4; x++) for (int z = cz - 4; z <= cz + 4; z++) level.getChunk(x, z);
+            logic.setWorkingEnabled(true);
+            for (int i = 0; i < 19; i++) logic.serverTick();
+            for (int tick = 0; tick < 2400; tick++) {
+                logic.serverTick();
+                if (tick == 2399) {
+                    helper.assertTrue(logic.getCurrentChunk() == null && logic.hasPendingReport(), "Completed report clears chunk display");
+                } else {
+                    long next = domain.boundary(tick + 1);
+                    var expected = new net.minecraft.world.level.ChunkPos(domain.chunkX(next), domain.chunkZ(next));
+                    helper.assertTrue(expected.equals(logic.getCurrentChunk()), "Display follows deterministic cursor at tick " + tick);
+                    if (tick == 80) {
+                        holder.load(holder.saveWithFullMetadata());
+                        helper.assertTrue(expected.equals(logic.getCurrentChunk()), "Active cursor reconstructed after reload");
+                    }
+                }
+            }
+            logic.setWorkingEnabled(false);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 400)
     public static void recoveryOnEveryAllowedAttempt(GameTestHelper helper) {
         var fixtures = new WorldEaterRunTests.Fixture[5];
         for (int attempt = 1; attempt <= 5; attempt++) fixtures[attempt - 1] = WorldEaterRunTests.fixture(helper, 40000 + attempt * 1000);

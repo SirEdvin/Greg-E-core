@@ -39,9 +39,9 @@ Pinned upstream lifecycle review: GTCEu 7.5.2 persists recipe progress, duration
 
 Add `IncompleteWorldEaterTamer` under `gregstuff/GregMachines/machines/endgame/`, extending the non-electric `WorkableMultiblockMachine`, and override `createRecipeLogic` to create `WorldEaterTamerRecipeLogic` under `gregstuff/GregRecipeLogic/`. These names are proposed new classes, not existing symbols.
 
-Use `GTBlocks.MACHINE_CASING_UHV` as the temporary high-progression casing; it exists in the pinned artifact. Put the controller at the center of the front face, using the project's non-Y-axis rotation convention. This placement and casing choice are implementation-level choices within the user's delegated temporary-casing scope.
+Use `GTBlocks.MACHINE_CASING_UHV` as the temporary high-progression casing; it exists in the pinned artifact. Put the controller in the middle of the lower front edge, using the project's non-Y-axis rotation convention. The user explicitly selected an edge-only skeleton and an edge-mounted controller in the follow-up revision.
 
-Build five 5×5 aisles, with casing on all outer faces and `Predicates.any()` for the interior. Explicitly allow IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, and EXPORT_FLUIDS with independent maximum-global limits of five. Do not use an automatic ability helper that could silently allow energy, maintenance, muffler, or parallel hatches. Allow zero to five of each type structurally; processing still requires the relevant input/output capability. No maintenance requirement is introduced. Reuse native casing/overlay assets and verify creative availability and display name through the existing registration path.
+Build five 5×5 aisles, with casing only on the 12 edges (including corners) and `Predicates.any()` for face panels and the interior. The frame contains 44 required blocks, including the controller. Explicitly allow IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, and EXPORT_FLUIDS with independent maximum-global limits of five. Do not use an automatic ability helper that could silently allow energy, maintenance, muffler, or parallel hatches. Allow zero to five of each type structurally; processing still requires the relevant input/output capability. No maintenance requirement is introduced. Reuse native casing/overlay assets and verify creative availability and display name through the existing registration path.
 
 Alternative rejected: subclass an electric multiblock and bypass voltage checks. It would introduce unnecessary power-related behavior and lifecycle assumptions.
 
@@ -105,6 +105,12 @@ Only after successful delivery does a successful total of at least 500 set ACTIV
 
 Alternative rejected: directly spawning a book entity or blindly calling the superclass finish path. Both weaken output-capacity, exactly-once, and state-transition control.
 
+### 7. Chunk feedback and discovery particles
+
+Derive the displayed pending chunk from the existing domain and adjusted progress; during retries use the missing chunk. Synchronize only the derived availability/X/Z fields for client inspection, reconstruct them after validated NBT load, and clear them at completion/cancellation. The server-supplied native component panel displays a localized chunk label; no independent scan cursor is persisted.
+
+Register one `SimpleParticleType` and a client-only provider using an existing vanilla particle sprite. Emit one native count-zero particle packet per counted machine, encoding the displacement from its block center to the cube center in the packet's velocity fields. The client interpolates over 40 ticks, ignores block collisions, uses a purple full-bright sprite, fades on arrival, and expires. Use native long-distance delivery so discoveries across the full scan area are not cut off by the ordinary 32-block particle range. The geometric center is two blocks behind and two blocks above the lower-edge controller. No custom network channel, mixin, renderer or server-side animation state is required.
+
 ## Risks / Trade-offs
 
 - [Many controllers or unusual world height increase tick cost] → Fixed position budget, no world-wide allocations, cached loaded chunks for the bounded batch, and real tick-duration measurements before accepting performance. Do not promise an arbitrary millisecond ceiling without measurements.
@@ -116,6 +122,6 @@ Alternative rejected: directly spawning a book entity or blindly calling the sup
 
 ## Migration Plan
 
-This is additive: register the controller, type, recipe, and resources, with DORMANT as the default for absent custom data. Existing machine and recipe IDs remain unchanged. Generate resources with the configured Forge data run and inspect the exact produced recipe/model/name assets. Verify in a disposable world before release.
+Register the controller, type, recipe, and resources, with DORMANT as the default for absent custom data. Existing machine and recipe IDs remain unchanged. The follow-up skeleton revision changes controller placement: previously built front-face-center structures must move the controller to the middle of the lower front edge and restore the old position as an unrestricted face panel. No automatic block relocation is performed. Verify resources and gameplay in a disposable world before release.
 
 Rollback by reverting only this feature's files and registrations before release. After players place the new controller, removing its registration can leave missing blocks/items in worlds; back up saves before downgrading. No automatic world migration or downgrade conversion is proposed.

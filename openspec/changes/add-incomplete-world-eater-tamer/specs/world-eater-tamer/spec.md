@@ -8,7 +8,13 @@ Provide the initial World Eater tamer progression machine with persistent state-
 
 ### Requirement: Initial tamer structure
 
-The system SHALL expose a multiblock named `Incomplete World Eater tamer` with outer dimensions 5×5×5, a one-block-thick casing shell, and an unrestricted 3×3×3 interior. The shell SHALL use temporary high-progression casing and allow up to five of EACH of item input buses, item output buses, fluid input hatches, and fluid output hatches. Energy hatches SHALL NOT be accepted as shell substitutions or be required for processing. This change SHALL NOT introduce the future 15×15×15 variant.
+The system SHALL expose a multiblock named `Incomplete World Eater tamer` with outer dimensions 5×5×5 and an edge-only skeleton: the 12 cube edges including their corners, totaling 44 blocks. The controller SHALL occupy the middle of the lower front edge. Face panels and the 3×3×3 interior SHALL be unrestricted. The frame SHALL use temporary high-progression casing and allow up to five of EACH of item input buses, item output buses, fluid input hatches, and fluid output hatches. Energy hatches SHALL NOT be accepted as frame substitutions or be required for processing. This change SHALL NOT introduce the future 15×15×15 variant.
+
+#### Scenario: Skeleton frame
+- **WHEN** the player builds only the cube edges with the controller at the middle of the lower front edge, leaving face panels and the interior empty
+- **THEN** the structure forms
+- **WHEN** any required frame edge or corner block is missing
+- **THEN** the structure does not form
 
 #### Scenario: Interior contains blocks
 - **WHEN** the player completes the valid shell with arbitrary blocks inside
@@ -112,6 +118,24 @@ The scan SHALL NOT load or force-load chunks or create chunk tickets. If a chunk
 #### Scenario: No chunk loading side effect
 - **WHEN** an unavailable chunk is encountered
 - **THEN** retries only test availability and do not request or retain a loading ticket
+
+### Requirement: Live scan feedback
+
+The native machine UI SHALL display the pending scan chunk's chunk-grid X/Z coordinates. It SHALL retain the unavailable chunk during retries and the pending chunk during suspension, reconstruct it from existing persisted scan progress on reload, and clear the display when idle or awaiting report delivery. Every newly counted eligible machine SHALL emit one purple particle from the center of its block to the geometric center of the structure. Ordinary blocks, excluded parts, failed batch preflights, suspension and completed report delivery SHALL NOT emit discovery particles. The cosmetic effect SHALL use native particle networking without loading chunks or introducing client-only classes into server execution.
+
+#### Scenario: Pending chunk feedback
+- **WHEN** a running scan advances into another chunk or waits for an unavailable chunk
+- **THEN** the native client UI displays the corresponding X/Z chunk coordinates
+- **WHEN** processing is suspended or saved and resumed
+- **THEN** the pending chunk remains consistent with the scan cursor and retry state
+- **WHEN** scanning finishes or is cancelled
+- **THEN** no chunk is displayed as currently scanning
+
+#### Scenario: Discovery effect
+- **WHEN** the server scan counts an eligible machine
+- **THEN** nearby clients receive one purple particle beginning at that machine and traveling to the structure's geometric center
+- **WHEN** the scan visits an ordinary block, an excluded hatch, or its own controller
+- **THEN** it emits no discovery particle for that block
 
 ### Requirement: Save and resume scan bookkeeping
 

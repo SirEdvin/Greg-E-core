@@ -64,4 +64,18 @@ Current execution evidence is outside the repository at `/home/siredvin/.hermes/
 
 Scratch evidence may be pruned; this checked-in-ready document retains the acceptance mapping and measured results. The deliverable is `/home/siredvin/projects/Greg-E-core/build/libs/gregecore-1.12.7-1.20.1.jar`.
 
-No remaining execution blocker was encountered. The implementation is still uncommitted and has not been pushed, published as a PR, or archived.
+No remaining execution blocker was encountered for the original implementation. It was subsequently committed to `feat/add-incomplete-world-eater-tamer`.
+
+## Skeleton and live-feedback revision — October 11, 2026
+
+- The edge-only fixture was executed against the old shell pattern first: `structure_limits` rejected it as expected. The original shell-dependent fixtures failed too; no false-green exit status was accepted.
+- `bash gradlew build runGameTestServer --no-daemon` passed against the revised pattern. Fresh XML contains exactly 15 named tests and zero failures; the server independently reports all 15 required tests passed. This physical-server run verifies the particle registration does not load client-only providers.
+- `structure_limits` now verifies a 44-block minimum skeleton (43 casing/part positions plus the controller), arbitrary filled face panels/interior, empty faces/interior, rejection of every missing frame edge/corner, all independent hatch limits and energy-hatch rejection. Rotated formation also verifies the geometric center.
+- New `current_chunk_tracks_scan_and_retry` exercises every scan tick, negative chunk coordinates, the unavailable chunk during retry, suspension, active/retry native NBT reload, and clearing at completed-but-blocked report delivery.
+- Native integrated-client verification passed in an isolated `albina-world-eater-verification-*` world copy with `passed=true`, `nativeUI=true`, `pagesChecked=103`, and an empty failure list. The UI screenshot visibly contains the localized current chunk X/Z label alongside retry status.
+- A real server scan containing one standalone macerator, an excluded hatch and an ordinary chest emitted exactly one observed native particle packet. Source `(8186.5, 83.5, 8192.5)` and destination `(8192.5, 82.5, 8194.5)` match the found block and the geometric center, not the controller. The unmodified production particle provider passed source, 20-tick midpoint, 40-tick endpoint, expiry, long-displacement and zero-displacement checks.
+- Native rendered-frame capture visibly shows the purple particle moving toward the skeleton. Capturing from RenderTick END avoids stale framebuffers during client tick catch-up. The effect uses the vanilla `generic_5` sprite with a purple full-bright tint.
+- The rebuilt production JAR contains the registered particle, client-only provider and matching particle JSON, and excludes all GameTest code. Dependency versions remain unchanged.
+- Evidence is in profile scratch: `world-eater-update-red.xml`, `world-eater-update-green.xml`, `world-eater-update-green.log`, `world-eater-update-client.log`, and `world-eater-client/result.json` plus `screenshots/ui-2.png` and `screenshots/scan-particle.png`.
+
+Previously built front-face-center controllers must be moved to the middle of the lower front edge. Face panels are optional; no automatic world-block relocation is performed.

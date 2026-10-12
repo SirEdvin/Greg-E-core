@@ -13,6 +13,7 @@ import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.endgame.IncompleteWorldEaterTamer;
+import net.cu5tmtp.GregECore.particle.ModParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -22,8 +23,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.crafting.StrictNBTIngredient;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +50,12 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     private int attempts;
     @DescSynced
     private boolean reportPending;
+    @DescSynced
+    private boolean scanning;
+    @DescSynced
+    private int scanChunkX;
+    @DescSynced
+    private int scanChunkZ;
     private WorldEaterScanDomain domain;
     private String dimension = "";
     private final Map<ResourceLocation, Long> counts = new TreeMap<>();
@@ -70,6 +80,26 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     public int getRetryAttempts() { return attempts; }
     public boolean hasPendingReport() { return reportPending; }
     public ItemStack getPendingBook() { return pendingBook.copy(); }
+
+    @Nullable
+    public ChunkPos getCurrentChunk() { return scanning ? new ChunkPos(scanChunkX, scanChunkZ) : null; }
+
+    public Component getCurrentChunkLine() {
+        return scanning ? Component.translatable("gregecore.world_eater.current_chunk", scanChunkX, scanChunkZ)
+                : Component.translatable("gregecore.world_eater.no_current_chunk");
+    }
+
+    private void updateCurrentChunk() {
+        int scanned = progress - elapsedDelays;
+        scanning = domain != null && !reportPending && scanned >= 0 && scanned < WorldEaterScanDomain.SCAN_TICKS;
+        if (scanning) {
+            long index = domain.boundary(scanned);
+            scanChunkX = retryPending ? missingX : domain.chunkX(index);
+            scanChunkZ = retryPending ? missingZ : domain.chunkZ(index);
+        } else {
+            scanChunkX = scanChunkZ = 0;
+        }
+    }
 
     private boolean accepts(GTRecipe recipe) {
         return recipe != null && recipe.recipeType == controller.getRecipeType()
@@ -101,6 +131,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
             domain = new WorldEaterScanDomain(chunk.getX() >> 4, chunk.getZ() >> 4,
                     level.getMinBuildHeight(), level.getMaxBuildHeight());
             dimension = level.dimension().location().toString();
+            updateCurrentChunk();
             onChanged();
         }
     }
@@ -167,10 +198,20 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         for (long index = start; index < end; index++) {
             pos.set(domain.x(index), domain.y(index), domain.z(index));
             MetaMachine candidate = MetaMachine.getMachine(chunks.get(domain.chunkIndex(index)), pos);
-            if (isCountableInterface(candidate)) counts.merge(candidate.getDefinition().getId(), 1L, Long::sum);
+            if (isCountableInterface(candidate)) {
+                counts.merge(candidate.getDefinition().getId(), 1L, Long::sum);
+                Vec3 source = Vec3.atCenterOf(pos);
+                Vec3 travel = controller.getStructureCenter().subtract(source);
+                // Count zero transmits one particle with an exact displacement, not random spread.
+                for (var player : level.players()) {
+                    level.sendParticles(player, ModParticles.WORLD_EATER_SCAN.get(), true,
+                            source.x, source.y, source.z, 0, travel.x, travel.y, travel.z, 1);
+                }
+            }
         }
         progress++;
         totalContinuousRunningTime++;
+        updateCurrentChunk();
         onChanged();
         if (scanTick + 1 == WorldEaterScanDomain.SCAN_TICKS) finalizeReport(true);
     }
@@ -198,6 +239,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         attempts++;
         duration = Math.addExact(duration, 20);
         delayRemaining = 20;
+        updateCurrentChunk();
         delayTick(); // Detection tick is the first of the 20 non-scanning ticks.
     }
 
@@ -212,6 +254,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         successful = success;
         pendingBook = WorldEaterReport.create(counts, success, missingX, missingZ);
         reportPending = true;
+        updateCurrentChunk();
         onChanged();
         deliverReport();
     }
@@ -254,6 +297,8 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         missingX = missingZ = 0;
         pendingBook = ItemStack.EMPTY;
         reportPending = successful = false;
+        scanning = false;
+        scanChunkX = scanChunkZ = 0;
     }
 
     @Override
@@ -363,6 +408,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
             if (reportPending && (!pendingBook.is(Items.WRITTEN_BOOK) || pendingBook.getCount() != 1
                     || !net.minecraft.world.item.WrittenBookItem.makeSureTagIsValid(pendingBook.getTag())))
                 throw new IllegalArgumentException("Invalid report");
+            updateCurrentChunk();
         } catch (IllegalArgumentException | ArithmeticException exception) {
             progression = State.DORMANT.name();
             clearRun();

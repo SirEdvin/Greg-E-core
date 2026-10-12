@@ -35,6 +35,12 @@ public class WorldEaterClientChecks {
     private static int waiting;
 
     @SubscribeEvent
+    public static void renderedFrame(TickEvent.RenderTickEvent event) {
+        if (Boolean.getBoolean("gregecore.worldEaterClientVerification") && event.phase == TickEvent.Phase.END)
+            WorldEaterParticleChecks.renderedFrame();
+    }
+
+    @SubscribeEvent
     public static void tick(TickEvent.ClientTickEvent event) throws Exception {
         if (!Boolean.getBoolean("gregecore.worldEaterClientVerification") || event.phase != TickEvent.Phase.END) return;
         Minecraft client = Minecraft.getInstance();

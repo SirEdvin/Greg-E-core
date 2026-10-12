@@ -15,6 +15,7 @@ import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.mojang.logging.LogUtils;
 import net.cu5tmtp.GregECore.block.ModBlocks;
 import net.cu5tmtp.GregECore.entity.ModEntity;
+import net.cu5tmtp.GregECore.particle.ModParticles;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.cleanroom.DimensionSimulator;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.misc.AntiMassSpectrometer;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.misc.NetherDrillRig;
@@ -61,6 +62,7 @@ public class GregECore {
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntity.register(modEventBus);
+        ModParticles.register(modEventBus);
 
         modEventBus.addGenericListener(GTRecipeType.class, this::registerGregERecipeTypes);
         modEventBus.addGenericListener(MachineDefinition.class, this::registerMachines);
@@ -144,6 +146,12 @@ public class GregECore {
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
+
+        @SubscribeEvent
+        public static void registerParticles(net.minecraftforge.client.event.RegisterParticleProvidersEvent event) {
+            event.registerSpriteSet(ModParticles.WORLD_EATER_SCAN.get(),
+                    net.cu5tmtp.GregECore.client.particle.WorldEaterScanParticle.Provider::new);
+        }
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.addon.events.KJSRecipeKeyEvent;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import net.cu5tmtp.GregECore.block.GreggyBlocks;
 import net.cu5tmtp.GregECore.item.GreggyItems;
+import net.minecraft.world.item.Items;
 import net.minecraft.data.recipes.FinishedRecipe;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterReport;
@@ -45,6 +46,30 @@ public class GregEGTAddon implements IGTAddon {
                 .duration(WorldEaterScanDomain.SCAN_TICKS)
                 .addData("required_state", "DORMANT")
                 .addData("operation", WorldEaterTamerRecipeLogic.OPERATION)
+                .save(provider);
+        GregERecipeTypes.WORLD_EATER_TAMER.recipeBuilder(GregECore.id("purple_casing"))
+                .inputItems(GreggyBlocks.WORLD_EATER_TAMER_CASING.asItem(), 1)
+                .inputItems(Items.PURPLE_TERRACOTTA, 16)
+                .outputItems(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.asItem(), 1)
+                .duration(100)
+                .addData("required_state", "ACTIVE")
+                .addData("operation", WorldEaterTamerRecipeLogic.CASING_OPERATION)
+                .save(provider);
+        GregERecipeTypes.WORLD_EATER_TAMER.recipeBuilder(GregECore.id("green_casing"))
+                .inputItems(GreggyBlocks.WORLD_EATER_TAMER_CASING.asItem(), 1)
+                .inputItems(Items.GREEN_TERRACOTTA, 16)
+                .outputItems(GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.asItem(), 1)
+                .duration(100)
+                .addData("required_state", "ACTIVE")
+                .addData("operation", WorldEaterTamerRecipeLogic.CASING_OPERATION)
+                .save(provider);
+        GregERecipeTypes.WORLD_EATER_TAMER.recipeBuilder(GregECore.id("orange_casing"))
+                .inputItems(GreggyBlocks.WORLD_EATER_TAMER_CASING.asItem(), 1)
+                .inputItems(Items.ORANGE_TERRACOTTA, 16)
+                .outputItems(GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.asItem(), 1)
+                .duration(100)
+                .addData("required_state", "ACTIVE")
+                .addData("operation", WorldEaterTamerRecipeLogic.CASING_OPERATION)
                 .save(provider);
     }
 

@@ -2,7 +2,7 @@ package net.cu5tmtp.GregECore.gametest;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.common.data.GTBlocks;
+import net.cu5tmtp.GregECore.block.GreggyBlocks;
 
 import com.gregtechceu.gtceu.common.data.GTMachines;
 
@@ -48,7 +48,7 @@ public final class WorldEaterNativeUIChecks {
             for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = -2; y < 5; y++) {
                 var pos = CENTER.south(back).east(x).above(y);
                 boolean edge = y >= 0 && (back == 0 || back == 4 ? 1 : 0) + (Math.abs(x) == 2 ? 1 : 0) + (y == 0 || y == 4 ? 1 : 0) >= 2;
-                level.setBlockAndUpdate(pos, edge ? GTBlocks.MACHINE_CASING_UHV.getDefaultState() : Blocks.AIR.defaultBlockState());
+                level.setBlockAndUpdate(pos, edge ? GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState() : Blocks.AIR.defaultBlockState());
             }
             level.setBlockAndUpdate(CENTER, IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.defaultBlockState());
             level.setBlockAndUpdate(CENTER.west(2), GTMachines.ITEM_IMPORT_BUS[GTValues.LV].defaultBlockState());

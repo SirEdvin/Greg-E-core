@@ -33,7 +33,7 @@ public class WorldEaterTamerTests {
         var type = GregERecipeTypes.WORLD_EATER_TAMER;
         helper.assertTrue(type.registryName.equals(ResourceLocation.parse("gtceu:world_eater_tamer")), "Existing registration namespace");
         helper.assertTrue(GTRegistries.RECIPE_TYPES.get(type.registryName) == type, "Type lookup");
-        helper.assertTrue(type.getMaxInputs(ItemRecipeCapability.CAP) == 1 && type.getMaxOutputs(ItemRecipeCapability.CAP) == 1, "Item IO");
+        helper.assertTrue(type.getMaxInputs(ItemRecipeCapability.CAP) == 2 && type.getMaxOutputs(ItemRecipeCapability.CAP) == 1, "Item IO");
         helper.assertTrue(type.getMaxInputs(FluidRecipeCapability.CAP) == 0 && type.getMaxOutputs(FluidRecipeCapability.CAP) == 0, "Fluid IO");
         helper.assertTrue(type.getMaxInputs(EURecipeCapability.CAP) == 0 && type.getMaxOutputs(EURecipeCapability.CAP) == 0, "No EU");
         var emitted = helper.getLevel().getRecipeManager().byKey(GregECore.id("world_eater_tamer/information_collection")).orElseThrow();

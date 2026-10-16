@@ -43,6 +43,10 @@ public class WorldEaterClientChecks {
     @SubscribeEvent
     public static void tick(TickEvent.ClientTickEvent event) throws Exception {
         if (!Boolean.getBoolean("gregecore.worldEaterClientVerification") || event.phase != TickEvent.Phase.END) return;
+        if (Boolean.getBoolean("gregecore.worldEaterCasingVerification")) {
+            WorldEaterCasingClientChecks.tick();
+            return;
+        }
         Minecraft client = Minecraft.getInstance();
         boolean nativeWorld = Boolean.getBoolean("gregecore.worldEaterClientWorld");
         if (nativeWorld && (client.level == null || client.player == null)) {

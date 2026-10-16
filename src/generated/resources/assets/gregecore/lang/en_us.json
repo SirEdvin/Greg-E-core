@@ -199,5 +199,9 @@
   "material.gregecore.ignis_essentia": "Ignis",
   "material.gregecore.ordo_essentia": "Ordo",
   "material.gregecore.perditio_essentia": "Perditio",
-  "material.gregecore.terra_essentia": "Terra"
+  "material.gregecore.terra_essentia": "Terra",
+  "block.gregecore.world_eater_tamer_casing": "World Eater Tamer Casing",
+  "block.gregecore.world_eater_tamer_casing_green": "Dark Green World Eater Casing",
+  "block.gregecore.world_eater_tamer_casing_orange": "Very Dark Orange World Eater Casing",
+  "block.gregecore.world_eater_tamer_casing_purple": "Dark Purple World Eater Casing"
 }

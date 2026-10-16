@@ -22,6 +22,28 @@ import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
 @SuppressWarnings("removal")
 public class GreggyBlocks {
 
+    private static BlockEntry<Block> worldEaterCasing(String suffix, String displayName) {
+        String name = "world_eater_tamer_casing" + suffix;
+        return REGISTRATE.block(name, Block::new)
+                .initialProperties(() -> Blocks.IRON_BLOCK)
+                .properties(properties -> properties.strength(5.0f, 6.0f).sound(SoundType.METAL))
+                .lang(displayName)
+                .addLayer(() -> RenderType::cutoutMipped)
+                .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
+                        new ModelFile.UncheckedModelFile(GregECore.id("block/" + name))))
+                .loot((prov, block) -> prov.dropSelf(block))
+                .tag(CustomTags.MINEABLE_WITH_CONFIG_VALID_PICKAXE_WRENCH, CustomTags.TOOL_TIERS[1])
+                .item(BlockItem::new)
+                .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), GregECore.id("block/" + name)))
+                .build()
+                .register();
+    }
+
+    public static final BlockEntry<Block> WORLD_EATER_TAMER_CASING = worldEaterCasing("", "World Eater Tamer Casing");
+    public static final BlockEntry<Block> WORLD_EATER_TAMER_CASING_PURPLE = worldEaterCasing("_purple", "Dark Purple World Eater Casing");
+    public static final BlockEntry<Block> WORLD_EATER_TAMER_CASING_GREEN = worldEaterCasing("_green", "Dark Green World Eater Casing");
+    public static final BlockEntry<Block> WORLD_EATER_TAMER_CASING_ORANGE = worldEaterCasing("_orange", "Very Dark Orange World Eater Casing");
+
     //Thanks to StarT core for teaching me how to do this
     protected static BlockEntry<ActiveBlock> createActiveBlock(String name, ResourceLocation baseTexture) {
         return REGISTRATE.block(name, ActiveBlock::new)

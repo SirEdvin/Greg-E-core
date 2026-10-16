@@ -21,7 +21,14 @@ import java.util.List;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
-import com.gregtechceu.gtceu.common.data.GTBlocks;
+import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
+import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
+import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
+import com.gregtechceu.gtceu.client.model.machine.overlays.WorkableOverlays;
+import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
+import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
+import net.cu5tmtp.GregECore.block.GreggyBlocks;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
 import net.minecraft.network.chat.Component;
@@ -34,8 +41,27 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             .multiblock("incomplete_world_eater_tamer", IncompleteWorldEaterTamer::new)
             .langValue("Incomplete World Eater tamer")
             .rotationState(RotationState.NON_Y_AXIS)
-            .appearanceBlock(GTBlocks.MACHINE_CASING_UHV)
+            .appearanceBlock(GreggyBlocks.WORLD_EATER_TAMER_CASING)
             .recipeTypes(GregERecipeTypes.WORLD_EATER_TAMER)
+            .recipeModifiers((machine, recipe) -> {
+                if (machine instanceof IncompleteWorldEaterTamer tamer
+                            && ((WorldEaterTamerRecipeLogic) tamer.getRecipeLogic()).getProgressionState() == WorldEaterTamerRecipeLogic.State.ACTIVE
+                            && recipe.recipeType == GregERecipeTypes.WORLD_EATER_TAMER
+                            && WorldEaterTamerRecipeLogic.isCasingRecipe(recipe)) {
+                    var parallel = GTRecipeModifiers.hatchParallel(machine, recipe);
+                    return original -> {
+                        var modified = parallel.apply(original);
+                        if (modified != null) {
+                            // The standard modifier synthesizes a zero-EU tick entry even
+                            // for recipes without energy. Preserve genuinely power-free IO.
+                            modified.tickInputs.remove(EURecipeCapability.CAP);
+                            modified.tickOutputs.remove(EURecipeCapability.CAP);
+                        }
+                        return modified;
+                    };
+                }
+                return ModifierFunction.IDENTITY;
+            })
             .pattern(definition -> FactoryBlockPattern.start(RelativeDirection.LEFT, RelativeDirection.UP, RelativeDirection.BACK)
                     .aisle("CCSCC", "C###C", "C###C", "C###C", "CCCCC")
                     .aisle("C###C", "#####", "#####", "#####", "C###C")
@@ -44,16 +70,30 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                     .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
                     .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                     .where('#', Predicates.any())
-                    .where('C', Predicates.blocks(GTBlocks.MACHINE_CASING_UHV.get())
+                    .where('C', Predicates.blocks(GreggyBlocks.WORLD_EATER_TAMER_CASING.get())
+                            .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1).setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(5))
                             .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(5))
                             .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(5))
                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(5)))
                     .build())
-            .sidedWorkableCasingModel(GTCEu.id("block/casings/voltage/uhv"), GTCEu.id("block/multiblock/research_station"))
+            .modelProperty(GTMachineModelProperties.RECIPE_LOGIC_STATUS, RecipeLogic.Status.IDLE)
+            .model((ctx, prov, builder) -> {
+                var casing = GregECore.id("block/casings/world_eater/black");
+                var overlays = WorkableOverlays.get(GTCEu.id("block/multiblock/research_station"), prov.getExistingFileHelper());
+                builder.forAllStates(state -> GTMachineModels.addWorkableOverlays(overlays,
+                        state.getValue(GTMachineModelProperties.RECIPE_LOGIC_STATUS), prov.models().nested()
+                                .parent(prov.models().getExistingFile(GregECore.id("block/world_eater_controller_template")))
+                                .texture("all", casing)
+                                .texture("glow", casing.withSuffix("_emissive"))));
+                builder.addTextureOverride("all", casing);
+            })
             .tooltips(Component.literal("Collects infrastructure information without power."),
                     Component.literal("Scans the surrounding 9×9 chunks over 120 seconds."),
-                    Component.literal("A complete survey of at least 500 machines awakens the tamer."))
+                    Component.literal("A complete survey of at least 500 machines awakens the tamer."),
+                    Component.literal("Requires black World Eater Tamer Casing (creative only)."),
+                    Component.literal("ACTIVE: 1 black casing + 16 matching terracotta → 1 colored casing in 5 seconds."),
+                    Component.literal("Accepts one optional parallel hatch; surveys always run singly."))
             .register();
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
@@ -74,8 +114,10 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     @Override
     public void addDisplayText(List<Component> text) {
         IDisplayUIMachine.super.addDisplayText(text);
-        text.add(getRecipeLogic().getCustomProgressLine());
-        text.add(((WorldEaterTamerRecipeLogic) getRecipeLogic()).getCurrentChunkLine());
+        var logic = (WorldEaterTamerRecipeLogic) getRecipeLogic();
+        text.add(logic.getCustomProgressLine());
+        if (logic.getProgressionState() == WorldEaterTamerRecipeLogic.State.DORMANT)
+            text.add(logic.getCurrentChunkLine());
     }
 
     @Override

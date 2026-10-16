@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.common.data.GTBlocks;
+import net.cu5tmtp.GregECore.block.GreggyBlocks;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.endgame.IncompleteWorldEaterTamer;
@@ -41,7 +42,7 @@ public class WorldEaterStructureTests {
                     BlockPos pos = center.relative(facing.getOpposite(), back).relative(right, x).above(y);
                     int boundaries = (back == 0 || back == 4 ? 1 : 0) + (Math.abs(x) == 2 ? 1 : 0) + (y == 0 || y == 4 ? 1 : 0);
                     boolean edge = boundaries >= 2;
-                    helper.getLevel().setBlockAndUpdate(pos, edge ? GTBlocks.MACHINE_CASING_UHV.getDefaultState() : Blocks.STONE.defaultBlockState());
+                    helper.getLevel().setBlockAndUpdate(pos, edge ? GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState() : Blocks.STONE.defaultBlockState());
                 }
             }
         }
@@ -84,7 +85,7 @@ public class WorldEaterStructureTests {
             for (var pos : positions) {
                 helper.getLevel().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                 helper.assertTrue(!machine.checkPattern(), "Every frame edge and corner is required: " + pos);
-                helper.getLevel().setBlockAndUpdate(pos, GTBlocks.MACHINE_CASING_UHV.getDefaultState());
+                helper.getLevel().setBlockAndUpdate(pos, GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState());
             }
             MachineDefinition[] types = {GTMachines.ITEM_IMPORT_BUS[GTValues.LV], GTMachines.ITEM_EXPORT_BUS[GTValues.LV],
                     GTMachines.FLUID_IMPORT_HATCH[GTValues.LV], GTMachines.FLUID_EXPORT_HATCH[GTValues.LV]};
@@ -94,11 +95,17 @@ public class WorldEaterStructureTests {
             for (var type : types) {
                 helper.getLevel().setBlockAndUpdate(positions.get(20), type.defaultBlockState());
                 helper.assertTrue(!machine.checkPattern(), "Reject sixth " + type.getId());
-                helper.getLevel().setBlockAndUpdate(positions.get(20), GTBlocks.MACHINE_CASING_UHV.getDefaultState());
+                helper.getLevel().setBlockAndUpdate(positions.get(20), GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState());
             }
             helper.getLevel().setBlockAndUpdate(positions.get(20), GTMachines.ENERGY_INPUT_HATCH[GTValues.LV].defaultBlockState());
             helper.assertTrue(!machine.checkPattern(), "Reject energy hatch");
-            helper.getLevel().setBlockAndUpdate(positions.get(20), GTBlocks.MACHINE_CASING_UHV.getDefaultState());
+            for (var rejected : new net.minecraft.world.level.block.Block[]{GTBlocks.MACHINE_CASING_UHV.get(),
+                    GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.get(), GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.get(),
+                    GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.get()}) {
+                helper.getLevel().setBlockAndUpdate(positions.get(20), rejected.defaultBlockState());
+                helper.assertTrue(!machine.checkPattern(), "Reject non-black frame casing: " + rejected);
+            }
+            helper.getLevel().setBlockAndUpdate(positions.get(20), GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState());
             helper.assertTrue(machine.checkPattern(), "Restored shell forms");
             machine.onStructureFormed();
             var logic = (WorldEaterTamerRecipeLogic) machine.getRecipeLogic();

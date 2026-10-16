@@ -8,6 +8,7 @@ The World Eater tamer still uses temporary UHV casing and has no useful ACTIVE-s
 
 - Introduce four placeable, item-backed casings inspired by GTCEu's Industrial Steam Casing: black, dark purple, dark green, and very dark orange. Author textures through pixel editing, retaining the reference's framed, bolted industrial plate language.
 - Give black casing an emissive shimmer every 10 seconds; colored casings shimmer every 2 seconds and have subtly moving, texture-animated shadows.
+- Preserve the reference casing's native connected-texture behavior on all four variants, with synchronized base/emissive animation and a shimmer sweep that traverses the full face before resetting.
 - **BREAKING**: require the new black casing instead of UHV casing in the existing tamer skeleton and use its appearance for the controller. Neither UHV nor colored casings are accepted as frame casing. Existing UHV structures must be rebuilt; no automatic block conversion is introduced.
 - Expose black casing through creative access only; do not introduce a survival acquisition recipe.
 - Add three ACTIVE-only, power-free, 5-second recipes: one black casing plus 16 corresponding vanilla terracotta yields one colored casing.

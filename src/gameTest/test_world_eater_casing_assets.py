@@ -9,6 +9,36 @@ TEXTURES = ASSETS / 'textures/block/casings/world_eater'
 
 
 class CasingAssetsTest(unittest.TestCase):
+    def test_native_connection_metadata_and_synchronized_sheets(self):
+        for color in ('black', 'purple', 'green', 'orange'):
+            for suffix in ('', '_emissive'):
+                name = color + suffix
+                meta = json.loads((TEXTURES / f'{name}.png.mcmeta').read_text())
+                self.assertEqual(meta.get('ldlib', {}).get('connection'),
+                                 f'gregecore:block/casings/world_eater/{name}_ctm')
+                path = TEXTURES / f'{name}_ctm.png'
+                with Image.open(path) as image:
+                    self.assertEqual(image.size, (32, 256))
+                ctm = json.loads(path.with_suffix('.png.mcmeta').read_text())
+                self.assertEqual((ctm['animation']['width'], ctm['animation']['height']), (32, 32))
+                self.assertEqual(ctm['animation']['frames'], meta['animation']['frames'])
+                if suffix:
+                    self.assertTrue(meta['ldlib']['emissive'])
+                    self.assertTrue(ctm['ldlib']['emissive'])
+                    with Image.open(path) as image:
+                        alpha = [image.crop((0, i * 32, 16, i * 32 + 16)).getchannel('A') for i in range(8)]
+                        self.assertTrue(any(frame.getpixel((0, 0)) != 0 for frame in alpha))
+                        self.assertTrue(any(frame.getpixel((15, 15)) != 0 for frame in alpha))
+                        self.assertEqual(alpha[0].getbbox(), None)
+
+    def test_shimmer_reaches_both_corners_before_reset(self):
+        for color in ('black', 'purple', 'green', 'orange'):
+            with Image.open(TEXTURES / f'{color}_emissive.png') as image:
+                alpha = [image.crop((0, i * 16, 16, (i + 1) * 16)).getchannel('A') for i in range(8)]
+                self.assertTrue(any(frame.getpixel((2, 2)) != 0 for frame in alpha), 'Sweep begins at near corner')
+                self.assertTrue(any(frame.getpixel((13, 13)) != 0 for frame in alpha), 'Sweep must reach far corner, not stop in center')
+                self.assertEqual(alpha[0].getbbox(), None, 'Quiet reset frame is transparent')
+
     def test_animation_bounds_and_timing(self):
         for color in ('black', 'purple', 'green', 'orange'):
             loops = []
@@ -45,7 +75,7 @@ class CasingAssetsTest(unittest.TestCase):
                 counts = [256 - image.crop((0, i * 16, 16, (i + 1) * 16)).getchannel('A').histogram()[0] for i in range(8)]
                 self.assertEqual(counts[0], 0)
                 self.assertGreater(max(counts), 0)
-                self.assertLess(max(counts), 32)
+                self.assertLess(max(counts), 40)
             suffix = '' if color == 'black' else '_' + color
             model = json.loads((ASSETS / f'models/block/world_eater_tamer_casing{suffix}.json').read_text())
             self.assertEqual(model['elements'][1]['forge_data'], {'block_light': 15, 'sky_light': 15})

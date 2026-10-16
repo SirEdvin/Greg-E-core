@@ -18,7 +18,7 @@ Observed implementation:
 Pinned reference inspected directly from the dependency JAR:
 
 - `assets/gtceu/textures/block/casings/gcym/industrial_steam_casing.png` is the confirmed visual reference: a framed plate with corner bolts.
-- Its metadata provides connected-texture information, not an animation. Connectivity is not required for the new family.
+- Its metadata provides native LDLib connected-texture information. The new family must preserve that behavior; the initial implementation incorrectly excluded it, as identified by user feedback.
 - Existing GTCEu coil `_bloom.png.mcmeta` resources use `ldlib.emissive: true`; this offers a native emissive rendering route without requiring optional shaders. Resource metadata alone is not evidence that a newly composed model renders correctly; native client verification remains required.
 - Inspection of the pinned `GTRecipeModifiers.hatchParallel` bytecode confirms it uses the controller's standard hatch and `ParallelLogic.getParallelAmount`, scales contents and parallel count, and does not change duration. `getParallelAmount` limits against inputs and output merging without imposing a voltage check.
 
@@ -32,7 +32,7 @@ Goals:
 
 Non-goals:
 
-- No new block entity, animation scheduler, ticking casing blocks, shader dependency, dynamic lights, or connected-texture subsystem.
+- No new block entity, animation scheduler, ticking casing blocks, shader dependency, dynamic lights, or custom connected-texture subsystem. Reuse LDLib's existing connected-texture pipeline.
 - No custom parallel hatch, generalized recipe framework, power capability, batch-mode feature, larger structure, or automatic world migration.
 
 ## Decisions
@@ -52,6 +52,10 @@ Author native-resolution raster textures using direct palette/pixel edits guided
 Use compact vertical PNG frame strips with explicit animation metadata. A black shimmer cycle totals 200 texture ticks and each colored cycle totals 40; ordinary recipes use 100 ticks. Use repeated frame indices/long frame durations for quiet periods rather than allocating hundreds of duplicated frames. Exact pulse width and pixel palette are minor art-tuning details: retain a short readable shimmer, no constant bright fill. Colored base frames shift interior shadow pixels subtly, keeping outline and bolt positions fixed; align their loop with the 40-tick shimmer cycle for compact resources.
 
 Composite normally shaded base plates with transparent-background emissive detail textures using the existing LDLib emissive route. Keep frame dimensions and timing aligned across base and emissive layers, and render the same asset family on block items and controller/formed-part casing surfaces. Do not mark the entire base texture emissive. Prefer existing model composition and metadata; if pinned model layering cannot express this, resolve the narrow resource/model composition issue before introducing a custom renderer. No mixin, dependency upgrade, or optional shader is planned.
+
+Provide `ldlib.connection` on both source layers, each referencing an animated 32×32 CTM sheet in the native four-tile layout: fully connected, vertical connection, horizontal connection, and inner-corner details. Preserve matching animation indices and cycle durations across the source and CTM sprites. Use the native appearance predicate so same-color casings join, different colors remain separate, and black controller/formed-part appearances join the frame. Do not introduce custom world-side connection state or networking.
+
+The original shimmer generator stopped at diagonal position 16, before the far edge of the 16px face. Animate the highlight across the entire diagonal and off the far corner before the quiet frame, preserving the confirmed 200/40-tick cycles. Test far-corner illumination and the transparent reset rather than only asserting that some emissive pixels exist.
 
 Alternative rejected: changing block light levels would introduce server/world updates and would not be texture-only. Recoloring a static plate alone would not satisfy emissive shimmer or moving painted shadows.
 

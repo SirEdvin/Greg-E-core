@@ -37,6 +37,31 @@ Each colored casing SHALL subtly shift its painted shadows over a looping textur
 - **THEN** its shadow pixels visibly shift slightly without moving the plate outline or bolt positions
 - **AND** block collision and surrounding light levels do not change
 
+### Requirement: Connected casing faces
+
+Adjacent casings of the same variant SHALL join their visible faces like the Industrial Steam Casing reference, removing internal frame seams while preserving outside borders and concave corners. Different colored variants SHALL NOT connect to one another. Base and emissive layers SHALL remain synchronized, including after resource reload. Black controller and formed-part appearances SHALL connect with black casing.
+
+#### Scenario: Same-color connected panels
+- **WHEN** same-color casings form horizontal and vertical strips, a filled panel, or an L-shaped panel
+- **THEN** their shared seams disappear and the external borders and required inner corners remain
+- **AND** the connected base and highlight sprites retain their original animation timing
+
+#### Scenario: Color boundary and resource reload
+- **WHEN** differently colored casings touch, or connected casings are reloaded through a client resource reload
+- **THEN** unlike variants retain their boundary and same-variant connectivity and animation remain correct after reload
+
+#### Scenario: Formed black machine surfaces
+- **WHEN** black casing borders the tamer controller or a formed part exposing the same black appearance
+- **THEN** the native connected-texture rules recognize the matching black appearance
+
+### Requirement: Complete shimmer sweep
+
+Each shimmer SHALL travel from the beginning of the plate diagonal through its center to the far edge before disappearing. It SHALL NOT reset at the center. Both ordinary and connected-texture highlight sprites SHALL preserve the confirmed 10-second black and 2-second colored cycles.
+
+#### Scenario: Far-edge highlight and reset
+- **WHEN** a complete black or colored shimmer cycle is inspected on single blocks and connected panels
+- **THEN** the highlight reaches the far corner and then becomes transparent before the next sweep
+
 ### Requirement: Creative access and normal block lifecycle
 
 All four casing items SHALL be available in the mod's creative inventory and place as their corresponding blocks. The black casing SHALL have no survival acquisition recipe in this change. Normally breaking a casing with an appropriate tool SHALL return that casing item rather than a differently colored variant.

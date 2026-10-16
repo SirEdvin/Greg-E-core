@@ -36,19 +36,29 @@ reference for its framed industrial plate and four corner bolts; no upstream
 PNG pixels are copied. The editable source is
 `src/gameTest/generate_world_eater_casings.py` (requires Pillow).
 
+Adjacent casings of the same color use native LDLib connected textures like
+Industrial Steam Casing: internal frame seams disappear, while outside borders
+and concave corners remain. Different colors retain their boundary. The black
+controller and formed buses/hatch join the surrounding black casing as well.
+
 Base plates stay normally shaded; a separate transparent emissive highlight
-sweeps across them. Black repeats every 200 texture ticks (10 seconds), colored
+sweeps all the way across them to the far corner before disappearing, rather
+than resetting at the center. Black repeats every 200 texture ticks (10 seconds), colored
 casings every 40 (2 seconds), at the normal tick rate. Colored interior shadow
 pixels shift by one pixel across the loop, while borders/bolts stay fixed.
 This is texture animation and fullbright surface detail, not world-light emission
 or a requirement for optional shaders. Compact 8-frame PNG strips and explicit
-frame durations live under `textures/block/casings/world_eater/`.
+frame durations live under `textures/block/casings/world_eater/`. Each layer
+references its own 32px four-tile CTM sheet; these have the same frame sequence
+and duration as the original 16px sprite, so connections do not desynchronize
+shimmer or moving shadows, including after resource reload.
 
 Regenerate from the project root:
 
     python src/gameTest/generate_world_eater_casings.py
 
-Check frame timing, bounds, fixed geometry and emissive mask separation:
+Check frame timing, bounds, fixed geometry, connected sheets, full shimmer sweep
+and emissive mask separation:
 
     python -m unittest discover -s src/gameTest -p 'test_*.py'
 

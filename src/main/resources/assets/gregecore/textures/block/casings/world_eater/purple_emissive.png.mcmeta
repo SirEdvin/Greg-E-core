@@ -39,6 +39,7 @@
     ]
   },
   "ldlib": {
+    "connection": "gregecore:block/casings/world_eater/purple_emissive_ctm",
     "emissive": true
   }
 }

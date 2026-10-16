@@ -118,7 +118,7 @@ public final class WorldEaterCasingClientChecks {
     @SubscribeEvent
     public static void render(TickEvent.RenderTickEvent event) {
         if (!Boolean.getBoolean("gregecore.worldEaterCasingVerification") || event.phase != TickEvent.Phase.END
-                || !modelsChecked || finished || frame < 110 || frame % 10 != 0) return;
+                || !modelsChecked || finished || frame < 110 || frame % (frame < 600 ? 2 : 10) != 0) return;
         // Once per client tick, after the framebuffer is actually rendered.
         String name = String.format("%s-%04d.png", frame >= 920 ? "recipe" : frame < 340 ? "lit" : frame < 600 ? "dark" : "reloaded", frame);
         if (Files.exists(OUTPUT.resolve("screenshots").resolve(name))) return;
@@ -130,17 +130,17 @@ public final class WorldEaterCasingClientChecks {
         var server = client.getSingleplayerServer();
         ServerLevel level = server.getLevel(Level.OVERWORLD);
         server.getPlayerList().setViewDistance(3);
-        for (int x = -10; x <= 10; x++) for (int z = -8; z <= 14; z++) for (int y = -1; y <= 8; y++) {
-            boolean wall = x == -10 || x == 10 || z == -8 || z == 14 || y == -1 || y == 8;
+        for (int x = -12; x <= 12; x++) for (int z = -12; z <= 14; z++) for (int y = -1; y <= 8; y++) {
+            boolean wall = x == -12 || x == 12 || z == -12 || z == 14 || y == -1 || y == 8;
             level.setBlockAndUpdate(ORIGIN.offset(x, y, z), wall ? Blocks.GRAY_CONCRETE.defaultBlockState() : Blocks.AIR.defaultBlockState());
         }
         var player = server.getPlayerList().getPlayer(client.player.getUUID());
         player.setGameMode(GameType.CREATIVE);
         player.getAbilities().flying = true;
         player.onUpdateAbilities();
-        player.teleportTo(ORIGIN.getX() + .5, ORIGIN.getY() + 2, ORIGIN.getZ() - 5.5);
+        player.teleportTo(ORIGIN.getX() + .5, ORIGIN.getY() + 2, ORIGIN.getZ() - 9.5);
         player.setYRot(0); player.setXRot(9);
-        for (int i = 0; i < 4; i++) level.setBlockAndUpdate(ORIGIN.east(-3 + 2 * i).above(2), WorldEaterCasingTests.casings()[i].defaultBlockState());
+        WorldEaterCasingConnectionChecks.setup(level);
         for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = 0; y < 5; y++) {
             int borders = (back == 0 || back == 4 ? 1 : 0) + (Math.abs(x) == 2 ? 1 : 0) + (y == 0 || y == 4 ? 1 : 0);
             if (borders >= 2) level.setBlockAndUpdate(CONTROLLER.south(back).east(x).above(y), GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState());
@@ -225,9 +225,11 @@ public final class WorldEaterCasingClientChecks {
             var partModel = client.getBlockRenderer().getBlockModel(partState);
             var data = partModel.getModelData(client.level, pos, partState, net.minecraftforge.client.model.data.ModelData.EMPTY);
             var partQuads = partModel.getQuads(partState, Direction.NORTH, RandomSource.create(), data, null);
-            if (partQuads.stream().noneMatch(q -> q.getSprite().contents().name().getPath().endsWith("world_eater/black")))
+            if (partQuads.stream().noneMatch(q -> q.getSprite().contents().name().getPath().endsWith("world_eater/black")
+                    || q.getSprite().contents().name().getPath().endsWith("world_eater/black_ctm")))
                 failures.add("Formed part lacks black casing appearance: " + pos);
         }
+        failures.addAll(WorldEaterCasingConnectionChecks.verify(client));
     }
 
     private static void require(boolean condition, String message) {

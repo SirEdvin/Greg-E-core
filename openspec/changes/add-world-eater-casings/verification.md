@@ -3,7 +3,7 @@
 Verified October 16, 2026 on the project's pinned Minecraft 1.20.1 / Forge
 47.4.10 / Java 17 / GTCEu 7.5.2 / LDLib 1.0.40.b stack.
 
-## Final execution
+## Original implementation execution
 
 - `bash gradlew tasks --all --no-daemon` confirmed the available build, datagen,
   native GameTest, and client run tasks. The wrapper lacks executable permission
@@ -69,7 +69,7 @@ Client invocation (WORLD is the disposable world name):
   also caught and fixed the clipped internal operation identifier by displaying
   a concise caption without modifying recipe metadata.
 
-## Artifact and evidence
+## Original artifact and evidence (superseded below)
 
 Final JAR:
 
@@ -98,8 +98,91 @@ third-party inventory handlers were not tested. Emissive appearance was verified
 without optional shaders, with the standard GTCEu buses/hatch. Scratch evidence
 can expire; this document retains the acceptance mapping and artifact checksum.
 
-No dependency upgrade, survival black-casing recipe, automatic world conversion,
-commit, push, or OpenSpec archive was performed. Before archival, reconcile the
+The original verification performed no dependency upgrade, survival black-casing
+recipe, automatic world conversion, commit, push, or OpenSpec archive. Before archival, reconcile the
 older completed tamer change with this change's shared capability as described
 in proposal.md and tasks.md. Back up worlds and replace UHV frame casing with
 black; valid retained controller progression is preserved.
+
+## Connected-texture and full-sweep correction — October 16, 2026
+
+User feedback identified two gaps in the original acceptance: casings did not
+connect, and the emissive sweep stopped near the center. The initial design
+incorrectly excluded the reference casing's connectivity without confirmation.
+The design, specification and affected tasks were reopened for correction.
+
+### Corrected resources and regression checks
+
+- Both base and emissive source sprites now declare `ldlib.connection`, each
+  referencing an original pixel-authored animated 32px CTM sheet in LDLib's
+  native four-tile layout. The normal 16px sprite remains the isolated fallback.
+- Source and connected sprites share frame indices and durations: black remains
+  200 ticks, each colored variant 40 ticks. Colored shadows still shift subtly;
+  base plates remain shaded and only detail pixels are emissive.
+- The old shimmer stopped at diagonal position 16. The highlight now traverses
+  the full writable diagonal, reaching the far corner before the quiet reset.
+- The two new regressions failed on the original assets: missing connection
+  metadata and an unlit far corner. All five Python asset tests now pass,
+  including both ends of the source and connected shimmer sweeps, exact timing,
+  synchronized CTM sheets, fixed frame geometry and emissive separation.
+- `bash gradlew build compileGameTestJava --no-daemon` passed. All 32 texture
+  resources (PNG strips and metadata) byte-match the production JAR. The JAR
+  contains neither GameTest classes nor Python scripts.
+- Re-ran `bash gradlew runGameTestServer --no-daemon` in a fresh disposable
+  server world after the correction: passed in 3 minutes 11 seconds. Parsed
+  the new XML and compared normalized case names against the source annotations:
+  exactly 20 expected tests, no missing/unexpected/duplicate cases and zero
+  failures or errors. The previous disposable server world was preserved in
+  profile scratch, not deleted.
+
+### Fresh native client acceptance
+
+Ran the existing opt-in acceptance with software OpenGL/Xvfb in a new disposable
+verification world with fresh region data. The previous report and world were
+preserved outside the production artifact. The process exited zero and the
+fresh report contains `passed=true`, `failures=[]`, `gameplayDone=true` and
+`resourceReload=true`. All 190 reported screenshots exist on disk.
+
+`WorldEaterCasingConnectionChecks` exercises actual world-context baked models
+with `getModelData` and the five-argument `getQuads`, before and after reload:
+
+- Filled panels use four connected quadrants for each base/emissive layer.
+- All four variants select connected sprites on all six face normals.
+- Connected emissive quadrants retain native fullbright lighting.
+- Horizontal and vertical strips use the expected native submap indices.
+- Missing-diagonal L shapes retain the required concave corner and exterior
+  quadrants continue using the original framed sprite.
+- Different colors do not connect.
+- The black controller, parallel hatch and item buses select connected black
+  casing appearances after formation.
+
+Inspected real lit/dark native screenshots: 3×3 panels have no internal frame or
+bolt grid, their outer borders remain, highlights stay emissive in darkness,
+and no missing textures are present. The source frame contact sheet also shows
+the sweep continuing past the middle to the far corner. Existing native client
+gameplay checks still activate through a hatch-installed 500-machine survey,
+craft all three colors and complete a parallel conversion and JEI inspection.
+
+### Updated artifact and evidence
+
+JAR: `/home/siredvin/projects/Greg-E-core/build/libs/gregecore-1.12.7-1.20.1.jar`
+
+Size: 899971 bytes.
+
+SHA-256: `d736b7972c516c17ce36fa46794b358adb4f8aef451108d42be02b5247e4546c`
+
+Evidence under profile scratch:
+
+- `world-eater-ctm-build.log`
+- `world-eater-ctm-client.log`
+- `world-eater-ctm-gametest.log`
+- `world-eater-gametest.xml`
+- `world-eater-casings-client/result.json`
+- `world-eater-casings-client/screenshots/lit-0334.png`
+- `world-eater-casings-client/screenshots/dark-0598.png`
+- `world-eater-casings/complete-shimmer.png`
+- `world-eater-casings/purple-ctm-layout.png`
+
+The correction uses the existing native renderer and adds no production Java,
+dependency, mixin or world tick logic. No commit, push or OpenSpec archive was
+performed for this correction.

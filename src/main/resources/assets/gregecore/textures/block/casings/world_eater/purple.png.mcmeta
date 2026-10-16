@@ -37,5 +37,8 @@
         "time": 5
       }
     ]
+  },
+  "ldlib": {
+    "connection": "gregecore:block/casings/world_eater/purple_ctm"
   }
 }

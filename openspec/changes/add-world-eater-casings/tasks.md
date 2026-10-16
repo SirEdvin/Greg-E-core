@@ -32,6 +32,10 @@
 - [x] 5.1 Discover available tasks with `./gradlew tasks --all --no-daemon`, then run production build, GameTest source compilation and the full relevant native World Eater suite using the declared Forge runs. Verify fresh reports contain the expected tests with zero failures, check packaged resources and absence of test fixtures in the production JAR, and run `git diff --check`; do not infer gameplay success solely from Gradle exit zero.
 - [x] 5.2 Run opt-in client acceptance in an isolated disposable world: inspect all four item/block variants in lit/dark scenes through complete cycles, controller and formed-part appearance, resource reload, one ACTIVE conversion of each color, parallel conversion, and a hatch-installed activation survey. Verify fresh machine-readable results and retain screenshots/animation evidence outside the repository; document actual passing checks and any unverified environment limitations.
 
+## 6. Connected-texture correction
+
+- [x] 6.1 Add synchronized native LDLib CTM sheets and connection metadata for all four base/emissive pairs. Verify horizontal/vertical strips, filled and L-shaped panels, unlike-color boundaries, black controller/formed-part adjacency and resource reload with native baked-quad assertions and screenshots. Document the corrected behavior; retain the existing animation timing and gameplay contracts.
+
 ## Workflow follow-up
 
 - Before archiving, reconcile the completed `add-incomplete-world-eater-tamer` change with the empty main spec inventory, preserving its full survey contract and converting overlapping delta operations as needed once the baseline exists. Do not silently archive or overwrite it during implementation.

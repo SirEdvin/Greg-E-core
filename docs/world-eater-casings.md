@@ -49,15 +49,21 @@ pixels shift by one pixel across the loop, while borders/bolts stay fixed.
 This is texture animation and fullbright surface detail, not world-light emission
 or a requirement for optional shaders. Compact 8-frame PNG strips and explicit
 frame durations live under `textures/block/casings/world_eater/`. Each layer
-references its own 32px four-tile CTM sheet; these have the same frame sequence
+references its own 32px CTM sheet containing sixteen 8px corner submaps; these have the same frame sequence
 and duration as the original 16px sprite, so connections do not desynchronize
 shimmer or moving shadows, including after resource reload.
+
+Half-connected submaps extend only the surviving straight edge, without copying
+standalone corner caps or bolts onto every block boundary. Connected shadows use
+a 16px repeating field so their diagonals align across adjacent blocks. The four
+concave submaps remain populated for the pinned LDLib's diagonal-aware selection.
 
 Regenerate from the project root:
 
     python src/gameTest/generate_world_eater_casings.py
 
-Check frame timing, bounds, fixed geometry, connected sheets, full shimmer sweep
+Check frame timing, bounds, fixed geometry, continuous connected perimeters,
+concave corners, seamless shadow fields, connected sheets, full shimmer sweep
 and emissive mask separation:
 
     python -m unittest discover -s src/gameTest -p 'test_*.py'

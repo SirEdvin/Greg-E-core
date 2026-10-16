@@ -21,7 +21,7 @@ final class WorldEaterCasingConnectionChecks {
     private static final BlockPos ORIGIN = new BlockPos(12288, 80, 12288);
 
     static BlockPos panel(int color) { return ORIGIN.offset(-8 + color * 5, 1, 0); }
-    private static BlockPos cube(int color) { return ORIGIN.offset(20 + color * 4, 0, 0); }
+    static BlockPos cube(int color) { return ORIGIN.offset(20 + color * 4, 0, 0); }
 
     static void setup(ServerLevel level) {
         Block[] blocks = WorldEaterCasingTests.casings();
@@ -95,6 +95,7 @@ final class WorldEaterCasingConnectionChecks {
             if (quads(client, pos, Direction.NORTH).stream().noneMatch(WorldEaterCasingConnectionChecks::isCtm))
                 errors.add("Black machine/formed-part surface did not connect: " + pos);
         }
+        errors.addAll(WorldEaterCasingPixelChecks.verify(client));
         return errors;
     }
 
@@ -102,7 +103,7 @@ final class WorldEaterCasingConnectionChecks {
         return quad.getSprite().contents().name().getPath().endsWith("_ctm");
     }
 
-    private static List<BakedQuad> quads(Minecraft client, BlockPos pos, Direction face) {
+    static List<BakedQuad> quads(Minecraft client, BlockPos pos, Direction face) {
         var state = client.level.getBlockState(pos);
         var model = client.getBlockRenderer().getBlockModel(state);
         var data = model.getModelData(client.level, pos, state, ModelData.EMPTY);

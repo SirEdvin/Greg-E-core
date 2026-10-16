@@ -26,6 +26,14 @@ def tone(rgb, offset):
     return tuple(max(0, min(255, c + offset)) for c in rgb) + (255,)
 
 
+def interior(rgb, x, y, shift):
+    # A 16px period matches the block lattice, so moving bands cross joins.
+    x, y = x % 16, y % 16
+    delta = (-7 if (x - y + shift) % 16 < 3 else 0)
+    delta += 2 if (x + 3 * y) % 17 == 0 else 0
+    return tone(rgb, delta)
+
+
 def plate(rgb, shift):
     image = Image.new('RGBA', (16, 16), tone(rgb, -16))
     p = image.load()
@@ -37,11 +45,8 @@ def plate(rgb, shift):
             elif x in (2, 13) or y in (2, 13):
                 delta = -9 if x == 2 or y == 2 else 7
             else:
-                # Broad hand-stepped diagonal shadows; motion stays inside plate.
-                band = (x - y + shift) % 11
-                delta = -7 if band in (0, 1, 2) else 0
-                if (x + 3 * y) % 17 == 0:
-                    delta += 2
+                p[x, y] = interior(rgb, x, y, shift)
+                continue
             p[x, y] = tone(rgb, delta)
     for x, y in ((3, 3), (11, 3), (3, 11), (11, 11)):
         p[x, y] = tone(rgb, 31)
@@ -54,24 +59,31 @@ def plate(rgb, shift):
     return image
 
 
-def connected_plate(rgb, shift, edges=(), corners=False):
-    image = Image.new('RGBA', (16, 16))
+def connected_corner(rgb, shift, layer, frame, origin, edges):
+    """One native 8px submap, with only its disconnected edge profile."""
+    image = Image.new('RGBA', (8, 8))
     p = image.load()
     assert p is not None
     original = plate(rgb, shift)
-    for y in range(16):
-        for x in range(16):
-            band = (x - y + shift) % 11
-            delta = (-7 if band in (0, 1, 2) else 0) + (2 if (x + 3 * y) % 17 == 0 else 0)
-            p[x, y] = tone(rgb, delta)
-            keep = ('left' in edges and x <= 2 or 'right' in edges and x >= 13
-                    or 'top' in edges and y <= 2 or 'bottom' in edges and y >= 13)
-            if corners:
-                keep = (x <= 2 or x >= 13) and (y <= 2 or y >= 13)
-            if keep:
-                pixel = original.getpixel((x, y))
-                assert pixel is not None
-                p[x, y] = pixel
+    glow = shimmer(rgb, frame, True) if layer != 'base' else None
+    ox, oy = origin
+    for ty in range(8):
+        for tx in range(8):
+            x, y = ox + tx, oy + ty
+            distances = [(dict(left=x, right=15 - x, top=y, bottom=15 - y)[edge], edge) for edge in edges]
+            # A missing diagonal is a concave corner: both distances must be
+            # inside the border, and the farther distance defines its ring.
+            distance, edge = max(distances) if distances else (16, '')
+            if glow is not None:
+                pixel = (0, 0, 0, 0) if distance < 2 else glow.getpixel((x, y))
+            elif distance < 3:
+                # Extrude a straight edge from its midpoint. Copying (x,y)
+                # would reintroduce the standalone corner/end-cap at every join.
+                pixel = original.getpixel((x, 8) if edge in ('left', 'right') else (8, y))
+            else:
+                pixel = interior(rgb, x, y, shift)
+            assert pixel is not None
+            p[tx, ty] = pixel
     return image
 
 
@@ -95,14 +107,16 @@ def shimmer(rgb, frame, connected=False):
 
 def connected_tile(rgb, shift, layer, frame):
     image = Image.new('RGBA', (32, 32))
-    # LDLib's 4x4 submap grid uses these four 16px regions. Isolated
-    # quadrants are sampled from the original sprite, not this CTM sheet.
-    for x, y, edges, corners in ((0, 0, (), False),
-                                  (16, 0, ('left', 'right'), False),
-                                  (0, 16, ('top', 'bottom'), False),
-                                  (16, 16, (), True)):
-        tile = connected_plate(rgb, shift, edges, corners) if layer == 'base' else shimmer(rgb, frame, True)
-        image.paste(tile, (x, y))
+    # Author the actual 4x4 grid, not independently framed 16px quadrants.
+    # LDLib 1.0.40.b samples 10/11/14/15 when
+    # both orthogonal neighbours exist but their diagonal is missing.
+    slots = (
+        ((0, 0), ()), ((8, 0), ()), ((0, 0), ('left',)), ((8, 0), ('right',)),
+        ((0, 8), ()), ((8, 8), ()), ((0, 8), ('left',)), ((8, 8), ('right',)),
+        ((0, 0), ('top',)), ((8, 0), ('top',)), ((0, 0), ('top', 'left')), ((8, 0), ('top', 'right')),
+        ((0, 8), ('bottom',)), ((8, 8), ('bottom',)), ((0, 8), ('bottom', 'left')), ((8, 8), ('bottom', 'right')))
+    for index, (origin, edges) in enumerate(slots):
+        image.paste(connected_corner(rgb, shift, layer, frame, origin, edges), (index % 4 * 8, index // 4 * 8))
     return image
 
 

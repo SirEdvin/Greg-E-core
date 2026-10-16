@@ -50,6 +50,11 @@ Adjacent casings of the same variant SHALL join their visible faces like the Ind
 - **WHEN** differently colored casings touch, or connected casings are reloaded through a client resource reload
 - **THEN** unlike variants retain their boundary and same-variant connectivity and animation remain correct after reload
 
+#### Scenario: Uninterrupted border and shadow pixels
+- **WHEN** a 4×2 same-color wall or a horizontal/vertical strip is observed through every animation frame
+- **THEN** the outside border remains continuous across block boundaries without standalone corner end-caps or repeated corner bolts
+- **AND** the interior shadow pattern aligns across joins instead of restarting at a mismatched phase
+
 #### Scenario: Formed black machine surfaces
 - **WHEN** black casing borders the tamer controller or a formed part exposing the same black appearance
 - **THEN** the native connected-texture rules recognize the matching black appearance

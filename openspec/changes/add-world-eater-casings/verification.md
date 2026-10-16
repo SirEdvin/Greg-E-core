@@ -104,7 +104,13 @@ older completed tamer change with this change's shared capability as described
 in proposal.md and tasks.md. Back up worlds and replace UHV frame casing with
 black; valid retained controller progression is preserved.
 
-## Connected-texture and full-sweep correction — October 16, 2026
+## First connected-texture correction — October 16, 2026 (superseded)
+
+This historical run correctly checked sprite selection, timing and the complete
+shimmer sweep, but its acceptance of connected border pixels was a false
+positive. The subsequent user screenshot exposed repeated perimeter end-caps
+that distant dark-room captures and sprite-ID checks had missed. The pixel-level
+correction and its current artifact are recorded below.
 
 User feedback identified two gaps in the original acceptance: casings did not
 connect, and the emissive sweep stopped near the center. The initial design
@@ -186,3 +192,82 @@ Evidence under profile scratch:
 The correction uses the existing native renderer and adds no production Java,
 dependency, mixin or world tick logic. No commit, push or OpenSpec archive was
 performed for this correction.
+
+## Pixel-level CTM correction — October 16, 2026
+
+### Diagnosis and earlier work
+
+Inspected the user's `wgvuse.png` report: horizontal border strips retained
+standalone vertical corner caps at block joins. Vertical strips had the same
+class of flaw. The 11px interior shadow period also restarted at each 16px block.
+
+Searched Chrono/default saved sessions using connected-texture, casing, LDLib,
+submap and seam terms without recovering the matching earlier conversation.
+Read the previous implementation and `CTM.md` in True Age of Steam commit
+`0855b451474790e55d313f5384f2895ac62fb41a`, which documents the same corner-accent
+and submap-authoring failure. Cross-checked its recommendations against the
+pinned `Connections`, `Submap` and `CustomBakedModel` sources: unlike the guide's
+claim, the pinned code samples 10/11/14/15 when the diagonal is absent.
+
+### Correction and verified regression coverage
+
+- Author sixteen 8px corner submaps explicitly, not independently framed 16px
+  regions. Extrude each surviving edge from its midpoint profile so no removed
+  perpendicular edge or corner bolt leaks into a half-connected strip.
+- Keep diagonal-aware concave corner submaps, using their concave ring rather
+  than the nearest-edge rule of an isolated outer corner. Clip connected
+  emissive detail at surviving outside borders.
+- Share a 16px-periodic interior shadow field between base and connected
+  sprites. Palettes, black/colored cycle durations and full shimmer travel are
+  unchanged. No production Java, registry, recipe, or persistence code changed.
+- Eight asset tests pass, including pixel-level reconstruction of the user's
+  4×2 wall, 4×1 and 1×4 strips, and a 3×3 panel through every frame and color.
+  Perimeter profiles must be uninterrupted, shadows must match one periodic
+  field, and all four concave submaps must use proper corner pixels.
+- A scratch control loads the exact PNGs from published HEAD `c393f7a` and runs
+  the three new regression methods: all three reject it, producing 130 assertion
+  failures and no execution errors. The current corrected assets pass all eight
+  methods. No working-tree assets were swapped for this control.
+- `bash gradlew build compileGameTestJava --no-daemon` passed. The new
+  `WorldEaterCasingPixelChecks` rasterizes actual world-context baked-quad UVs,
+  reads the loaded PNG resources, checks pixel coverage, and compares surviving
+  edge profiles for all colors, all six face normals and all eight frames,
+  both before and after resource reload. This is stronger than sprite IDs or
+  manually calculated connection indices alone.
+- The fresh disposable-world native client exited zero with `passed=true`,
+  `failures=[]`, `gameplayDone=true` and `resourceReload=true`. All 214 reported
+  screenshots exist. The run retained controller/hatch appearance checks,
+  native activation and conversions, fullbright/no-world-light assertions,
+  reload and recipe-viewer checks.
+- Inspected close native 4×2 green-wall captures, including different shimmer
+  phases: the bottom and top perimeter no longer have repeated end-caps, and
+  shadow bands align across joins. The targeted-block outline is vanilla
+  selection feedback, not a casing texture seam.
+
+The dedicated-server suite was not rerun for this production-PNG-only
+correction; its prior 20-test report belongs to the earlier artifact. Native
+client gameplay was rerun as described above. No optional-shader behavior is
+claimed.
+
+### Current artifact and evidence
+
+JAR: `/home/siredvin/projects/Greg-E-core/build/libs/gregecore-1.12.7-1.20.1.jar`
+
+Size: 899752 bytes.
+
+SHA-256: `d0009de77767aa586bf95cd97eecc54b817be5b0f7e6845c73e7683ae472d423`
+
+All 32 casing PNG/metadata resources byte-match the production JAR. No GameTest
+class or Python script is packaged. Evidence under profile scratch:
+
+- `world-eater-ctm-seams-build.log`
+- `world-eater-ctm-seams-client.log`
+- `world-eater-ctm-seams-red.log`
+- `world-eater-ctm-published-control.log`
+- `world-eater-casings-client/result.json`
+- `world-eater-casings-client/screenshots/perimeter-0810.png`
+- `world-eater-casings-client/screenshots/perimeter-0830.png`
+- `world-eater-casings-client/screenshots/perimeter-0850.png`
+- `world-eater-ctm-wall-before.png` and `world-eater-ctm-wall-after.png`
+
+The correction is local and was not committed or pushed during verification.

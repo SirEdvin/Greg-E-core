@@ -36,6 +36,8 @@
 
 - [x] 6.1 Add synchronized native LDLib CTM sheets and connection metadata for all four base/emissive pairs. Verify horizontal/vertical strips, filled and L-shaped panels, unlike-color boundaries, black controller/formed-part adjacency and resource reload with native baked-quad assertions and screenshots. Document the corrected behavior; retain the existing animation timing and gameplay contracts.
 
+- [x] 6.2 Correct sampled CTM pixels: extrude half-connected edge profiles without standalone corner end-caps, use a seamless 16px-periodic shadow field, retain version-correct missing-diagonal corners, and test the user's 4×2 wall plus strips through every frame. Verify actual native baked UV perimeter pixels for all colors and all six faces before/after reload and inspect a close-up native green-wall capture. Update the prior acceptance record to disclose the false-positive sprite-selection checks.
+
 ## Workflow follow-up
 
 - Before archiving, reconcile the completed `add-incomplete-world-eater-tamer` change with the empty main spec inventory, preserving its full survey contract and converting overlapping delta operations as needed once the baseline exists. Do not silently archive or overwrite it during implementation.

@@ -50,7 +50,7 @@ public final class WorldEaterCasingClientChecks {
     private static int wait, frame;
     private static boolean initialized, modelsChecked, reloadRequested, gameplayRequested, postReloadChecked;
     private static volatile boolean ready, gameplayDone, reloaded;
-    private static boolean finished;
+    private static boolean finished, perimeterPreviewRequested;
     private static int screenshots;
 
     static void tick() throws Exception {
@@ -110,6 +110,20 @@ public final class WorldEaterCasingClientChecks {
                 }
             });
         }
+        if (frame >= 780 && postReloadChecked && !perimeterPreviewRequested) {
+            perimeterPreviewRequested = true;
+            client.getSingleplayerServer().execute(() -> {
+                var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
+                var p = WorldEaterCasingConnectionChecks.panel(2);
+                for (int x = 0; x < 4; x++) for (int y = 0; y < 3; y++)
+                    level.setBlockAndUpdate(p.offset(x, y, 0), y < 2 ? WorldEaterCasingTests.casings()[2].defaultBlockState() : Blocks.AIR.defaultBlockState());
+                lights(client, true);
+                for (int x : new int[]{1, 3, 5, 7}) level.setBlockAndUpdate(ORIGIN.offset(x, 4, -1), Blocks.SEA_LANTERN.defaultBlockState());
+                var player = client.getSingleplayerServer().getPlayerList().getPlayer(client.player.getUUID());
+                player.teleportTo(ORIGIN.getX() + 4, ORIGIN.getY() + .6, ORIGIN.getZ() - 3.5);
+                player.setYRot(0); player.setXRot(4);
+            });
+        }
         if (frame == 920 && !WorldEaterCasingJeiChecks.showPurpleRecipe()) failures.add("JEI runtime unavailable");
         if (frame >= 980 && postReloadChecked) finish(client);
         if (frame > 1800) { failures.add("Timed out completing client acceptance"); finish(client); }
@@ -120,7 +134,7 @@ public final class WorldEaterCasingClientChecks {
         if (!Boolean.getBoolean("gregecore.worldEaterCasingVerification") || event.phase != TickEvent.Phase.END
                 || !modelsChecked || finished || frame < 110 || frame % (frame < 600 ? 2 : 10) != 0) return;
         // Once per client tick, after the framebuffer is actually rendered.
-        String name = String.format("%s-%04d.png", frame >= 920 ? "recipe" : frame < 340 ? "lit" : frame < 600 ? "dark" : "reloaded", frame);
+        String name = String.format("%s-%04d.png", frame >= 920 ? "recipe" : frame >= 800 ? "perimeter" : frame < 340 ? "lit" : frame < 600 ? "dark" : "reloaded", frame);
         if (Files.exists(OUTPUT.resolve("screenshots").resolve(name))) return;
         Screenshot.grab(OUTPUT.toFile(), name, Minecraft.getInstance().getMainRenderTarget(), message -> {});
         screenshots++;

@@ -61,7 +61,18 @@ public class WorldEaterRunTests {
 
     @GameTest(template = "empty", timeoutTicks = 400)
     public static void loadedThresholdsAndBlockedDelivery(GameTestHelper helper) {
-        Fixture[] fixtures = {fixture(helper, 5000), fixture(helper, 10000), fixture(helper, 15000), fixture(helper, 20000)};
+        loadedThresholdsAndBlockedDelivery(helper, 1);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 400)
+    public static void tierTwoThresholdsAndBlockedDelivery(GameTestHelper helper) {
+        loadedThresholdsAndBlockedDelivery(helper, 2);
+    }
+
+    private static void loadedThresholdsAndBlockedDelivery(GameTestHelper helper, int tier) {
+        Fixture[] fixtures = {fixture(helper, 5000 + (tier - 1) * 500), fixture(helper, 10000 + (tier - 1) * 500),
+                fixture(helper, 15000 + (tier - 1) * 500), fixture(helper, 20000 + (tier - 1) * 500)};
+        for (var f : fixtures) WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
         helper.runAfterDelay(4, () -> {
             int[] totals = {0, 499, 500, 501};
             for (int test = 0; test < fixtures.length; test++) {
@@ -99,6 +110,14 @@ public class WorldEaterRunTests {
                 helper.assertTrue(fixture.logic().hasPendingReport(), "Final batch finishes exactly on scanning tick 2400");
                 helper.assertTrue(fixture.logic().getCounts().values().stream().mapToLong(Long::longValue).sum() == totals[test], "Exact count " + totals[test]);
                 helper.assertTrue(fixture.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.DORMANT, "Blocked report cannot activate");
+                var pending = fixture.logic().getPendingBook().copy();
+                var framePos = WorldEaterStructureTests.shellPositions(controller).get(3);
+                helper.getLevel().setBlockAndUpdate(framePos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                controller.onStructureInvalid();
+                helper.getLevel().setBlockAndUpdate(framePos, WorldEaterCasingTests.casings()[1].defaultBlockState());
+                WorldEaterStructureTests.colorFrame(controller, -1);
+                WorldEaterStructureTests.assertTier(helper, controller, 2);
+                helper.assertTrue(ItemStack.matches(pending, fixture.logic().getPendingBook()), "Same completed successful report retained through colored rebuild");
                 CompoundTag saved = ((net.minecraft.world.level.block.entity.BlockEntity) controller.getHolder()).saveWithFullMetadata();
                 ((net.minecraft.world.level.block.entity.BlockEntity) controller.getHolder()).load(saved);
                 helper.assertTrue(fixture.logic().hasPendingReport(), "Blocked report persists through native NBT");
@@ -143,7 +162,17 @@ public class WorldEaterRunTests {
 
     @GameTest(template = "empty", timeoutTicks = 200)
     public static void metadataGatesAndCancellation(GameTestHelper helper) {
-        Fixture fixture = fixture(helper, 25000);
+        metadataGatesAndCancellation(helper, 1);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200)
+    public static void tierTwoMetadataGatesAndCancellation(GameTestHelper helper) {
+        metadataGatesAndCancellation(helper, 2);
+    }
+
+    private static void metadataGatesAndCancellation(GameTestHelper helper, int tier) {
+        Fixture fixture = fixture(helper, 25000 + (tier - 1) * 1000);
+        WorldEaterStructureTests.colorFrame(fixture.controller(), tier == 1 ? 0 : -1);
         helper.runAfterDelay(4, () -> {
             form(helper, fixture);
             fixture.logic().setWorkingEnabled(true);

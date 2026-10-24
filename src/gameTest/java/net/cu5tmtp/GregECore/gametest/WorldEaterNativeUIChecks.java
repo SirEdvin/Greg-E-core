@@ -64,6 +64,12 @@ public final class WorldEaterNativeUIChecks {
         Minecraft client = Minecraft.getInstance();
         frame++;
         if (stage == 3) {
+            if (!WorldEaterTierClientChecks.tick()) return;
+            failures.addAll(WorldEaterTierClientChecks.failures);
+            stage = 4;
+            WorldEaterParticleChecks.begin(CENTER);
+        }
+        if (stage == 4) {
             WorldEaterParticleChecks.tick();
             done = WorldEaterParticleChecks.done;
             return;
@@ -114,7 +120,7 @@ public final class WorldEaterNativeUIChecks {
                     }
                 }
             });
-            else WorldEaterParticleChecks.begin(CENTER);
+            else WorldEaterTierClientChecks.begin();
         } else {
             screenshot(client, "controller.png");
             done = true;

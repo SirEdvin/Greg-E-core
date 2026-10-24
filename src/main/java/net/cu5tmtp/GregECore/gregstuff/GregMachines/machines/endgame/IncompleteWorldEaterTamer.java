@@ -20,6 +20,8 @@ import net.minecraft.world.entity.player.Player;
 import java.util.List;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
+import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
+import com.lowdragmc.lowdraglib.utils.BlockInfo;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
@@ -37,6 +39,9 @@ import net.minecraft.world.phys.Vec3;
 import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
 
 public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine implements IFancyUIMachine, IDisplayUIMachine {
+    private static final String CASING_TIER = "gregecore:world_eater_casing_tier";
+    private int casingTier;
+
     public static final MachineDefinition INCOMPLETE_WORLD_EATER_TAMER = REGISTRATE
             .multiblock("incomplete_world_eater_tamer", IncompleteWorldEaterTamer::new)
             .langValue("Incomplete World Eater tamer")
@@ -70,7 +75,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                     .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
                     .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                     .where('#', Predicates.any())
-                    .where('C', Predicates.blocks(GreggyBlocks.WORLD_EATER_TAMER_CASING.get())
+                    .where('C', casingPredicate()
                             .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1).setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(5))
                             .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(5))
@@ -91,12 +96,48 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             .tooltips(Component.literal("Collects infrastructure information without power."),
                     Component.literal("Scans the surrounding 9×9 chunks over 120 seconds."),
                     Component.literal("A complete survey of at least 500 machines awakens the tamer."),
-                    Component.literal("Requires black World Eater Tamer Casing (creative only)."),
+                    Component.literal("Frame: any mix of black, purple, green, or orange World Eater Tamer Casings."),
+                    Component.literal("Any black frame casing: tier 1; all colored: tier 2. Reversible; progression is retained."),
                     Component.literal("ACTIVE: 1 black casing + 16 matching terracotta → 1 colored casing in 5 seconds."),
                     Component.literal("Accepts one optional parallel hatch; surveys always run singly."))
             .register();
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
+
+    private static TraceabilityPredicate casingPredicate() {
+        return new TraceabilityPredicate(state -> {
+            var block = state.getBlockState().getBlock();
+            int tier;
+            if (block == GreggyBlocks.WORLD_EATER_TAMER_CASING.get()) tier = 1;
+            else if (block == GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.get()
+                    || block == GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.get()
+                    || block == GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.get()) tier = 2;
+            else return false;
+            var context = state.getMatchContext();
+            context.set(CASING_TIER, Math.min(context.getOrDefault(CASING_TIER, 2), tier));
+            return true;
+        }, () -> new BlockInfo[]{new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState()),
+                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.getDefaultState()),
+                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.getDefaultState()),
+                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.getDefaultState())});
+    }
+
+    @Override
+    public void onStructureFormed() {
+        super.onStructureFormed();
+        casingTier = getMultiblockState().getMatchContext().getInt(CASING_TIER);
+    }
+
+    @Override
+    public void onStructureInvalid() {
+        casingTier = 0;
+        super.onStructureInvalid();
+    }
+
+    public int getCasingTier() {
+        return isFormed() && !getMultiblockState().hasError() && (casingTier == 1 || casingTier == 2)
+                && getMultiblockState().getMatchContext().getInt(CASING_TIER) == casingTier ? casingTier : 0;
+    }
 
     public Vec3 getStructureCenter() {
         return Vec3.atCenterOf(getPos().relative(getFrontFacing().getOpposite(), 2).above(2));

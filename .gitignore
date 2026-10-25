@@ -20,6 +20,8 @@ run-gametest
 build
 .gradle
 
+.hermes
+
 # other
 eclipse
 run

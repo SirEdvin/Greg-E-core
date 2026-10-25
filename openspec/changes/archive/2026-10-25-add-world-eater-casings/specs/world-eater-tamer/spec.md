@@ -84,3 +84,29 @@ Every tamer recipe SHALL declare a valid required progression state matching the
 - **WHEN** a controller with valid saved progression is reloaded or its old frame is rebuilt with black casing
 - **THEN** its progression state is preserved
 - **AND** paused surveys and pending reports retain the existing non-duplication and non-loading guarantees
+
+## MODIFIED Requirements
+
+### Requirement: Initial tamer structure
+
+The system SHALL expose a multiblock named `Incomplete World Eater tamer` with outer dimensions 5×5×5 and an edge-only skeleton: the 12 cube edges including their corners, totaling 44 blocks. The controller SHALL occupy the middle of the lower front edge. Face panels and the 3×3×3 interior SHALL be unrestricted. The frame SHALL use dedicated World Eater Tamer Casings subject to its casing-color requirements and allow up to five of EACH of item input buses, item output buses, fluid input hatches, and fluid output hatches. Energy hatches SHALL NOT be accepted as frame substitutions or be required for processing. This change SHALL NOT introduce the future 15×15×15 variant.
+
+#### Scenario: Skeleton frame
+- **WHEN** the player builds only the cube edges with the controller at the middle of the lower front edge, leaving face panels and the interior empty
+- **THEN** the structure forms
+- **WHEN** any required frame edge or corner block is missing
+- **THEN** the structure does not form
+
+#### Scenario: Interior contains blocks
+- **WHEN** the player completes the valid shell with arbitrary blocks inside
+- **THEN** the interior contents do not prevent formation
+
+#### Scenario: Independent hatch limits
+- **WHEN** the shell contains five item input buses, five item output buses, five fluid input hatches, and five fluid output hatches
+- **THEN** those per-type counts are permitted
+- **WHEN** any one permitted type has six parts
+- **THEN** the structure does not form
+
+#### Scenario: Energy hatch rejection
+- **WHEN** an energy hatch replaces a required shell casing
+- **THEN** the structure does not form

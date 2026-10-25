@@ -8,7 +8,7 @@ Let players upgrade the small World Eater tamer through its casing composition w
 
 ### Requirement: Mixed-color small tamer frame
 
-The small tamer SHALL accept black, dark purple, dark green, and very dark orange World Eater Tamer Casings in any mixture at required casing positions. Its 5x5x5 edge-only skeleton, controller at the middle of the lower front edge, and unrestricted face panels and interior SHALL remain unchanged. UHV and unrelated blocks SHALL NOT become valid casing substitutes.
+The small tamer SHALL accept black, dark purple, dark green, and very dark orange World Eater Tamer Casings in any mixture at required casing positions. Its 5x5x5 edge-only skeleton, controller at the middle of the lower front edge, and unrestricted face panels and interior SHALL remain unchanged. UHV and unrelated blocks SHALL NOT become valid casing substitutes. The controller and formed parts SHALL retain black casing appearance and readable overlays.
 
 #### Scenario: Existing black frame
 - **WHEN** an existing valid black frame is checked after the update
@@ -22,6 +22,11 @@ The small tamer SHALL accept black, dark purple, dark green, and very dark orang
 #### Scenario: Missing or unrelated frame block
 - **WHEN** a required edge or corner is missing or replaced with UHV casing or an unrelated block
 - **THEN** the structure does not form
+- **AND** an existing UHV frame is not silently converted to tamer casing
+
+#### Scenario: Consistent machine appearance
+- **WHEN** the controller and attached parts are inspected on a formed tamer
+- **THEN** their casing appearance uses the black casing rather than UHV casing while retaining readable machine and part overlays
 
 ### Requirement: Existing part substitutions remain valid
 
@@ -121,3 +126,10 @@ This change SHALL add no recipes or tier-based recipe gates. Existing DORMANT su
 - **WHEN** a frame break interrupts an unfinished scan or casing craft
 - **THEN** the existing recipe-cancellation behavior remains unchanged
 - **AND** the controller's earned progression is not reset by that cancellation
+
+## REMOVED Requirements
+
+### Requirement: Dedicated black casing frame
+
+**Reason**: Mixed-color frame acceptance supersedes the black-only restriction; the unchanged geometry, part limits, and black machine appearance remain required.
+**Migration**: Use the mixed-color small tamer frame and existing part-substitution requirements. Existing black frames remain valid at tier 1; colored frame casings are now accepted without changing the controller or automatically converting UHV blocks.

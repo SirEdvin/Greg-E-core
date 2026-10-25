@@ -38,7 +38,10 @@ public class WorldEaterUnloadTests {
     @GameTest(template = "empty", timeoutTicks = 1200)
     public static void nativeControllerEvictionAndReload(GameTestHelper helper) {
         var fixtures = new WorldEaterRunTests.Fixture[4];
-        for (int i = 0; i < fixtures.length; i++) fixtures[i] = WorldEaterRunTests.fixture(helper, 56000 + i * 1000);
+        for (int i = 0; i < fixtures.length; i++) {
+            fixtures[i] = WorldEaterRunTests.fixture(helper, 56000 + i * 1000);
+            if (i % 2 == 0) WorldEaterStructureTests.colorFrame(fixtures[i].controller(), -1);
+        }
         helper.runAfterDelay(4, () -> {
             for (int i = 0; i < fixtures.length; i++) {
                 var fixture = fixtures[i];
@@ -93,6 +96,10 @@ public class WorldEaterUnloadTests {
                         && ItemStack.matches(logic.getPendingBook(), fixture.logic().getPendingBook()), "Exact pending output retained");
                 helper.assertTrue(reloaded.checkPatternWithLock(), "Reloaded shell forms");
                 reloaded.onStructureFormed();
+                int expectedTier = helper.getLevel().getBlockState(WorldEaterStructureTests.shellPositions(reloaded).get(3))
+                        .is(WorldEaterCasingTests.casings()[0]) ? 1 : 2;
+                helper.assertTrue(reloaded.getCasingTier() == expectedTier, "Native eviction recomputes current casing tier");
+                helper.assertTrue(logic.getProgressionState() == WorldEaterTamerRecipeLogic.State.DORMANT, "Eviction retains progression independently of tier");
                 var inputPos = fixture.input().getPos();
                 var input = (com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine) MetaMachine.getMachine(helper.getLevel(), inputPos);
                 helper.assertTrue(input.getInventory().getStackInSlot(0).getCount() == 1, "No second sensor on reload");

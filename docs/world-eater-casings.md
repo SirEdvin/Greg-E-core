@@ -1,10 +1,35 @@
 # World Eater casings
 
-The incomplete World Eater tamer now requires black World Eater Tamer Casing.
-Old UHV casing and the three colored variants are not accepted in its frame.
+The incomplete World Eater tamer accepts any mixture of black, dark purple,
+dark green, and very dark orange World Eater Tamer Casings in its frame.
+Old UHV casing and unrelated blocks are not accepted.
 The 5×5×5 edge skeleton and controller position are unchanged; up to five of
 each item/fluid import/export part and at most one optional standard GTCEu
 parallel hatch may replace casing. No energy hatch is needed or accepted.
+
+## Reversible casing tiers
+
+Any actual black frame casing makes the formed machine tier 1. Replacing the
+last black casing with any colored variant makes it tier 2; different colors
+may be freely mixed. Putting black back downgrades it to tier 1. Only actual
+required frame casings count: the controller, permitted parts (even with black
+appearances), unrestricted face panels, and interior do not contribute.
+
+Tier is derived from the current validated frame, not a permanent unlock or
+saved upgrade. A broken/unvalidated frame has no usable tier; reformation and
+reload recompute it. Existing surveys and conversions work identically at both
+tiers, with no extra payment, recipes, or tier-based gates.
+
+Keep the existing controller to retain its valid DORMANT/ACTIVE progression
+through swaps, upgrades, downgrades, dismantling, repairs, and save/load. Colored
+casings do not awaken a DORMANT controller; a fresh controller starts DORMANT.
+Only normal successful delivery of the existing qualifying survey activates it.
+Retained ACTIVE is **not** recovery of unfinished work: a structural break still
+cancels an unfinished paid survey or casing craft. Replace casings while idle.
+Completed pending survey reports retain their existing protection and deliver
+once when the frame and output capacity are available, without another sensor
+or scan. Registry IDs, version-1 progression saves, acquisition, and appearance
+are unchanged by casing tiers.
 
 ## Acquisition and recipes
 
@@ -70,9 +95,11 @@ and emissive mask separation:
 
 ## Existing worlds
 
-Back up before updating. Replace old UHV frame casings with the new black casing;
+Back up before updating. Replace old UHV frame casings with accepted tamer casing;
 no blocks are automatically converted. Keep the existing controller: its identity
 and valid DORMANT/ACTIVE progression data are retained. A completed pending survey
 report waits for the rebuilt structure and usable output capacity rather than
-being re-created. Downgrading a world after placing new casing IDs is not a safe
-rollback; restore the pre-update world backup alongside the old mod JAR.
+being re-created. Rolling back only casing-tier support requires replacing colored
+frame casings with black so the older build can form them. Downgrading past the
+release that registered these casing IDs is not safe; restore the pre-update
+world backup alongside that older mod JAR.

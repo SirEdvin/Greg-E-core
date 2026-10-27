@@ -30,6 +30,8 @@ import com.gregtechceu.gtceu.client.model.machine.overlays.WorkableOverlays;
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import net.cu5tmtp.GregECore.block.GreggyBlocks;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine.Intention;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
@@ -67,21 +69,25 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                 }
                 return ModifierFunction.IDENTITY;
             })
-            .pattern(definition -> FactoryBlockPattern.start(RelativeDirection.LEFT, RelativeDirection.UP, RelativeDirection.BACK)
+            .pattern(definition -> {
+                var frame = casingPredicate()
+                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1).setPreviewCount(1))
+                        .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(5))
+                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(5))
+                        .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(5))
+                        .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(5));
+                return FactoryBlockPattern.start(RelativeDirection.LEFT, RelativeDirection.UP, RelativeDirection.BACK)
                     .aisle("CCSCC", "C###C", "C###C", "C###C", "CCCCC")
                     .aisle("C###C", "#####", "#####", "#####", "C###C")
                     .aisle("C###C", "#####", "#####", "#####", "C###C")
                     .aisle("C###C", "#####", "#####", "#####", "C###C")
-                    .aisle("CCCCC", "C###C", "C###C", "C###C", "CCCCC")
+                    .aisle("CCICC", "C###C", "C###C", "C###C", "CCCCC")
                     .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                     .where('#', Predicates.any())
-                    .where('C', casingPredicate()
-                            .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1).setPreviewCount(1))
-                            .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(5))
-                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(5))
-                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(5))
-                            .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(5)))
-                    .build())
+                    .where('C', frame)
+                    .where('I', frame.or(Predicates.abilities(IntentionHatchPartMachine.INTENTION)))
+                    .build();
+            })
             .modelProperty(GTMachineModelProperties.RECIPE_LOGIC_STATUS, RecipeLogic.Status.IDLE)
             .model((ctx, prov, builder) -> {
                 var casing = GregECore.id("block/casings/world_eater/black");
@@ -99,7 +105,9 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                     Component.literal("Frame: any mix of black, purple, green, or orange World Eater Tamer Casings."),
                     Component.literal("Any black frame casing: tier 1; all colored: tier 2. Reversible; progression is retained."),
                     Component.literal("ACTIVE: 1 black casing + 16 matching terracotta → 1 colored casing in 5 seconds."),
-                    Component.literal("Accepts one optional parallel hatch; surveys always run singly."))
+                    Component.literal("ACTIVE, tier 2: 1 signed acknowledgement book → 1 Bravery Hatch in 60 seconds, without power."),
+                    Component.literal("Accepts one optional parallel hatch; surveys always run singly."),
+                    Component.literal("Optional Safety or Bravery Hatch: lower rear edge center, opposite the controller."))
             .register();
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
@@ -141,6 +149,14 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
 
     public Vec3 getStructureCenter() {
         return Vec3.atCenterOf(getPos().relative(getFrontFacing().getOpposite(), 2).above(2));
+    }
+
+    public Intention getIntention() {
+        if (getCasingTier() == 0) return Intention.NONE;
+        for (var part : getParts()) {
+            if (part instanceof IntentionHatchPartMachine hatch) return hatch.getIntention();
+        }
+        return Intention.NONE;
     }
 
     @Override

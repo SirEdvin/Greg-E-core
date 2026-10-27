@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.endgame.IncompleteWorldEaterTamer;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterScanDomain;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
@@ -72,7 +73,12 @@ public class WorldEaterRunTests {
     private static void loadedThresholdsAndBlockedDelivery(GameTestHelper helper, int tier) {
         Fixture[] fixtures = {fixture(helper, 5000 + (tier - 1) * 500), fixture(helper, 10000 + (tier - 1) * 500),
                 fixture(helper, 15000 + (tier - 1) * 500), fixture(helper, 20000 + (tier - 1) * 500)};
-        for (var f : fixtures) WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
+        for (int i = 0; i < fixtures.length; i++) {
+            var f = fixtures[i];
+            WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
+            if (i == 1 || i == 2) helper.getLevel().setBlockAndUpdate(WorldEaterStructureTests.intentionPosition(f.controller()),
+                    (i == 1 ? IntentionHatchPartMachine.SAFETY : IntentionHatchPartMachine.BRAVERY).defaultBlockState());
+        }
         helper.runAfterDelay(4, () -> {
             int[] totals = {0, 499, 500, 501};
             for (int test = 0; test < fixtures.length; test++) {
@@ -111,6 +117,16 @@ public class WorldEaterRunTests {
                 helper.assertTrue(fixture.logic().getCounts().values().stream().mapToLong(Long::longValue).sum() == totals[test], "Exact count " + totals[test]);
                 helper.assertTrue(fixture.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.DORMANT, "Blocked report cannot activate");
                 var pending = fixture.logic().getPendingBook().copy();
+                if (test == 1 || test == 2) {
+                    var rear = WorldEaterStructureTests.intentionPosition(controller);
+                    helper.getLevel().setBlockAndUpdate(rear, (test == 1 ? IntentionHatchPartMachine.BRAVERY : IntentionHatchPartMachine.SAFETY).defaultBlockState());
+                    WorldEaterStructureTests.assertTier(helper, controller, tier);
+                    helper.assertTrue(ItemStack.matches(pending, fixture.logic().getPendingBook()), "Swapping intention retains completed report");
+                    helper.getLevel().setBlockAndUpdate(rear, WorldEaterCasingTests.casings()[tier == 1 ? 0 : 1].defaultBlockState());
+                    WorldEaterStructureTests.assertTier(helper, controller, tier);
+                    helper.assertTrue(controller.getIntention() == IntentionHatchPartMachine.Intention.NONE
+                            && ItemStack.matches(pending, fixture.logic().getPendingBook()), "Removing intention retains completed report");
+                }
                 var framePos = WorldEaterStructureTests.shellPositions(controller).get(3);
                 helper.getLevel().setBlockAndUpdate(framePos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
                 controller.onStructureInvalid();
@@ -235,7 +251,22 @@ public class WorldEaterRunTests {
 
     @GameTest(template = "empty", timeoutTicks = 200)
     public static void retryExhaustionAndNativePersistence(GameTestHelper helper) {
-        Fixture fixture = fixture(helper, 30000);
+        retryExhaustionAndNativePersistence(helper, null, 30000);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200)
+    public static void safetySurveyFailure(GameTestHelper helper) {
+        retryExhaustionAndNativePersistence(helper, IntentionHatchPartMachine.SAFETY, 262000);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200)
+    public static void braverySurveyFailure(GameTestHelper helper) {
+        retryExhaustionAndNativePersistence(helper, IntentionHatchPartMachine.BRAVERY, 263000);
+    }
+
+    private static void retryExhaustionAndNativePersistence(GameTestHelper helper, com.gregtechceu.gtceu.api.machine.MachineDefinition intention, int location) {
+        Fixture fixture = fixture(helper, location);
+        if (intention != null) helper.getLevel().setBlockAndUpdate(WorldEaterStructureTests.intentionPosition(fixture.controller()), intention.defaultBlockState());
         helper.runAfterDelay(4, () -> {
             form(helper, fixture);
             fixture.logic().setWorkingEnabled(true);
@@ -248,7 +279,7 @@ public class WorldEaterRunTests {
                 if (tick == 7 || tick == 19 || tick == 60) {
                     var holder = (net.minecraft.world.level.block.entity.BlockEntity) fixture.controller.getHolder();
                     CompoundTag saved = holder.saveWithFullMetadata(); holder.load(saved);
-                    if (tick == 7) {
+                    if (tick == 7 && intention == null) {
                         try {
                             net.minecraft.nbt.NbtIo.writeCompressed(saved,
                                     java.nio.file.Path.of(System.getenv("TMPDIR"), "world-eater-retry-snapshot.nbt").toFile());

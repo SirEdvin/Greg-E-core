@@ -110,6 +110,8 @@ public class ModCreativeModTabs {
                         pOutput.accept(AssemblyHall.ASSEMBLYHALL.getItem());
                         pOutput.accept(PrecisionFabricationArray.PFARRAY.getItem());
                         pOutput.accept(IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.getItem());
+                        pOutput.accept(IntentionHatchPartMachine.SAFETY.getItem());
+                        pOutput.accept(IntentionHatchPartMachine.BRAVERY.getItem());
                         pOutput.accept(GreggyBlocks.WORLD_EATER_TAMER_CASING);
                         pOutput.accept(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE);
                         pOutput.accept(GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN);

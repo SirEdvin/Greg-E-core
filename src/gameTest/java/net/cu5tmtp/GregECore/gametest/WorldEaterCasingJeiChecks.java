@@ -40,4 +40,14 @@ public final class WorldEaterCasingJeiChecks implements IModPlugin {
         runtime.getRecipesGui().showRecipes(category, List.of(wrapper), List.of());
         return true;
     }
+
+    static boolean showIntentionRecipe(boolean safety) {
+        if (runtime == null) return false;
+        var recipe = IntentionRecipeTests.recipe(Minecraft.getInstance().level, safety);
+        var type = runtime.getRecipeManager().getRecipeType(
+                recipe.recipeType.getCategory().registryKey, GTRecipe.class).orElseThrow();
+        var category = runtime.getRecipeManager().getRecipeCategory(type);
+        runtime.getRecipesGui().showRecipes(category, List.of(recipe), List.of());
+        return true;
+    }
 }

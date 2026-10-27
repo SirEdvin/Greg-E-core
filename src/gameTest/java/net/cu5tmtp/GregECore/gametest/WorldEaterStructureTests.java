@@ -8,6 +8,8 @@ import net.cu5tmtp.GregECore.block.GreggyBlocks;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.endgame.IncompleteWorldEaterTamer;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine.Intention;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.ModCreativeModTabs;
@@ -228,6 +230,7 @@ public class WorldEaterStructureTests {
         }
         if (!ready) {
             helper.assertTrue(waited < 160, "Native callbacks reach tier " + expected + " at stage " + stage);
+            awaitPatternWorker();
             helper.runAfterDelay(1, () -> lifecycle(helper, fixtures, stage, waited + 1));
             return;
         }
@@ -246,6 +249,139 @@ public class WorldEaterStructureTests {
             }
         }
         helper.runAfterDelay(2, () -> lifecycle(helper, fixtures, stage + 1, 0));
+    }
+
+    static BlockPos intentionPosition(IncompleteWorldEaterTamer machine) {
+        return machine.getPos().relative(machine.getFrontFacing().getOpposite(), 4);
+    }
+
+    private static void awaitPatternWorker() {
+        // GameTest ticks are unpaced, but native pattern checks run on a wall-clock worker.
+        try { Thread.sleep(50); }
+        catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted awaiting native pattern checks", interrupted);
+        }
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 300)
+    public static void intentionPlacementAndSharedLimits(GameTestHelper helper) {
+        var machines = new ArrayList<IncompleteWorldEaterTamer>();
+        int location = 230000;
+        for (var facing : Direction.Plane.HORIZONTAL) {
+            var center = helper.absolutePos(new BlockPos(location, 3, location));
+            for (int x = (center.getX() >> 4) - 1; x <= (center.getX() >> 4) + 1; x++)
+                for (int z = (center.getZ() >> 4) - 1; z <= (center.getZ() >> 4) + 1; z++) helper.getLevel().setChunkForced(x, z, true);
+            machines.add(shell(helper, facing, new BlockPos(location, 3, location)));
+            location += 100;
+        }
+        helper.runAfterDelay(6, () -> {
+            for (var machine : machines) {
+                var rear = intentionPosition(machine);
+                var positions = shellPositions(machine); positions.remove(rear);
+                assertTier(helper, machine, 1);
+                helper.assertTrue(machine.getIntention() == Intention.NONE, "No implicit intention");
+                colorFrame(machine, -1);
+                for (var variant : new MachineDefinition[]{IntentionHatchPartMachine.SAFETY, IntentionHatchPartMachine.BRAVERY}) {
+                    helper.getLevel().setBlockAndUpdate(rear, variant.defaultBlockState());
+                    assertTier(helper, machine, 2);
+                    var hatch = (IntentionHatchPartMachine) MetaMachine.getMachine(helper.getLevel(), rear);
+                    helper.assertTrue(machine.getIntention() == hatch.getIntention() && machine.getParts().contains(hatch), "Correct attached variant: " + machine.getFrontFacing());
+                    helper.assertTrue(hatch.replacePartModelWhenFormed(), "Formed hatch inherits controller casing");
+                    machine.onStructureInvalid();
+                    helper.assertTrue(!hatch.replacePartModelWhenFormed(), "Detached hatch restores standalone hull");
+                    assertTier(helper, machine, 2);
+                    for (var wrong : positions) {
+                        helper.getLevel().setBlockAndUpdate(wrong, IntentionHatchPartMachine.SAFETY.defaultBlockState());
+                        helper.assertTrue(!machine.checkPattern() && machine.getIntention() == Intention.NONE, "Second/misplaced frame hatch rejected: " + wrong);
+                        helper.getLevel().setBlockAndUpdate(wrong, WorldEaterCasingTests.casings()[1].defaultBlockState());
+                    }
+                    assertTier(helper, machine, 2);
+                }
+                helper.getLevel().setBlockAndUpdate(rear, WorldEaterCasingTests.casings()[1].defaultBlockState());
+                helper.getLevel().setBlockAndUpdate(positions.get(0), IntentionHatchPartMachine.BRAVERY.defaultBlockState());
+                helper.assertTrue(!machine.checkPattern(), "Lone hatch at wrong frame coordinate rejected");
+                helper.getLevel().setBlockAndUpdate(positions.get(0), WorldEaterCasingTests.casings()[1].defaultBlockState());
+                for (var pos : new BlockPos[]{machine.getPos().above(), machine.getPos().relative(machine.getFrontFacing().getOpposite(), 2).above(2)})
+                    helper.getLevel().setBlockAndUpdate(pos, IntentionHatchPartMachine.BRAVERY.defaultBlockState());
+                assertTier(helper, machine, 2);
+                helper.assertTrue(machine.getIntention() == Intention.NONE && machine.getParts().isEmpty(), "Unrestricted hatches do not attach");
+                MachineDefinition[] types = {GTMachines.ITEM_IMPORT_BUS[GTValues.LV], GTMachines.ITEM_EXPORT_BUS[GTValues.LV],
+                        GTMachines.FLUID_IMPORT_HATCH[GTValues.LV], GTMachines.FLUID_EXPORT_HATCH[GTValues.LV]};
+                var parallel = com.gregtechceu.gtceu.common.data.machines.GCYMMachines.PARALLEL_HATCH[GTValues.IV];
+                for (int t = 0; t < types.length; t++) for (int count = 0; count < 5; count++)
+                    helper.getLevel().setBlockAndUpdate(positions.get(t * 5 + count), types[t].defaultBlockState());
+                helper.getLevel().setBlockAndUpdate(positions.get(20), parallel.defaultBlockState());
+                helper.getLevel().setBlockAndUpdate(rear, IntentionHatchPartMachine.SAFETY.defaultBlockState());
+                assertTier(helper, machine, 2);
+                helper.assertTrue(machine.getParts().size() == 22 && machine.getIntention() == Intention.SAFETY, "Intention has its own allowance");
+                for (int t = 0; t < types.length; t++) {
+                    helper.getLevel().setBlockAndUpdate(rear, types[t].defaultBlockState());
+                    helper.assertTrue(!machine.checkPattern(), "Rear slot shares the five-part limit");
+                    helper.getLevel().setBlockAndUpdate(positions.get(t * 5), WorldEaterCasingTests.casings()[1].defaultBlockState());
+                    assertTier(helper, machine, 2);
+                    helper.assertTrue(machine.getIntention() == Intention.NONE, "Rear ordinary part is not intention");
+                    helper.getLevel().setBlockAndUpdate(positions.get(t * 5), types[t].defaultBlockState());
+                }
+                helper.getLevel().setBlockAndUpdate(rear, parallel.defaultBlockState());
+                helper.assertTrue(!machine.checkPattern(), "Rear slot shares the parallel limit");
+                helper.getLevel().setBlockAndUpdate(positions.get(20), WorldEaterCasingTests.casings()[1].defaultBlockState());
+                assertTier(helper, machine, 2);
+                helper.getLevel().setBlockAndUpdate(rear, GTMachines.ENERGY_INPUT_HATCH[GTValues.LuV].defaultBlockState());
+                helper.assertTrue(!machine.checkPattern() && machine.getIntention() == Intention.NONE, "Rear energy and stale selection rejected");
+                helper.getLevel().setBlockAndUpdate(rear, WorldEaterCasingTests.casings()[0].defaultBlockState());
+                assertTier(helper, machine, 1);
+                helper.assertTrue(machine.getIntention() == Intention.NONE, "Recovery without intention");
+                machine.onStructureInvalid();
+            }
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 1400)
+    public static void nativeIntentionLifecycle(GameTestHelper helper) {
+        var fixtures = new WorldEaterRunTests.Fixture[]{WorldEaterRunTests.fixture(helper, 240000), WorldEaterRunTests.fixture(helper, 241000)};
+        WorldEaterCasingTests.active(fixtures[0].logic());
+        intentionLifecycle(helper, fixtures, 0, 0);
+    }
+
+    private static void intentionLifecycle(GameTestHelper helper, WorldEaterRunTests.Fixture[] fixtures, int stage, int waited) {
+        Intention expected = switch (stage) { case 1 -> Intention.SAFETY; case 2, 6 -> Intention.BRAVERY; default -> Intention.NONE; };
+        boolean ready = true;
+        for (int i = 0; i < fixtures.length; i++) {
+            var machine = fixtures[i].controller();
+            helper.assertTrue(fixtures[i].logic().getProgressionState().name().equals(i == 0 ? "ACTIVE" : "DORMANT"), "Hatch changes retain progression");
+            ready &= machine.getIntention() == expected && machine.isFormed() == (stage != 4);
+        }
+        if (!ready) {
+            helper.assertTrue(waited < 160, "Native intention callbacks converge at stage " + stage);
+            awaitPatternWorker();
+            helper.runAfterDelay(1, () -> intentionLifecycle(helper, fixtures, stage, waited + 1));
+            return;
+        }
+        if (stage == 7) { helper.succeed(); return; }
+        for (int i = 0; i < fixtures.length; i++) {
+            var f = fixtures[i];
+            var machine = f.controller();
+            var state = switch (stage) {
+                case 0 -> IntentionHatchPartMachine.SAFETY.defaultBlockState();
+                case 1, 5 -> IntentionHatchPartMachine.BRAVERY.defaultBlockState();
+                case 3 -> Blocks.AIR.defaultBlockState();
+                default -> WorldEaterCasingTests.casings()[0].defaultBlockState();
+            };
+            helper.getLevel().setBlockAndUpdate(intentionPosition(machine), state);
+            if (stage == 6) {
+                var holder = (net.minecraft.world.level.block.entity.BlockEntity) machine.getHolder();
+                var saved = holder.saveWithFullMetadata();
+                helper.getLevel().removeBlock(machine.getPos(), false);
+                helper.getLevel().setBlockAndUpdate(machine.getPos(), machine.getDefinition().defaultBlockState());
+                var fresh = (IncompleteWorldEaterTamer) MetaMachine.getMachine(helper.getLevel(), machine.getPos());
+                ((net.minecraft.world.level.block.entity.BlockEntity) fresh.getHolder()).load(saved.copy());
+                helper.assertTrue(fresh.getIntention() == Intention.NONE, "Fresh load cannot expose unvalidated intention");
+                fixtures[i] = new WorldEaterRunTests.Fixture(fresh, f.input(), f.output());
+            }
+        }
+        helper.runAfterDelay(2, () -> intentionLifecycle(helper, fixtures, stage + 1, 0));
     }
 
     @GameTest(template = "empty", timeoutTicks = 200)

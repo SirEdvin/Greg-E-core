@@ -21,7 +21,22 @@ public class WorldEaterUnloadTests {
                 var report = java.nio.file.Path.of(System.getenv("TMPDIR"), "world-eater-gametest.xml");
                 java.nio.file.Files.deleteIfExists(report);
                 net.minecraft.gametest.framework.GlobalTestReporter.replaceWith(
-                        new net.minecraft.gametest.framework.JUnitLikeTestReporter(report.toFile()));
+                        new net.minecraft.gametest.framework.JUnitLikeTestReporter(report.toFile()) {
+                            @Override public void onTestFailed(net.minecraft.gametest.framework.GameTestInfo test) {
+                                super.onTestFailed(test);
+                                System.err.println("WORLD_EATER_TEST_FAILED " + test.getTestName() + ": " + test.getError());
+                                saveProgress();
+                            }
+                            @Override public void onTestSuccess(net.minecraft.gametest.framework.GameTestInfo test) {
+                                super.onTestSuccess(test);
+                                System.out.println("WORLD_EATER_TEST_PASSED " + test.getTestName());
+                                saveProgress();
+                            }
+                            private void saveProgress() {
+                                try { save(report.toFile()); }
+                                catch (javax.xml.transform.TransformerException exception) { throw new IllegalStateException(exception); }
+                            }
+                        });
             } catch (java.io.IOException | javax.xml.parsers.ParserConfigurationException exception) {
                 throw new ExceptionInInitializerError(exception);
             }

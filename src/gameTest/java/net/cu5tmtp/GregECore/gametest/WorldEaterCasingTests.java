@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.data.machines.GCYMMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.ParallelHatchPartMachine;
 import net.cu5tmtp.GregECore.block.GreggyBlocks;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.ModCreativeModTabs;
@@ -122,11 +123,21 @@ public class WorldEaterCasingTests {
 
     @GameTest(template = "empty", timeoutTicks = 200)
     public static void tierTwoColorsAndStateGates(GameTestHelper helper) {
-        allColorsAndStateGates(helper, 2);
+        allColorsAndStateGates(helper, 2, IntentionHatchPartMachine.SAFETY, 101000);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200)
+    public static void braveryColorsAndStateGates(GameTestHelper helper) {
+        allColorsAndStateGates(helper, 2, IntentionHatchPartMachine.BRAVERY, 264000);
     }
 
     private static void allColorsAndStateGates(GameTestHelper helper, int tier) {
-        var f = WorldEaterRunTests.fixture(helper, 100000 + (tier - 1) * 1000);
+        allColorsAndStateGates(helper, tier, null, 100000 + (tier - 1) * 1000);
+    }
+
+    private static void allColorsAndStateGates(GameTestHelper helper, int tier, com.gregtechceu.gtceu.api.machine.MachineDefinition intention, int location) {
+        var f = WorldEaterRunTests.fixture(helper, location);
+        if (intention != null) helper.getLevel().setBlockAndUpdate(WorldEaterStructureTests.intentionPosition(f.controller()), intention.defaultBlockState());
         WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
         helper.runAfterDelay(6, () -> {
             WorldEaterRunTests.form(helper, f);

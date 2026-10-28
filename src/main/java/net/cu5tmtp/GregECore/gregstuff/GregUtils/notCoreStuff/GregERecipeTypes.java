@@ -27,6 +27,7 @@ public class GregERecipeTypes {
             .addDataInfo(data -> switch (data.getString("operation")) {
                 case "information_collection" -> "Information collection";
                 case "casing_conversion" -> "Casing conversion";
+                case "bravery_crafting" -> "Casing tier " + data.getInt("required_casing_tier") + "; no power";
                 default -> "Operation: " + data.getString("operation");
             });
 

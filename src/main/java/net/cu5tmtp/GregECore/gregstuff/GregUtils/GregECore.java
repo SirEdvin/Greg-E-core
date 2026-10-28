@@ -104,6 +104,7 @@ public class GregECore {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            net.minecraftforge.common.crafting.CraftingHelper.register(BraveryBookIngredient.ID, BraveryBookIngredient.SERIALIZER);
             for (int tier = GTValues.LV; tier <= GTValues.UHV; tier++) {
 
                 String machineName = GTValues.VN[tier].toLowerCase() + "_gas_collector";

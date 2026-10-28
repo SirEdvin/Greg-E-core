@@ -38,6 +38,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     public enum State { DORMANT, ACTIVE }
     public static final String OPERATION = "information_collection";
     public static final String CASING_OPERATION = "casing_conversion";
+    public static final String BRAVERY_OPERATION = "bravery_crafting";
     private static final ManagedFieldHolder FIELDS = new ManagedFieldHolder(
             WorldEaterTamerRecipeLogic.class, RecipeLogic.MANAGED_FIELD_HOLDER);
     private final IncompleteWorldEaterTamer controller;
@@ -106,7 +107,8 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         if (recipe == null || recipe.recipeType != controller.getRecipeType()
                 || !recipe.data.contains("required_state", Tag.TAG_STRING)
                 || !recipe.data.getString("required_state").equals(progression)) return false;
-        if (progression.equals(State.ACTIVE.name())) return isCasingRecipe(recipe);
+        if (progression.equals(State.ACTIVE.name())) return isCasingRecipe(recipe)
+                || isBraveryRecipe(recipe) && controller.getCasingTier() == 2;
         return OPERATION.equals(recipe.data.getString("operation"))
                 && recipe.duration == WorldEaterScanDomain.SCAN_TICKS
                 && recipe.parallels == 1 && recipe.batchParallels == 1 && recipe.subtickParallels == 1
@@ -121,6 +123,20 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
                 && recipe.batchParallels == 1 && recipe.subtickParallels == 1 && !recipe.hasTick();
     }
 
+    private static boolean isBraveryRecipe(GTRecipe recipe) {
+        return recipe != null && State.ACTIVE.name().equals(recipe.data.getString("required_state"))
+                && BRAVERY_OPERATION.equals(recipe.data.getString("operation"))
+                // JSON recipe decoding may narrow integer metadata to a byte tag.
+                && recipe.data.contains("required_casing_tier", Tag.TAG_ANY_NUMERIC)
+                && recipe.data.getDouble("required_casing_tier") == 2
+                && recipe.duration == 1200 && recipe.parallels == 1
+                && recipe.batchParallels == 1 && recipe.subtickParallels == 1 && !recipe.hasTick();
+    }
+
+    private static boolean isCraftingRecipe(GTRecipe recipe) {
+        return isCasingRecipe(recipe) || isBraveryRecipe(recipe);
+    }
+
     @Override
     protected ActionResult checkRecipe(GTRecipe recipe) {
         if (reportPending || !accepts(recipe)) return ActionResult.FAIL_NO_REASON;
@@ -131,12 +147,12 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     public void setupRecipe(GTRecipe recipe) {
         if (reportPending || !accepts(recipe) || !machine.isRecipeLogicAvailable()
                 || !(controller.getLevel() instanceof ServerLevel level)) return;
-        if (isCasingRecipe(recipe) && !checkRecipe(recipe).isSuccess()) return;
+        if (isCraftingRecipe(recipe) && !checkRecipe(recipe).isSuccess()) return;
         clearRun();
         GTRecipe run = recipe.copy();
         run.data = recipe.data.copy();
         super.setupRecipe(run);
-        if (lastRecipe == run && isWorking() && !isCasingRecipe(run)) {
+        if (lastRecipe == run && isWorking() && !isCraftingRecipe(run)) {
             var chunk = controller.getPos();
             domain = new WorldEaterScanDomain(chunk.getX() >> 4, chunk.getZ() >> 4,
                     level.getMinBuildHeight(), level.getMaxBuildHeight());
@@ -170,7 +186,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
 
     @Override
     public void handleRecipeWorking() {
-        if (domain == null && accepts(lastRecipe) && isCasingRecipe(lastRecipe)) {
+        if (domain == null && accepts(lastRecipe) && isCraftingRecipe(lastRecipe)) {
             super.handleRecipeWorking();
             return;
         }
@@ -276,7 +292,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
 
     @Override
     public void onRecipeFinish() {
-        if (domain == null && accepts(lastRecipe) && isCasingRecipe(lastRecipe)) {
+        if (domain == null && accepts(lastRecipe) && isCraftingRecipe(lastRecipe)) {
             // Native completion does not retain outputs if capacity changed mid-run.
             // Preflight before delegating, keeping the paid native job pending.
             var output = RecipeHelper.handleRecipe(machine, lastRecipe, IO.OUT, lastRecipe.outputs,

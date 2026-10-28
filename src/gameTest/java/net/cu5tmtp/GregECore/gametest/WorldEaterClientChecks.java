@@ -50,7 +50,7 @@ public class WorldEaterClientChecks {
         Minecraft client = Minecraft.getInstance();
         boolean nativeWorld = Boolean.getBoolean("gregecore.worldEaterClientWorld");
         if (nativeWorld && (client.level == null || client.player == null)) {
-            if (++waiting == 100) {
+            if (++waiting % 100 == 0) {
                 System.out.println("WORLD_EATER_WORLD_WAIT screen=" + (client.screen == null ? "none" : client.screen.getClass().getSimpleName()));
                 Screenshot.grab(Path.of(System.getenv("TMPDIR"), "world-eater-client").toFile(), "world-wait.png", client.getMainRenderTarget(), message -> {});
                 // Only the explicit opt-in, prefix-guarded disposable world reaches this branch.
@@ -69,7 +69,9 @@ public class WorldEaterClientChecks {
         if (nativeWorld && current == books.size() && uiStarted) {
             WorldEaterNativeUIChecks.tick();
             if (WorldEaterNativeUIChecks.done) {
+                if (!IntentionClientChecks.tick()) return;
                 failures.addAll(WorldEaterNativeUIChecks.failures);
+                failures.addAll(IntentionClientChecks.failures);
                 finish(client);
             }
             return;
@@ -119,7 +121,9 @@ public class WorldEaterClientChecks {
 
     private static void finish(Minecraft client) throws Exception {
         Files.writeString(Path.of(System.getenv("TMPDIR"), "world-eater-client", "result.json"),
-                new Gson().toJson(Map.of("passed", failures.isEmpty(), "pagesChecked", pages, "nativeUI", uiStarted, "failures", failures)));
+                new Gson().toJson(Map.of("passed", failures.isEmpty(), "pagesChecked", pages, "nativeUI", uiStarted, "failures", failures,
+                        "intentionRecipeReload", IntentionClientChecks.recipeReloaded, "intentionResourceReload", IntentionClientChecks.resourcesReloaded,
+                        "intentionReconnect", IntentionClientChecks.reconnected)));
         System.out.println("WORLD_EATER_CLIENT_VERIFIED passed=" + failures.isEmpty() + " pages=" + pages + " nativeUI=" + uiStarted);
         client.stop();
     }

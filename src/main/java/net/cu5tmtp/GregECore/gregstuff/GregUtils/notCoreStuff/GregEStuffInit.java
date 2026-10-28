@@ -71,6 +71,7 @@ public class GregEStuffInit {
     }
 
     public static void initGregEParts(){
+        IntentionHatchPartMachine.init();
         StarFeederPartMachine.init();
         ParallelBoosterPartMachine.init();
         AdvancedParallelBoosterPartMachine.init();

@@ -171,6 +171,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     @Override
     public void addDisplayText(List<Component> text) {
         IDisplayUIMachine.super.addDisplayText(text);
+        if (getCasingTier() == 2) text.add(Component.literal("Casing tier: 2"));
         var logic = (WorldEaterTamerRecipeLogic) getRecipeLogic();
         text.add(logic.getCustomProgressLine());
         if (logic.getProgressionState() == WorldEaterTamerRecipeLogic.State.DORMANT)

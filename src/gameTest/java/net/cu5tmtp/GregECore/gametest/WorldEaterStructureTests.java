@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Blocks;
@@ -233,6 +234,12 @@ public class WorldEaterStructureTests {
             awaitPatternWorker();
             helper.runAfterDelay(1, () -> lifecycle(helper, fixtures, stage, waited + 1));
             return;
+        }
+        for (var f : fixtures) {
+            var text = new ArrayList<Component>();
+            f.controller().addDisplayText(text);
+            helper.assertTrue(text.stream().anyMatch(line -> line.getString().equals("Casing tier: 2")) == (expected == 2),
+                    "Tier UI shown only at tier 2, lifecycle stage " + stage);
         }
         if (stage == 7) { helper.succeed(); return; }
         for (var f : fixtures) {

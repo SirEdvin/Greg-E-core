@@ -52,6 +52,13 @@ public class IntentionTamerTests {
                 && !f.logic().getLastRecipe().hasTick(), "Single 1200-tick power-free craft");
     }
 
+    private static void rejectionReason(GameTestHelper helper, WorldEaterRunTests.Fixture f, String expected) {
+        f.logic().serverTick();
+        var reasons = f.logic().getFancyTooltip().stream().map(net.minecraft.network.chat.Component::getString).toList();
+        helper.assertTrue(f.logic().showFancyTooltip() && reasons.contains(expected)
+                && reasons.stream().noneMatch(String::isBlank), "Readable native rejection tooltip: " + reasons);
+    }
+
     static void finish(GameTestHelper helper, WorldEaterRunTests.Fixture f) {
         WorldEaterCasingTests.ticks(f, 1199);
         helper.assertTrue(WorldEaterCasingTests.outputCount(f, IntentionHatchPartMachine.BRAVERY.getItem()) == 0, "No early hatch");
@@ -74,6 +81,7 @@ public class IntentionTamerTests {
                 f.logic().setWorkingEnabled(true);
                 feed(f, IntentionRecipeTests.book(1));
                 rejectedWithoutPayment(helper, f, "DORMANT tier " + tier);
+                rejectionReason(helper, f, "Requires ACTIVE state (current: DORMANT).");
             }
             WorldEaterCasingTests.active(f.logic());
             f.controller().onStructureInvalid();
@@ -82,6 +90,7 @@ public class IntentionTamerTests {
             f.logic().setWorkingEnabled(true);
             feed(f, IntentionRecipeTests.book(1));
             rejectedWithoutPayment(helper, f, "ACTIVE tier 1");
+            rejectionReason(helper, f, "Requires a formed tier-2 frame (all casings colored).");
             f.controller().onStructureInvalid();
             rejectedWithoutPayment(helper, f, "Unvalidated structure");
             WorldEaterStructureTests.colorFrame(f.controller(), -1);
@@ -103,6 +112,8 @@ public class IntentionTamerTests {
                 }
                 f.logic().setupRecipe(recipe);
                 helper.assertTrue(f.input().getInventory().getStackInSlot(0).getCount() == 1, "Malformed contract rejected before payment: " + invalid);
+                helper.assertTrue(!f.logic().checkMatchedRecipeAvailable(recipe)
+                        && !f.logic().getFailureReasonMap().get(recipe).getString().isBlank(), "Malformed recipe rejection has a reason: " + invalid);
             }
             start(helper, f);
             helper.assertTrue(f.input().getInventory().getStackInSlot(0).isEmpty(), "One book paid after tier-2 validation");
@@ -112,6 +123,7 @@ public class IntentionTamerTests {
             WorldEaterRunTests.form(helper, f);
             feed(f, IntentionRecipeTests.book(1));
             rejectedWithoutPayment(helper, f, "Downgrade revokes recipe without revoking ACTIVE");
+            rejectionReason(helper, f, "Requires a formed tier-2 frame (all casings colored).");
             helper.assertTrue(f.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.ACTIVE, "Retain earned ACTIVE");
             f.logic().setWorkingEnabled(false);
             helper.succeed();

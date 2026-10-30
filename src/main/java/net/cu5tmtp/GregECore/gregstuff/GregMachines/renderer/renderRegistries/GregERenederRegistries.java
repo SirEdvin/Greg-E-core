@@ -98,6 +98,7 @@ public class GregERenederRegistries {
         DynamicRenderManager.register(AMS_ID, AMSRender.TYPE);
         DynamicRenderManager.register(PRESSURE_ID, PressureChamberRender.TYPE);
         DynamicRenderManager.register(CATHEDRAL_ID, BloodCathedralRender.TYPE);
+        DynamicRenderManager.register(ResourceLocation.parse("gregecore:world_eater_parts"), WorldEaterPartRender.TYPE);
 
         EnhancedFusionRingRender.init();
         StarMaykrRender.init();

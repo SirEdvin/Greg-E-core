@@ -139,8 +139,18 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
 
     @Override
     protected ActionResult checkRecipe(GTRecipe recipe) {
-        if (reportPending || !accepts(recipe)) return ActionResult.FAIL_NO_REASON;
-        return super.checkRecipe(recipe);
+        if (reportPending) return ActionResult.fail(Component.literal(
+                "Survey report must be delivered before starting another recipe."), null, null);
+        if (accepts(recipe)) return super.checkRecipe(recipe);
+        if (recipe != null && recipe.recipeType == controller.getRecipeType()) {
+            String requiredState = recipe.data.getString("required_state");
+            if ((State.ACTIVE.name().equals(requiredState) || State.DORMANT.name().equals(requiredState))
+                    && !requiredState.equals(progression)) return ActionResult.fail(Component.literal(
+                            "Requires " + requiredState + " state (current: " + progression + ")."), null, null);
+            if (isBraveryRecipe(recipe) && controller.getCasingTier() != 2) return ActionResult.fail(Component.literal(
+                    "Requires a formed tier-2 frame (all casings colored)."), null, null);
+        }
+        return ActionResult.fail(Component.literal("Unsupported or invalid World Eater tamer recipe."), null, null);
     }
 
     @Override

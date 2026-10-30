@@ -114,6 +114,10 @@ public class WorldEaterRunTests {
                     if (tick < 2399) helper.assertTrue(!fixture.logic().hasPendingReport(), "Not finished early");
                 }
                 helper.assertTrue(fixture.logic().hasPendingReport(), "Final batch finishes exactly on scanning tick 2400");
+                var nextSurvey = recipe();
+                helper.assertTrue(!fixture.logic().checkMatchedRecipeAvailable(nextSurvey)
+                        && fixture.logic().getFailureReasonMap().get(nextSurvey).getString().equals(
+                                "Survey report must be delivered before starting another recipe."), "Pending report rejection has a reason");
                 helper.assertTrue(fixture.logic().getCounts().values().stream().mapToLong(Long::longValue).sum() == totals[test], "Exact count " + totals[test]);
                 helper.assertTrue(fixture.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.DORMANT, "Blocked report cannot activate");
                 var pending = fixture.logic().getPendingBook().copy();

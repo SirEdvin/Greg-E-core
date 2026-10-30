@@ -2,12 +2,14 @@ package net.cu5tmtp.GregECore.gametest;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine;
 import net.cu5tmtp.GregECore.block.GreggyBlocks;
 
 import com.gregtechceu.gtceu.common.data.GTMachines;
 
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.endgame.IncompleteWorldEaterTamer;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.BraveryBookIngredient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.core.BlockPos;
@@ -92,7 +94,10 @@ public final class WorldEaterNativeUIChecks {
             var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(client.level, CENTER);
             var logic = (WorldEaterTamerRecipeLogic) machine.getRecipeLogic();
             var expected = stage == 1 ? WorldEaterTamerRecipeLogic.State.ACTIVE : WorldEaterTamerRecipeLogic.State.DORMANT;
-            if (logic.getProgressionState() != expected || (stage == 2 && (logic.getRetryAttempts() == 0 || logic.getCurrentChunk() == null))) {
+            if (logic.getProgressionState() != expected
+                    || (stage == 1 && logic.getFancyTooltip().stream().noneMatch(line -> line.getString().equals(
+                            "Requires a formed tier-2 frame (all casings colored).")))
+                    || (stage == 2 && (logic.getRetryAttempts() == 0 || logic.getCurrentChunk() == null))) {
                 if (frame > 1200) { failures.add("Native state/retry synchronization failed at stage " + stage
                         + ": " + logic.getCustomProgressLine().getString()); done = true; }
                 return;
@@ -108,6 +113,13 @@ public final class WorldEaterNativeUIChecks {
                 CompoundTag tag = new CompoundTag(), custom = new CompoundTag();
                 custom.putInt("Version", 1); custom.putString("State", stage == 1 ? "ACTIVE" : "DORMANT");
                 tag.put("WorldEaterTamer", custom); serverLogic.loadCustomPersistedData(tag);
+                if (stage == 1) {
+                    var input = (ItemBusPartMachine) MetaMachine.getMachine(level, CENTER.west(2));
+                    input.getInventory().setStackInSlot(0, BraveryBookIngredient.exampleBook());
+                    serverLogic.setWorkingEnabled(true);
+                    serverLogic.findAndHandleRecipe();
+                    serverLogic.serverTick();
+                }
                 if (stage == 2) {
                     try {
                         // Replay real loader-produced retry persistence, not invented UI state.

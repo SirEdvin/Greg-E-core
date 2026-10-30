@@ -32,7 +32,7 @@ final class IntentionClientChecks {
     static final List<String> failures = new CopyOnWriteArrayList<>();
     static volatile boolean recipeReloaded, resourcesReloaded;
     static boolean reconnected;
-    private static int frame, stage, postReloadFrame, ticks;
+    private static int frame, stage, postReloadFrame, ticks, colorStage, colorWait;
 
     static boolean tick() {
         var client = Minecraft.getInstance();
@@ -64,7 +64,7 @@ final class IntentionClientChecks {
             if (stage == 1) {
                 if (frame < 120) return false;
                 recipes(client);
-                models(client, false);
+                models(client, false, "green");
                 screenshot(client, "intention-after-reconnect.png");
                 reconnected = true;
                 return true;
@@ -133,7 +133,29 @@ final class IntentionClientChecks {
             if (frame > 250 && recipeReloaded && resourcesReloaded) {
                 if (postReloadFrame == 0) postReloadFrame = frame;
                 if (frame - postReloadFrame < 40) return false;
-                recipes(client); models(client, false);
+                recipes(client);
+                String[] colors = {"purple", "green", "orange", "black", "green"};
+                if (colorStage < colors.length) {
+                    if (colorWait++ == 0) {
+                        int selected = colorStage;
+                        client.getSingleplayerServer().execute(() -> {
+                            var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
+                            var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CONTROLLER);
+                            WorldEaterStructureTests.colorFrame(machine, selected == 3 ? 0 : selected == 4 ? 2 : selected + 1);
+                            if (selected == 4) {
+                                var positions = WorldEaterStructureTests.shellPositions(machine).stream()
+                                        .filter(pos -> level.getBlockState(pos).is(WorldEaterCasingTests.casings()[2])).toList();
+                                require(positions.size() == 40, "Forty actual frame casings for green/orange tie");
+                                for (int i = 0; i < 20; i++) level.setBlockAndUpdate(positions.get(i), WorldEaterCasingTests.casings()[3].defaultBlockState());
+                            }
+                        });
+                    }
+                    if (colorWait < 100) return false;
+                    models(client, false, colors[colorStage]);
+                    screenshot(client, "intention-dominant-" + colorStage + "-" + colors[colorStage] + ".png");
+                    colorStage++; colorWait = 0;
+                    return false;
+                }
                 var world = client.getSingleplayerServer().getWorldPath(LevelResource.ROOT).normalize().getFileName().toString();
                 require(world.startsWith("albina-world-eater-verification-"), "Reconnect only to disposable verification world");
                 stage = 1; frame = 0;
@@ -150,7 +172,13 @@ final class IntentionClientChecks {
 
     private static void install(Minecraft client, boolean safety) {
         var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
+        if (safety) {
+            // Do not reuse the controller whose storage was replaced by the earlier NBT replay.
+            level.removeBlock(CONTROLLER, false);
+            level.setBlockAndUpdate(CONTROLLER, IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.defaultBlockState());
+        }
         var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CONTROLLER);
+        machine.setFrontFacing(Direction.NORTH);
         machine.onStructureInvalid();
         level.setBlockAndUpdate(REAR, (safety ? IntentionHatchPartMachine.SAFETY : IntentionHatchPartMachine.BRAVERY).defaultBlockState());
         MetaMachine.getMachine(level, REAR).setFrontFacing(Direction.SOUTH);
@@ -181,6 +209,10 @@ final class IntentionClientChecks {
     }
 
     private static void models(Minecraft client, boolean safety) {
+        models(client, safety, "black");
+    }
+
+    private static void models(Minecraft client, boolean safety, String casing) {
         for (int i = 0; i < 3; i++) {
             var pos = i == 0 ? REAR : REAR.east(2 + i * 2);
             String variant = i == 0 ? (safety ? "safety" : "bravery") : (i == 1 ? "safety" : "bravery");
@@ -190,8 +222,9 @@ final class IntentionClientChecks {
             WorldEaterCasingConnectionChecks.quads(client, pos, null).forEach(q -> sprites.add(q.getSprite().contents().name().toString()));
             require(sprites.stream().anyMatch(s -> s.endsWith("overlay/intention/" + variant)), "Distinct " + variant + " overlay at " + pos);
             require(sprites.stream().noneMatch(s -> s.contains("missingno")), "No missing hatch texture");
-            if (i == 0) require(sprites.stream().anyMatch(s -> s.contains("world_eater/black")), "Formed hatch uses black casing: " + sprites);
+            if (i == 0) require(sprites.stream().anyMatch(s -> s.contains("world_eater/" + casing)), "Formed hatch uses " + casing + " casing: " + sprites);
             else require(sprites.stream().anyMatch(s -> s.contains("casings/voltage/luv")), "Standalone native hull");
+            if (i == 0 && !casing.equals("black")) require(sprites.stream().noneMatch(s -> s.contains("world_eater/black")), "No stale black hatch base: " + sprites);
         }
         for (var definition : new com.gregtechceu.gtceu.api.machine.MachineDefinition[]{IntentionHatchPartMachine.SAFETY, IntentionHatchPartMachine.BRAVERY})
             require(client.getItemRenderer().getModel(new ItemStack(definition.getItem()), client.level, client.player, 0)

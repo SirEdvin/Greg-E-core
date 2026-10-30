@@ -28,8 +28,12 @@ Retained ACTIVE is **not** recovery of unfinished work: a structural break still
 cancels an unfinished paid survey or casing craft. Replace casings while idle.
 Completed pending survey reports retain their existing protection and deliver
 once when the frame and output capacity are available, without another sensor
-or scan. Registry IDs, version-1 progression saves, acquisition, and appearance
-are unchanged by casing tiers.
+or scan. Registry IDs, version-1 progression saves, and acquisition are unchanged.
+
+Formed hatches and buses use black casing at tier 1. At tier 2 they use the most
+common actual frame casing color, breaking ties in purple, green, orange order.
+Controller, hatch, face-panel, and interior blocks do not vote. Replacing casings
+and reloading recompute the appearance; the controller itself remains black.
 
 ## Acquisition and recipes
 
@@ -64,7 +68,8 @@ PNG pixels are copied. The editable source is
 Adjacent casings of the same color use native LDLib connected textures like
 Industrial Steam Casing: internal frame seams disappear, while outside borders
 and concave corners remain. Different colors retain their boundary. The black
-controller and formed buses/hatch join the surrounding black casing as well.
+controller joins surrounding black casing; formed buses/hatches join casing
+matching their current tier-derived appearance.
 
 Base plates stay normally shaded; a separate transparent emissive highlight
 sweeps all the way across them to the far corner before disappearing, rather

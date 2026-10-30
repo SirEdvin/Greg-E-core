@@ -1,5 +1,10 @@
 {
   "parent": "minecraft:block/block",
+  "dynamic_renders": [
+    {
+      "type": "gregecore:world_eater_parts"
+    }
+  ],
   "loader": "gtceu:machine",
   "machine": "gregecore:incomplete_world_eater_tamer",
   "texture_overrides": {

@@ -221,6 +221,64 @@ public class WorldEaterStructureTests {
         lifecycle(helper, new WorldEaterRunTests.Fixture[]{active, dormant}, 0, 0);
     }
 
+    @GameTest(template = "empty", timeoutTicks = 1800)
+    public static void dominantCasingAppearance(GameTestHelper helper) {
+        var f = WorldEaterRunTests.fixture(helper, 280000);
+        helper.getLevel().setBlockAndUpdate(intentionPosition(f.controller()), IntentionHatchPartMachine.SAFETY.defaultBlockState());
+        var frame = shellPositions(f.controller());
+        frame.remove(f.input().getPos());
+        frame.remove(f.output().getPos());
+        frame.remove(intentionPosition(f.controller()));
+        helper.getLevel().setBlockAndUpdate(frame.remove(0), GTMachines.FLUID_IMPORT_HATCH[GTValues.LV].defaultBlockState());
+        helper.assertTrue(frame.size() == 39, "39 actual casing voters; controller and four parts excluded");
+        // Extra colored face/interior blocks must not affect the frame vote.
+        helper.getLevel().setBlockAndUpdate(f.controller().getPos().above(), WorldEaterCasingTests.casings()[3].defaultBlockState());
+        helper.getLevel().setBlockAndUpdate(BlockPos.containing(f.controller().getStructureCenter()), WorldEaterCasingTests.casings()[3].defaultBlockState());
+        appearanceLifecycle(helper, f, frame, 0, -1);
+    }
+
+    private static void appearanceLifecycle(GameTestHelper helper, WorldEaterRunTests.Fixture f, List<BlockPos> frame, int stage, int waited) {
+        int[][] votes = {{39, 0, 0}, {0, 39, 0}, {0, 0, 39}, {13, 13, 13}, {7, 16, 16}, {15, 15, 9}, {0, 0, 39}, {0, 0, 39}, {0, 0, 39}};
+        int[] winners = {1, 2, 3, 1, 2, 1, 0, -1, 3};
+        var machine = f.controller();
+        if (waited == -1) {
+            for (int i = 0; i < frame.size(); i++) {
+                int color = i < votes[stage][0] ? 1 : i < votes[stage][0] + votes[stage][1] ? 2 : 3;
+                helper.getLevel().setBlockAndUpdate(frame.get(i), WorldEaterCasingTests.casings()[color].defaultBlockState());
+            }
+            if (stage == 6) helper.getLevel().setBlockAndUpdate(frame.get(0), WorldEaterCasingTests.casings()[0].defaultBlockState());
+            if (stage == 7) helper.getLevel().setBlockAndUpdate(frame.get(0), Blocks.AIR.defaultBlockState());
+            helper.runAfterDelay(2, () -> appearanceLifecycle(helper, f, frame, stage, 0));
+            return;
+        }
+        int winner = winners[stage];
+        var appearance = machine.getPartAppearance(f.input(), Direction.NORTH, null, null);
+        var expected = winner < 0 ? null : WorldEaterCasingTests.casings()[winner].defaultBlockState();
+        if (machine.isFormed() != (winner >= 0) || appearance != expected) {
+            helper.assertTrue(waited < 160, "Native appearance converges at stage " + stage + ": " + appearance);
+            awaitPatternWorker();
+            helper.runAfterDelay(1, () -> appearanceLifecycle(helper, f, frame, stage, waited + 1));
+            return;
+        }
+        for (var part : machine.getParts()) for (var side : Direction.values())
+            helper.assertTrue(part.getFormedAppearance(null, null, side) == expected, "Every formed part uses dominant frame color");
+        if (stage == 8) {
+            var holder = (net.minecraft.world.level.block.entity.BlockEntity) machine.getHolder();
+            var saved = holder.saveWithFullMetadata();
+            helper.getLevel().removeBlock(machine.getPos(), false);
+            helper.getLevel().setBlockAndUpdate(machine.getPos(), machine.getDefinition().defaultBlockState());
+            var fresh = (IncompleteWorldEaterTamer) MetaMachine.getMachine(helper.getLevel(), machine.getPos());
+            ((net.minecraft.world.level.block.entity.BlockEntity) fresh.getHolder()).load(saved.copy());
+            helper.assertTrue(fresh.getDefinition().getPartAppearance().apply(fresh, f.input(), Direction.NORTH)
+                    == WorldEaterCasingTests.casings()[0].defaultBlockState(), "Appearance is derived again, not persisted");
+            assertTier(helper, fresh, 2);
+            helper.assertTrue(fresh.getPartAppearance(f.input(), Direction.NORTH, null, null) == expected, "Reload recomputes orange winner");
+            helper.succeed();
+            return;
+        }
+        appearanceLifecycle(helper, f, frame, stage + 1, -1);
+    }
+
     private static void lifecycle(GameTestHelper helper, WorldEaterRunTests.Fixture[] fixtures, int stage, int waited) {
         int expected = switch (stage) { case 0, 1, 4, 6 -> 1; case 5 -> 0; default -> 2; };
         boolean ready = true;

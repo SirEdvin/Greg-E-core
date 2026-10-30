@@ -16,8 +16,13 @@ import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.gui.widget.DraggableScrollableWidgetGroup;
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener;
+import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.world.entity.player.Player;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
@@ -32,23 +37,34 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import net.cu5tmtp.GregECore.block.GreggyBlocks;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine.Intention;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.renderer.thingsToRender.WorldEaterPartRender;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
 
 public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine implements IFancyUIMachine, IDisplayUIMachine {
+    private static final ManagedFieldHolder FIELDS = new ManagedFieldHolder(
+            IncompleteWorldEaterTamer.class, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER);
     private static final String CASING_TIER = "gregecore:world_eater_casing_tier";
+    private static final String CASING_COLORS = "gregecore:world_eater_casing_colors";
     private int casingTier;
+    @DescSynced
+    @UpdateListener(methodName = "onCasingAppearanceChanged")
+    private BlockState casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
 
     public static final MachineDefinition INCOMPLETE_WORLD_EATER_TAMER = REGISTRATE
             .multiblock("incomplete_world_eater_tamer", IncompleteWorldEaterTamer::new)
             .langValue("Incomplete World Eater tamer")
             .rotationState(RotationState.NON_Y_AXIS)
             .appearanceBlock(GreggyBlocks.WORLD_EATER_TAMER_CASING)
+            .partAppearance((controller, part, side) -> ((IncompleteWorldEaterTamer) controller).casingAppearance)
             .recipeTypes(GregERecipeTypes.WORLD_EATER_TAMER)
             .recipeModifiers((machine, recipe) -> {
                 if (machine instanceof IncompleteWorldEaterTamer tamer
@@ -98,6 +114,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                                 .texture("all", casing)
                                 .texture("glow", casing.withSuffix("_emissive"))));
                 builder.addTextureOverride("all", casing);
+                builder.addDynamicRenderer(WorldEaterPartRender::new);
             })
             .tooltips(Component.literal("Collects infrastructure information without power."),
                     Component.literal("Scans the surrounding 9×9 chunks over 120 seconds."),
@@ -112,6 +129,13 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
 
+    @Override
+    public ManagedFieldHolder getFieldHolder() { return FIELDS; }
+
+    private void onCasingAppearanceChanged(BlockState newValue, BlockState oldValue) {
+        if (isRemote()) for (var part : getParts()) part.self().scheduleRenderUpdate();
+    }
+
     private static TraceabilityPredicate casingPredicate() {
         return new TraceabilityPredicate(state -> {
             var block = state.getBlockState().getBlock();
@@ -123,6 +147,8 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             else return false;
             var context = state.getMatchContext();
             context.set(CASING_TIER, Math.min(context.getOrDefault(CASING_TIER, 2), tier));
+            // Key by position so repeated predicate checks cannot inflate the vote.
+            context.<Map<BlockPos, Block>>getOrCreate(CASING_COLORS, HashMap::new).put(state.getPos().immutable(), block);
             return true;
         }, () -> new BlockInfo[]{new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState()),
                 new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.getDefaultState()),
@@ -133,12 +159,30 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
-        casingTier = getMultiblockState().getMatchContext().getInt(CASING_TIER);
+        var context = getMultiblockState().getMatchContext();
+        casingTier = context.getInt(CASING_TIER);
+        casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
+        if (casingTier == 2) {
+            var casings = context.<Map<BlockPos, Block>>getOrCreate(CASING_COLORS, HashMap::new).values();
+            long most = 0;
+            for (var color : List.of(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.get(),
+                    GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.get(), GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.get())) {
+                long count = casings.stream().filter(block -> block == color).count();
+                if (count > most) {
+                    most = count;
+                    casingAppearance = color.defaultBlockState();
+                }
+            }
+        }
+        // Formation can precede managed storage's initial sync baseline.
+        getHolder().getRootStorage().markAllDirty();
+        for (var part : getParts()) part.self().getHolder().getRootStorage().markAllDirty();
     }
 
     @Override
     public void onStructureInvalid() {
         casingTier = 0;
+        casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
         super.onStructureInvalid();
     }
 

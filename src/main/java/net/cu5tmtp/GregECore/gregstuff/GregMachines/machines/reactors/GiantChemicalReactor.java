@@ -93,24 +93,16 @@ public class GiantChemicalReactor extends WorkableElectricMultiblockMachine {
                 if (stack.isEmpty()) continue;
 
                 if (stack.is(ENERGY_BACTERIA.get())) {
-                    this.energyBoost = 0.1;
-                    this.parallelBoost = 1;
-                    this.speedBoost = 1.0;
+                    boostEnergy();
                     return super.beforeWorking(recipe);
                 } else if (stack.is(PARALLEL_BACTERIA.get())) {
-                    this.parallelBoost = 256;
-                    this.energyBoost = 1.0;
-                    this.speedBoost = 1.0;
+                    boostParallel();
                     return super.beforeWorking(recipe);
                 } else if (stack.is(SPEED_BACTERIA.get())) {
-                    this.speedBoost = 0.1;
-                    this.energyBoost = 1.0;
-                    this.parallelBoost = 1;
+                    boostSpeed();
                     return super.beforeWorking(recipe);
                 } else if (stack.is(ULTIMATE_BACTERIA.get())) {
-                    this.speedBoost = 0.1;
-                    this.energyBoost = 0.1;
-                    this.parallelBoost = 256;
+                    boostAll();
                     return super.beforeWorking(recipe);
                 }
             }
@@ -120,13 +112,38 @@ public class GiantChemicalReactor extends WorkableElectricMultiblockMachine {
     }
 
     private void resetBoosts(){
-        this.energyBoost = 1.0;
-        this.parallelBoost = 1;
-        this.speedBoost = 1.0;
+        energyBoost = 1.0;
+        parallelBoost = 1;
+        speedBoost = 1.0;
+    }
+
+    private void boostSpeed(){
+        speedBoost = 0.1;
+        energyBoost = 1.0;
+        parallelBoost = 1;
+    }
+
+    private void boostEnergy(){
+        energyBoost = 0.1;
+        parallelBoost = 1;
+        speedBoost = 1.0;
+    }
+
+    private void boostParallel(){
+        parallelBoost = 256;
+        energyBoost = 1.0;
+        speedBoost = 1.0;
+    }
+
+    private void boostAll(){
+        speedBoost = 0.1;
+        energyBoost = 0.1;
+        parallelBoost = 256;
     }
 
     @Override
     public void onStructureInvalid() {
+        resetBoosts();
         canBeThreaded = false;
         if (getRecipeLogic() instanceof MultiThreadedRecipeLogic logic) {
             logic.setMultiThreaded(false);
@@ -148,8 +165,8 @@ public class GiantChemicalReactor extends WorkableElectricMultiblockMachine {
                         .aisle("GEEEG", "E   E", "E F E", "E   E", "H F H", "E   E", "E F E", "E   E", "GEEEG")
                         .aisle(" GGG ", " EEE ", " EFE ", " EEE ", " HIH ", " EEE ", " EFE ", " EEE ", " GGG ")
                         .aisle("     ", "     ", "     ", "     ", "  I  ", "     ", "     ", "     ", "     ")
-                        .aisle(" CCC ", " BIB ", " BIB ", "  I  ", "  I  ", "     ", "     ", "     ", "     ")
-                        .aisle(" CCC ", " BAB ", " BJB ", "     ", "     ", "     ", "     ", "     ", "     ")
+                        .aisle(" BBB ", " BIB ", " BIB ", "  I  ", "  I  ", "     ", "     ", "     ", "     ")
+                        .aisle(" BBB ", " BAB ", " BJB ", "     ", "     ", "     ", "     ", "     ", "     ")
                         .where('A', Predicates.controller(blocks(definition.getBlock())))
                         .where('B', Predicates.blocks(CASING_STEEL_SOLID.get())
                                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
@@ -159,7 +176,6 @@ public class GiantChemicalReactor extends WorkableElectricMultiblockMachine {
                                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2))
                                 .or(Predicates.abilities(ThreadT2PartMachine.getPartAbility()).setMaxGlobalLimited(1).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2)))
-                        .where('C', Predicates.blocks(FIREBOX_STEEL.get()))
                         .where('E', Predicates.blocks(CASING_PTFE_INERT.get()))
                         .where('F', Predicates.blocks(GCYMBlocks.MOLYBDENUM_DISILICIDE_COIL_BLOCK.get()))
                         .where('G', Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("gregecore:ptfe_engine_intake"))))

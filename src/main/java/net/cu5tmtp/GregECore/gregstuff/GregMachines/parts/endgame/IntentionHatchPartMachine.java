@@ -56,11 +56,15 @@ public class IntentionHatchPartMachine extends TieredPartMachine {
                         Component.literal("Place opposite the controller, at the lower rear edge center."),
                         Component.literal("One intention hatch at most. Existing recipes are unchanged."),
                         Component.literal(intention == Intention.BRAVERY
-                                ? "Craft in an ACTIVE tier-2 tamer with 1 signed book; first page: I know what I am doing"
+                                ? "Craft in an ACTIVE or PREPARED tier-2 tamer with 1 signed book; first page: I know what I am doing"
                                 : "Craft with 8 each of the 16 listed LuV machines."),
                         Component.literal(intention == Intention.BRAVERY
                                 ? "Any title or author; copies accepted."
-                                : "Declares safety for future recipes; does not prevent damage."))
+                                : "A real demand timeout destroys only this hatch."),
+                        Component.literal(intention == Intention.BRAVERY
+                                ? "A real demand timeout destroys at most one eligible nearby machine, not this hatch."
+                                : "Repair the frame and install an intention hatch before the next run."),
+                        Component.literal("No collateral damage. Test failures, frame breaks, and other cancellations cause no punishment."))
                 .register();
     }
 

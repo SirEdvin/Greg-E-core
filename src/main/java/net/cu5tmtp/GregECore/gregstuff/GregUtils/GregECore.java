@@ -6,6 +6,9 @@ import com.gregtechceu.gtceu.api.capability.ICleanroomReceiver;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialEvent;
 import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialRegistryEvent;
+import com.gregtechceu.gtceu.api.data.chemical.material.event.PostMaterialEvent;
+import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
@@ -59,6 +62,7 @@ public class GregECore {
         ModCreativeModTabs.register(modEventBus);
         modEventBus.addListener(this::addMaterialRegistries);
         modEventBus.addListener(this::addMaterials);
+        modEventBus.addListener(this::addDemandMaterialForms);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntity.register(modEventBus);
@@ -96,6 +100,13 @@ public class GregECore {
 
     private void addMaterials(MaterialEvent event) {
         GreggyItems.register();
+    }
+
+    private void addDemandMaterialForms(PostMaterialEvent event) {
+        GTMaterials.Aluminium.addFlags(MaterialFlags.GENERATE_ROTOR);
+        GTMaterials.Neutronium.addFlags(MaterialFlags.GENERATE_ROTOR);
+        GTMaterials.RhodiumPlatedPalladium.addFlags(MaterialFlags.GENERATE_GEAR);
+        GTMaterials.Darmstadtium.addFlags(MaterialFlags.GENERATE_GEAR);
     }
 
     private void registerAttributes(EntityAttributeCreationEvent event) {

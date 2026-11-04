@@ -68,7 +68,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             .recipeTypes(GregERecipeTypes.WORLD_EATER_TAMER)
             .recipeModifiers((machine, recipe) -> {
                 if (machine instanceof IncompleteWorldEaterTamer tamer
-                            && ((WorldEaterTamerRecipeLogic) tamer.getRecipeLogic()).getProgressionState() == WorldEaterTamerRecipeLogic.State.ACTIVE
+                            && ((WorldEaterTamerRecipeLogic) tamer.getRecipeLogic()).getProgressionState() != WorldEaterTamerRecipeLogic.State.DORMANT
                             && recipe.recipeType == GregERecipeTypes.WORLD_EATER_TAMER
                             && WorldEaterTamerRecipeLogic.isCasingRecipe(recipe)) {
                     var parallel = GTRecipeModifiers.hatchParallel(machine, recipe);
@@ -121,9 +121,14 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                     Component.literal("A complete survey of at least 500 machines awakens the tamer."),
                     Component.literal("Frame: any mix of black, purple, green, or orange World Eater Tamer Casings."),
                     Component.literal("Any black frame casing: tier 1; all colored: tier 2. Reversible; progression is retained."),
-                    Component.literal("ACTIVE: 1 black casing + 16 matching terracotta → 1 colored casing in 5 seconds."),
-                    Component.literal("ACTIVE, tier 2: 1 signed acknowledgement book → 1 Bravery Hatch in 60 seconds, without power."),
-                    Component.literal("Accepts one optional parallel hatch; surveys always run singly."),
+                    Component.literal("ACTIVE or PREPARED: 1 black casing + 16 matching terracotta → 1 colored casing in 5 seconds."),
+                    Component.literal("ACTIVE or PREPARED, tier 2: 1 signed acknowledgement book → 1 Bravery Hatch in 60 seconds, without power."),
+                    Component.literal("Tier 2 + intention: Desarium tests ACTIVE → PREPARED; Implementium produces essence in PREPARED."),
+                    Component.literal("Deliver the displayed 1–5 items to any input bus for immediate success; no power or fluids."),
+                    Component.literal("Deadline: 30 seconds per voltage tier (LV–UEV); quantity does not change it."),
+                    Component.literal("Only real timeout has consequences: Safety sacrifices itself; Bravery sacrifices one nearby machine. No collateral damage."),
+                    Component.literal("Test failures and interrupted runs are harmless. Preparation is permanent."),
+                    Component.literal("Accepts one optional parallel hatch; only casing conversions run in parallel."),
                     Component.literal("Optional Safety or Bravery Hatch: lower rear edge center, opposite the controller."))
             .register();
 

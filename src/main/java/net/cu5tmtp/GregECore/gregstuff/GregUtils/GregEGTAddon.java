@@ -10,6 +10,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.data.recipes.FinishedRecipe;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
@@ -44,6 +46,15 @@ public class GregEGTAddon implements IGTAddon {
 
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
+        GregERecipeTypes.WORLD_EATER_TAMER.recipeBuilder(GregECore.id("preparation_test"))
+                .inputItems(ChemicalHelper.get(TagPrefix.gem, GreggyItems.DESARIUM))
+                .duration(600).addData("required_state", "ACTIVE").addData("required_casing_tier", 2)
+                .addData("operation", WorldEaterTamerRecipeLogic.TEST_OPERATION).save(provider);
+        GregERecipeTypes.WORLD_EATER_TAMER.recipeBuilder(GregECore.id("essence_production"))
+                .inputItems(ChemicalHelper.get(TagPrefix.gem, GreggyItems.IMPLEMENTIUM))
+                .outputItems(ChemicalHelper.get(TagPrefix.ingot, GreggyItems.TAMED_WORLD_EATER_ESSENSE))
+                .duration(600).addData("required_state", "PREPARED").addData("required_casing_tier", 2)
+                .addData("operation", WorldEaterTamerRecipeLogic.REAL_OPERATION).save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder(GregECore.id("safety_intention_hatch"))
                 .inputItems(GTMachines.ELECTRIC_FURNACE[GTValues.LuV], 8)
                 .inputItems(GTMachines.MACERATOR[GTValues.LuV], 8)

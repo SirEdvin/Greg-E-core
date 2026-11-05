@@ -455,6 +455,8 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         boolean suspend = suspendAfterFinish;
         clearRun();
         super.resetRecipeLogic();
+        // An abort reset drops polling; completion must recheck already queued inputs.
+        markLastRecipeDirty();
         if (suspend) setStatus(Status.SUSPEND);
         onChanged();
     }
@@ -521,6 +523,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         boolean suspend = suspendAfterFinish;
         clearRun();
         super.resetRecipeLogic();
+        markLastRecipeDirty();
         if (suspend) setStatus(Status.SUSPEND);
         onChanged();
     }

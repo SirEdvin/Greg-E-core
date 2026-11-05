@@ -18,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.api.distmarker.Dist;
 
 import java.nio.file.Files;
@@ -51,7 +53,7 @@ public final class WorldEaterCasingClientChecks {
     private static boolean initialized, modelsChecked, reloadRequested, gameplayRequested, postReloadChecked;
     private static volatile boolean ready, gameplayDone, reloaded;
     private static boolean finished, perimeterPreviewRequested;
-    private static int screenshots;
+    private static int screenshots, bloomQuadsChecked;
 
     static void tick() throws Exception {
         Minecraft client = Minecraft.getInstance();
@@ -132,7 +134,8 @@ public final class WorldEaterCasingClientChecks {
     @SubscribeEvent
     public static void render(TickEvent.RenderTickEvent event) {
         if (!Boolean.getBoolean("gregecore.worldEaterCasingVerification") || event.phase != TickEvent.Phase.END
-                || !modelsChecked || finished || frame < 110 || frame % (frame < 600 ? 2 : 10) != 0) return;
+                || !modelsChecked || finished || Minecraft.getInstance().getOverlay() != null
+                || frame < 110 || frame % (frame < 600 ? 2 : 10) != 0) return;
         // Once per client tick, after the framebuffer is actually rendered.
         String name = String.format("%s-%04d.png", frame >= 920 ? "recipe" : frame >= 800 ? "perimeter" : frame < 340 ? "lit" : frame < 600 ? "dark" : "reloaded", frame);
         if (Files.exists(OUTPUT.resolve("screenshots").resolve(name))) return;
@@ -225,6 +228,7 @@ public final class WorldEaterCasingClientChecks {
                 failures.add("Missing base/emissive casing model: " + block);
             if (quads.stream().noneMatch(q -> !q.isShade() && q.getVertices()[6] == 0x00f000f0))
                 failures.add("No fullbright emissive casing detail: " + block);
+            inspectBloom(quads);
             var stack = new ItemStack(block.asItem());
             var item = client.getItemRenderer().getModel(stack, client.level, client.player, 0);
             if (item == client.getModelManager().getMissingModel()) failures.add("Missing item model: " + block);
@@ -234,6 +238,7 @@ public final class WorldEaterCasingClientChecks {
         var quads = model.getQuads(state, Direction.NORTH, RandomSource.create());
         if (quads.stream().noneMatch(q -> q.getSprite().contents().name().getPath().endsWith("black_emissive")))
             failures.add("Controller lacks emissive black casing layer");
+        inspectBloom(quads);
         for (var pos : new BlockPos[]{CONTROLLER.west(2), CONTROLLER.east(2), CONTROLLER.west(1)}) {
             var partState = client.level.getBlockState(pos);
             var partModel = client.getBlockRenderer().getBlockModel(partState);
@@ -246,6 +251,26 @@ public final class WorldEaterCasingClientChecks {
         failures.addAll(WorldEaterCasingConnectionChecks.verify(client));
     }
 
+    static void inspectBloom(List<BakedQuad> quads) {
+        if (!ModList.get().isLoaded("shimmer")) {
+            if (Boolean.getBoolean("gregecore.worldEaterBloomVerification")) failures.add("Expected optional Shimmer runtime is absent");
+            return;
+        }
+        try {
+            // Test-only reflection keeps the optional mod off the compile classpath.
+            var isBloom = Class.forName("com.lowdragmc.shimmer.core.IBakedQuad").getMethod("isBloom");
+            for (var quad : quads) {
+                var id = quad.getSprite().contents().name();
+                if (!id.getNamespace().equals("gregecore") || !id.getPath().startsWith("block/casings/world_eater/")) continue;
+                boolean emissive = id.getPath().contains("_emissive");
+                if (!Boolean.valueOf(emissive).equals(isBloom.invoke(quad))) failures.add("Wrong native Shimmer bloom flag: " + id);
+                bloomQuadsChecked++;
+            }
+        } catch (ReflectiveOperationException error) {
+            failures.add("Native Shimmer bloom inspection failed: " + error);
+        }
+    }
+
     private static void require(boolean condition, String message) {
         if (!condition) throw new IllegalStateException(message);
     }
@@ -255,7 +280,8 @@ public final class WorldEaterCasingClientChecks {
         finished = true;
         Files.createDirectories(OUTPUT);
         Files.writeString(OUTPUT.resolve("result.json"), new Gson().toJson(Map.of("passed", failures.isEmpty(),
-                "failures", failures, "gameplayDone", gameplayDone, "resourceReload", reloaded, "screenshots", screenshots)));
+                "failures", failures, "gameplayDone", gameplayDone, "resourceReload", reloaded, "screenshots", screenshots,
+                "shimmerLoaded", ModList.get().isLoaded("shimmer"), "bloomQuadsChecked", bloomQuadsChecked)));
         System.out.println("WORLD_EATER_CASINGS_CLIENT_VERIFIED " + failures);
         client.stop();
     }

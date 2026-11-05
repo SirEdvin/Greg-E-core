@@ -192,6 +192,81 @@ public class WorldEaterDemandTests {
         });
     }
 
+    @GameTest(template = "empty", timeoutTicks = 300)
+    public static void queuedRealTokensRestartOnNativeTicks(GameTestHelper helper) {
+        var f = fixture(helper, 298000, true);
+        helper.runAfterDelay(8, () -> {
+            prepare(helper, f);
+            f.input().getInventory().setStackInSlot(0, token(false).copyWithCount(3));
+        });
+        for (int run = 0; run < 3; run++) {
+            final int completed = run;
+            helper.runAfterDelay(48 + run * 40, () -> {
+                helper.assertTrue(!f.logic().getDemand().isEmpty()
+                        && f.input().getInventory().getStackInSlot(0).getCount() == 2 - completed,
+                        "Queued real run starts without manual recipe search: " + completed);
+                helper.assertTrue(WorldEaterCasingTests.outputCount(f, reward().getItem()) == completed,
+                        "Exactly one output per previously paid run");
+                // Inventory delivery only: native subscribed ticks must finish and restart.
+                f.input().getInventory().setStackInSlot(1, f.logic().getDemand());
+            });
+        }
+        helper.runAfterDelay(168, () -> {
+            helper.assertTrue(f.logic().getDemand().isEmpty() && f.logic().isIdle()
+                    && WorldEaterCasingTests.outputCount(f, reward().getItem()) == 3,
+                    "Queue drains to three rewards without phantom work");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 400)
+    public static void queuedPreparationRewardAndSuspensionRespectNativeTicks(GameTestHelper helper) {
+        var f = fixture(helper, 299000, true);
+        helper.runAfterDelay(8, () -> {
+            IntentionTamerTests.form(helper, f);
+            f.input().getInventory().setStackInSlot(0, token(true));
+            f.input().getInventory().setStackInSlot(2, token(false).copyWithCount(3));
+        });
+        helper.runAfterDelay(48, () -> {
+            helper.assertTrue(!f.logic().getDemand().isEmpty() && f.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.ACTIVE,
+                    "Native preparation starts before queued real runs");
+            f.input().getInventory().setStackInSlot(1, f.logic().getDemand());
+        });
+        helper.runAfterDelay(88, () -> {
+            helper.assertTrue(!f.logic().getDemand().isEmpty() && f.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.PREPARED
+                    && f.input().getInventory().getStackInSlot(2).getCount() == 2, "Preparation automatically discovers queued real token");
+            WorldEaterRunTests.blockOutput(f);
+            f.input().getInventory().setStackInSlot(1, f.logic().getDemand());
+        });
+        helper.runAfterDelay(128, () -> {
+            helper.assertTrue(f.logic().hasPendingReward() && f.logic().getDemand().isEmpty()
+                    && f.input().getInventory().getStackInSlot(2).getCount() == 2, "Blocked earned reward never consumes next token");
+            f.output().getInventory().setStackInSlot(0, ItemStack.EMPTY);
+        });
+        helper.runAfterDelay(168, () -> {
+            helper.assertTrue(!f.logic().getDemand().isEmpty() && f.input().getInventory().getStackInSlot(2).getCount() == 1
+                    && WorldEaterCasingTests.outputCount(f, reward().getItem()) == 1, "Reward delivery resumes the queue exactly once");
+            f.logic().setSuspendAfterFinish(true);
+            f.input().getInventory().setStackInSlot(1, f.logic().getDemand());
+        });
+        helper.runAfterDelay(208, () -> {
+            helper.assertTrue(f.logic().isSuspend() && f.logic().getDemand().isEmpty()
+                    && f.input().getInventory().getStackInSlot(2).getCount() == 1
+                    && WorldEaterCasingTests.outputCount(f, reward().getItem()) == 2, "Suspend-after-finish preserves the queued token");
+            f.logic().setWorkingEnabled(true);
+        });
+        helper.runAfterDelay(248, () -> {
+            helper.assertTrue(!f.logic().getDemand().isEmpty() && f.input().getInventory().getStackInSlot(2).isEmpty(),
+                    "Explicit resume starts the retained queued token");
+            f.input().getInventory().setStackInSlot(1, f.logic().getDemand());
+        });
+        helper.runAfterDelay(288, () -> {
+            helper.assertTrue(f.logic().getDemand().isEmpty() && !f.logic().hasPendingReward()
+                    && WorldEaterCasingTests.outputCount(f, reward().getItem()) == 3, "All three queued real runs settle exactly once");
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", timeoutTicks = 400)
     public static void savedDemandAndEarnedOutputSurvivePauseAndReset(GameTestHelper helper) {
         var f = fixture(helper, 282000, true);

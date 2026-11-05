@@ -69,6 +69,7 @@ final class WorldEaterCasingConnectionChecks {
                 var faces = quads(client, c, face);
                 if (faces.size() != 8 || faces.stream().anyMatch(q -> !isCtm(q)))
                     errors.add("CTM failed on face " + face + " for " + color);
+                WorldEaterCasingClientChecks.inspectBloom(faces);
             }
             var horizontal = Connections.checkConnections(client.level, p.offset(1, -1, 3), state, Direction.NORTH);
             if (!Arrays.equals(horizontal.getSubmapIndices(), new int[]{12, 13, 9, 8}))

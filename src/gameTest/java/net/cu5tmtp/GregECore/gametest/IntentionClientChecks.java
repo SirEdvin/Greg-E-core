@@ -63,9 +63,15 @@ final class IntentionClientChecks {
             }
             if (stage == 1) {
                 if (frame < 120) return false;
-                recipes(client);
-                models(client, false, "green");
-                screenshot(client, "intention-after-reconnect.png");
+                if (frame == 120) {
+                    recipes(client);
+                    models(client, false, "green");
+                    screenshot(client, "intention-after-reconnect.png");
+                    viewController(client);
+                }
+                if (frame < 160) return false;
+                controllerModel(client, "green");
+                screenshot(client, "controller-after-reconnect.png");
                 reconnected = true;
                 return true;
             }
@@ -151,8 +157,18 @@ final class IntentionClientChecks {
                         });
                     }
                     if (colorWait < 100) return false;
-                    models(client, false, colors[colorStage]);
-                    screenshot(client, "intention-dominant-" + colorStage + "-" + colors[colorStage] + ".png");
+                    if (colorWait == 100) {
+                        models(client, false, colors[colorStage]);
+                        screenshot(client, "intention-dominant-" + colorStage + "-" + colors[colorStage] + ".png");
+                        viewController(client);
+                    }
+                    if (colorWait < 130) return false;
+                    controllerModel(client, colors[colorStage]);
+                    screenshot(client, "controller-dominant-" + colorStage + "-" + colors[colorStage] + ".png");
+                    client.getSingleplayerServer().execute(() -> {
+                        var player = client.getSingleplayerServer().getPlayerList().getPlayer(client.player.getUUID());
+                        player.connection.teleport(REAR.getX() + 1.5, REAR.getY() + 1, REAR.getZ() + 5.5, 180, 12);
+                    });
                     colorStage++; colorWait = 0;
                     return false;
                 }
@@ -213,6 +229,7 @@ final class IntentionClientChecks {
     }
 
     private static void models(Minecraft client, boolean safety, String casing) {
+        controllerModel(client, casing);
         for (int i = 0; i < 3; i++) {
             var pos = i == 0 ? REAR : REAR.east(2 + i * 2);
             String variant = i == 0 ? (safety ? "safety" : "bravery") : (i == 1 ? "safety" : "bravery");
@@ -229,6 +246,51 @@ final class IntentionClientChecks {
         for (var definition : new com.gregtechceu.gtceu.api.machine.MachineDefinition[]{IntentionHatchPartMachine.SAFETY, IntentionHatchPartMachine.BRAVERY})
             require(client.getItemRenderer().getModel(new ItemStack(definition.getItem()), client.level, client.player, 0)
                     != client.getModelManager().getMissingModel(), "Hatch item model resolves");
+    }
+
+    private static void controllerModel(Minecraft client, String casing) {
+        require(!Boolean.getBoolean("gregecore.worldEaterBloomVerification")
+                || net.minecraftforge.fml.ModList.get().isLoaded("shimmer"), "Expected optional Shimmer runtime");
+        var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(client.level, CONTROLLER);
+        require(machine.getRenderState().getValue(IncompleteWorldEaterTamer.CASING_COLOR).getName().equals(casing),
+                "Controller casing-color state synchronized: " + casing);
+        var quads = new ArrayList<net.minecraft.client.renderer.block.model.BakedQuad>();
+        var base = "block/casings/world_eater/" + casing;
+        for (var face : Direction.values()) {
+            var faces = WorldEaterCasingConnectionChecks.quads(client, CONTROLLER, face);
+            var connections = com.lowdragmc.lowdraglib.client.model.custommodel.Connections.checkConnections(
+                    client.level, CONTROLLER, client.level.getBlockState(CONTROLLER), face);
+            boolean connected = java.util.Arrays.stream(connections.getSubmapIndices()).anyMatch(index -> index < 16);
+            require(faces.stream().anyMatch(q -> q.getSprite().contents().name().getPath().equals(base + "_ctm")) == connected,
+                    "Controller respects matching/unlike neighbor connections: " + casing + " " + face);
+            quads.addAll(faces);
+        }
+        require(quads.stream().anyMatch(q -> q.getSprite().contents().name().getPath().equals(base)
+                || q.getSprite().contents().name().getPath().equals(base + "_ctm")), "Controller has matching base casing");
+        require(quads.stream().anyMatch(q -> q.getSprite().contents().name().getPath().startsWith(base + "_emissive")),
+                "Controller retains matching static glow");
+        require(quads.stream().anyMatch(q -> q.getSprite().contents().name().getPath().contains("research_station/overlay_front")),
+                "Controller retains its front overlay");
+        for (var quad : quads) {
+            var id = quad.getSprite().contents().name();
+            require(!id.getPath().contains("missingno"), "Controller has no missing texture");
+            if (id.getNamespace().equals("gregecore") && id.getPath().startsWith("block/casings/world_eater/")) {
+                require(id.getPath().startsWith(base), "Controller has no stale casing layer: " + id);
+                if (net.minecraftforge.fml.ModList.get().isLoaded("shimmer")) {
+                    try {
+                        var bloom = Class.forName("com.lowdragmc.shimmer.core.IBakedQuad").getMethod("isBloom").invoke(quad);
+                        require(Boolean.valueOf(id.getPath().contains("_emissive")).equals(bloom), "Controller native bloom flag: " + id);
+                    } catch (ReflectiveOperationException error) { throw new AssertionError("Controller bloom inspection", error); }
+                }
+            }
+        }
+    }
+
+    private static void viewController(Minecraft client) {
+        client.getSingleplayerServer().execute(() -> {
+            var player = client.getSingleplayerServer().getPlayerList().getPlayer(client.player.getUUID());
+            player.connection.teleport(CONTROLLER.getX() + .5, CONTROLLER.getY() + .5, CONTROLLER.getZ() - 4.5, 0, 14);
+        });
     }
 
     private static boolean formedOnClient(Minecraft client, boolean safety) {

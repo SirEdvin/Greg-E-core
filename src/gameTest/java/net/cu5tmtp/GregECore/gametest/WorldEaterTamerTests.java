@@ -47,6 +47,18 @@ public class WorldEaterTamerTests {
         var definition = IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER;
         helper.assertTrue(GTRegistries.MACHINES.get(GregECore.id("incomplete_world_eater_tamer")) == definition, "Controller lookup");
         helper.assertTrue(definition.getItem().getDescription().getString().equals("Incomplete World Eater tamer"), "Controller name");
+        var colorProperty = definition.getStateDefinition().getProperty("casing_color");
+        helper.assertTrue(colorProperty != null && colorProperty.getPossibleValues().size() == 4,
+                "Controller registers exactly four native casing-color states");
+        var codec = com.gregtechceu.gtceu.client.model.machine.MachineRenderState.CODEC;
+        var legacy = (CompoundTag) codec.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, definition.defaultRenderState()
+                        .setValue(IncompleteWorldEaterTamer.CASING_COLOR, net.minecraft.world.item.DyeColor.ORANGE))
+                .getOrThrow(false, message -> { throw new AssertionError(message); });
+        legacy.getCompound("Properties").remove("casing_color");
+        var restored = codec.parse(net.minecraft.nbt.NbtOps.INSTANCE, legacy)
+                .getOrThrow(false, message -> { throw new AssertionError(message); });
+        helper.assertTrue(restored.getValues().get(colorProperty) == net.minecraft.world.item.DyeColor.BLACK,
+                "Old render states without casing_color load with the safe black default");
         helper.setBlock(new BlockPos(1, 1, 1), definition.defaultBlockState());
         var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(helper.getLevel(), helper.absolutePos(new BlockPos(1, 1, 1)));
         var logic = (WorldEaterTamerRecipeLogic) machine.getRecipeLogic();

@@ -95,3 +95,106 @@ Evidence root:
 The headless audio device is unavailable, so audible explosion playback was not verified; normal native sound dispatch is implemented. Optional shaders, third-party handlers that violate simulation guarantees, and a separate high-tier-disabled production installation were not exercised. No deployment, version bump, commit, push, or archival was performed.
 
 Back up worlds before deployment. Token acquisition remains the modpack's responsibility. Downgrading after introducing PREPARED/new material IDs requires the matching older world backup. Archive the intention-hatch predecessor first when archival is requested.
+
+## Follow-up: queued runs and static bloom — November 4, 2026
+
+The original results above describe the published feature baseline. This follow-up
+fixes automatic restart and replaces the animated casing artwork; the current
+appearance is documented in `docs/world-eater-casings.md`.
+
+- Reproduced two failing native-tick regressions before the logic fix: a second
+  queued Implementium run never started, and preparation did not discover a queued
+  real run. Successful custom completion used the abort-style native reset, which
+  dropped polling. Marking the recipe dirty after reset restores native discovery
+  without manual searches or another scheduler; the survey completion sibling
+  receives the same fix. Suspend-after-finish is still restored afterward.
+- Fresh dedicated-server run: **60 discovered, 60 passed, no failures or errors**.
+  The source and XML test-name multisets match exactly. New coverage drives only
+  inventory changes and normal subscribed ticks through three successive real runs,
+  preparation-to-real transition, blocked earned output, exactly-once delivery,
+  suspend-after-finish and explicit resume. Existing interruption, persistence,
+  output retention and bounded-consequence tests all pass.
+- Static/bloom asset regressions failed against the old resources, then **all 8
+  tests passed** after regeneration. All source/CTM layers are single-frame, have no
+  animation metadata and retain native connected textures. Only emissive outlines
+  opt into Shimmer bloom; the plate base stays shaded.
+- Two fresh, fully isolated native client runs passed with empty failure lists,
+  successful gameplay and resource reload: without Shimmer (**127 actual captures**)
+  and with Shimmer **1.20.1-0.3.0**, Modrinth version **BeAfFYQQ** (**75 actual
+  captures**). SHA-512 was checked against the version metadata before execution.
+  The Shimmer run verified **404 native baked-quad bloom flags** across standalone
+  and connected faces before/after reload. Lit, dark and close perimeter screenshots
+  were inspected; optional post-processing visibly adds a halo without internal
+  panel seams. This is steady bloom, not a timed pulse or world-light emission.
+- Final `bash gradlew --no-daemon compileJava compileGameTestJava build` passed.
+  All **32** packaged casing PNG/metadata files byte-match the working resources.
+  No fixture classes, Python scripts or Shimmer classes are embedded. Shimmer was
+  added only by a scratch init script to the verification runtime; production
+  dependencies and `build.gradle` are unchanged. `git diff --check` passed.
+
+Evidence is under
+`/home/siredvin/.hermes/profiles/albina/cache/scratch/world-eater-followup-3G3zwUTR/`:
+`server-red.log`, `server-green.log`, preserved `server-green.xml`, `assets-red.log`,
+`build-final.log`, `client-verification.gradle`, both `client-*-shimmer.log` files,
+the corresponding client directories and `native-casing-comparison.png`.
+The client init script overrides the native client run's working directory and
+adds runtime-only Shimmer when `-PworldEaterBloomVerification` is passed; both runs
+use `-PworldEaterClientVerification -PworldEaterCasingVerification` with a guarded
+disposable world name. No play worlds or normal run configuration were changed.
+
+Current artifact: `build/libs/gregecore-1.12.7-1.20.1.jar`, **924266 bytes**, SHA-256
+`7bf1ab10edede6f4c322604534338989387a57830c9d33d7c5ad8930f458d4ec`.
+This follow-up did not rerun the separate 103-page/demand-UI client scenario,
+exercise third-party shader packs, or verify audio. It is not committed, pushed,
+deployed or archived.
+
+## Follow-up: tier-two controller appearance
+
+The controller now has a native GTCEu `casing_color` model-state property with
+black, purple, green and orange values. Formation publishes the same dominant
+frame color already used by parts; invalidation restores black. Generated
+variants combine color, formation and recipe status, preserving front/status
+overlays, the static emissive layer and the existing dynamic demand renderer.
+The controller's connected-texture appearance follows the same color and still
+honors cover appearance overrides. No block ID, progression or recipe changes
+were introduced by this follow-up.
+
+Verification:
+
+- Before the implementation, the resource test failed on the absent color state
+  and three native server tests failed on missing registration/synchronization.
+- Final build plus dedicated-server run: **60/60 passed**, with exact source/XML
+  discovery equality. Extended tests cover all four rotations and casing colors,
+  native majority/tie transitions, downgrade, invalidation, repair and reload.
+  Legacy compatibility is checked by encoding an orange state, removing the new
+  property and requiring the native codec to restore the black default.
+- **9 asset tests passed**, including all **32** color/formation/status model
+  variants and their exact base, glow and workable-overlay textures.
+- Full native clients passed both without Shimmer and with pinned Shimmer
+  `1.20.1-0.3.0` (`BeAfFYQQ`): empty failure lists, **103 pages**, native UI, and
+  all intention/demand reload and reconnect flags true. Each run produced all
+  **6 controller captures**, covering every color, a mixed green/orange tie and
+  reconnect. Native assertions check color state, base/glow/overlay quads,
+  matching/unlike CTM neighbors and optional Shimmer bloom flags. Inspected the
+  color comparison and post-reconnect captures; no stale black controller base.
+- Native datagen completed. Its unrelated language/cache changes were restored
+  from the pre-run snapshot, preserving hand-authored names and translations.
+  The only generated-resource change is the controller model. The packaged
+  model, language and all casing resources byte-match the verified working files;
+  no fixture or optional Shimmer classes are packaged. `git diff --check` passed.
+
+Evidence:
+`/home/siredvin/.hermes/profiles/albina/cache/scratch/world-eater-controller-ntvT6BLO/`
+contains `server-red-runtime.log`, `assets-red.log`, `datagen.log`,
+`server-final.log`, `server-final.xml`, `client-without-shimmer-final.log`,
+`client-with-shimmer.log`, corresponding fresh client reports/screenshots,
+`controller-colors.png` and `artifact.json`. The earlier client failure was an
+overstrict fixture assumption that a dominant-colored controller must connect
+even when its immediate neighbors have another color; corrected checks compare
+the actual native connection topology instead.
+
+This artifact supersedes the checksum above: `build/libs/gregecore-1.12.7-1.20.1.jar`,
+**925297 bytes**, SHA-256
+`a0706ca5d13ccf8017c1f5c204a83522861b445b1d03f99d2b4ddd41fd65c7e6`.
+Third-party shader packs and audio remain untested. Changes remain local:
+no commit, push, deployment or archival.

@@ -20,6 +20,7 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +44,11 @@ import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogi
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
 
 import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
@@ -54,6 +58,8 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             IncompleteWorldEaterTamer.class, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER);
     private static final String CASING_TIER = "gregecore:world_eater_casing_tier";
     private static final String CASING_COLORS = "gregecore:world_eater_casing_colors";
+    public static final EnumProperty<DyeColor> CASING_COLOR = EnumProperty.create("casing_color", DyeColor.class,
+            DyeColor.BLACK, DyeColor.PURPLE, DyeColor.GREEN, DyeColor.ORANGE);
     private int casingTier;
     @DescSynced
     @UpdateListener(methodName = "onCasingAppearanceChanged")
@@ -105,15 +111,19 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                     .build();
             })
             .modelProperty(GTMachineModelProperties.RECIPE_LOGIC_STATUS, RecipeLogic.Status.IDLE)
+            .modelProperty(CASING_COLOR, DyeColor.BLACK)
             .model((ctx, prov, builder) -> {
-                var casing = GregECore.id("block/casings/world_eater/black");
                 var overlays = WorkableOverlays.get(GTCEu.id("block/multiblock/research_station"), prov.getExistingFileHelper());
-                builder.forAllStates(state -> GTMachineModels.addWorkableOverlays(overlays,
-                        state.getValue(GTMachineModelProperties.RECIPE_LOGIC_STATUS), prov.models().nested()
-                                .parent(prov.models().getExistingFile(GregECore.id("block/world_eater_controller_template")))
-                                .texture("all", casing)
-                                .texture("glow", casing.withSuffix("_emissive"))));
-                builder.addTextureOverride("all", casing);
+                builder.forAllStates(state -> {
+                    var color = state.getValue(GTMachineModelProperties.IS_FORMED) ? state.getValue(CASING_COLOR) : DyeColor.BLACK;
+                    var casing = GregECore.id("block/casings/world_eater/" + color.getName());
+                    return GTMachineModels.addWorkableOverlays(overlays,
+                            state.getValue(GTMachineModelProperties.RECIPE_LOGIC_STATUS), prov.models().nested()
+                                    .parent(prov.models().getExistingFile(GregECore.id("block/world_eater_controller_template")))
+                                    .texture("all", casing)
+                                    .texture("glow", casing.withSuffix("_emissive")));
+                });
+                builder.addTextureOverride("all", GregECore.id("block/casings/world_eater/black"));
                 builder.addDynamicRenderer(WorldEaterPartRender::new);
             })
             .tooltips(Component.literal("Collects infrastructure information without power."),
@@ -138,7 +148,17 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     public ManagedFieldHolder getFieldHolder() { return FIELDS; }
 
     private void onCasingAppearanceChanged(BlockState newValue, BlockState oldValue) {
-        if (isRemote()) for (var part : getParts()) part.self().scheduleRenderUpdate();
+        if (isRemote()) {
+            scheduleRenderUpdate();
+            for (var part : getParts()) part.self().scheduleRenderUpdate();
+        }
+    }
+
+    @Override
+    public BlockState getBlockAppearance(BlockState state, BlockAndTintGetter level, BlockPos pos, Direction side,
+                                         BlockState sourceState, BlockPos sourcePos) {
+        var cover = getCoverContainer().getBlockAppearance(state, level, pos, side, sourceState, sourcePos);
+        return cover != null ? cover : casingAppearance;
     }
 
     private static TraceabilityPredicate casingPredicate() {
@@ -179,6 +199,10 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                 }
             }
         }
+        var color = casingAppearance.is(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.get()) ? DyeColor.PURPLE
+                : casingAppearance.is(GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.get()) ? DyeColor.GREEN
+                : casingAppearance.is(GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.get()) ? DyeColor.ORANGE : DyeColor.BLACK;
+        setRenderState(getRenderState().setValue(CASING_COLOR, color));
         // Formation can precede managed storage's initial sync baseline.
         getHolder().getRootStorage().markAllDirty();
         for (var part : getParts()) part.self().getHolder().getRootStorage().markAllDirty();
@@ -188,6 +212,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     public void onStructureInvalid() {
         casingTier = 0;
         casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
+        setRenderState(getRenderState().setValue(CASING_COLOR, DyeColor.BLACK));
         super.onStructureInvalid();
     }
 

@@ -30,10 +30,15 @@ Completed pending survey reports retain their existing protection and deliver
 once when the frame and output capacity are available, without another sensor
 or scan. Registry IDs, version-1 progression saves, and acquisition are unchanged.
 
-Formed hatches and buses use black casing at tier 1. At tier 2 they use the most
-common actual frame casing color, breaking ties in purple, green, orange order.
+The controller, formed hatches and buses use black casing at tier 1. At tier 2
+they use the most common actual frame casing color, breaking ties in purple,
+green, orange order.
 Controller, hatch, face-panel, and interior blocks do not vote. Replacing casings
-and reloading recompute the appearance; the controller itself remains black.
+and reloading recompute the appearance. The controller's native `casing_color`
+model state selects matching base and emissive textures while preserving its
+front/status overlays and connected-texture appearance. Unformed controllers
+and inventory items use black; old saves without this property default to black
+until formation recomputes the color. Progression and block identity are unchanged.
 
 ## Acquisition and recipes
 
@@ -57,7 +62,7 @@ survey always consumes one sensor, takes its unchanged 120 seconds plus any
 chunk-retry delays, and produces one report, even with a parallel hatch installed.
 ACTIVE UI progress describes crafting rather than a scan.
 
-## Artwork and animation
+## Artwork and optional bloom
 
 The 16×16 textures are original, individually palette/pixel-authored raster art
 under the project's MIT license. GTCEu 7.5.2's Industrial Steam Casing is a visual
@@ -67,21 +72,21 @@ PNG pixels are copied. The editable source is
 
 Adjacent casings of the same color use native LDLib connected textures like
 Industrial Steam Casing: internal frame seams disappear, while outside borders
-and concave corners remain. Different colors retain their boundary. The black
-controller joins surrounding black casing; formed buses/hatches join casing
+and concave corners remain. Different colors retain their boundary. The
+controller joins surrounding matching casing; formed buses/hatches join casing
 matching their current tier-derived appearance.
 
-Base plates stay normally shaded; a separate transparent emissive highlight
-sweeps all the way across them to the far corner before disappearing, rather
-than resetting at the center. Black repeats every 200 texture ticks (10 seconds), colored
-casings every 40 (2 seconds), at the normal tick rate. Colored interior shadow
-pixels shift by one pixel across the loop, while borders/bolts stay fixed.
-This is texture animation and fullbright surface detail, not world-light emission
-or a requirement for optional shaders. Compact 8-frame PNG strips and explicit
-frame durations live under `textures/block/casings/world_eater/`. Each layer
-references its own 32px CTM sheet containing sixteen 8px corner submaps; these have the same frame sequence
-and duration as the original 16px sprite, so connections do not desynchronize
-shimmer or moving shadows, including after resource reload.
+All four variants are static: no sweeping highlight, moving shadows, or texture
+animation metadata. Base plates stay normally shaded. A separate, thin emissive
+outline follows only the outside edges of connected panels, without glowing
+internal seams. The original 16px sprites and their 32px CTM sheets each contain
+one frame.
+
+The outline uses the same optional Shimmer bloom metadata as native GTCEu coils,
+on both standalone and connected sprites. With Shimmer installed and bloom enabled,
+its post-processing adds a steady glow; without Shimmer, the same detail remains
+fullbright with no bloom halo. This does not emit world light or add a required
+dependency. There is no timed pulse or custom per-frame renderer.
 
 Half-connected submaps extend only the surviving straight edge, without copying
 standalone corner caps or bolts onto every block boundary. Connected shadows use
@@ -92,9 +97,9 @@ Regenerate from the project root:
 
     python src/gameTest/generate_world_eater_casings.py
 
-Check frame timing, bounds, fixed geometry, continuous connected perimeters,
-concave corners, seamless shadow fields, connected sheets, full shimmer sweep
-and emissive mask separation:
+Check single-frame assets, absent animation, continuous connected perimeters,
+concave corners, seamless static shadow fields, optional bloom metadata,
+connected glow outlines and emissive mask separation:
 
     python -m unittest discover -s src/gameTest -p 'test_*.py'
 

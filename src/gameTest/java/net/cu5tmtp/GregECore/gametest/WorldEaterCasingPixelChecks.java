@@ -26,22 +26,20 @@ final class WorldEaterCasingPixelChecks {
                 var state = client.level.getBlockState(first);
                 var model = client.getBlockRenderer().getBlockModel(state);
                 var fallback = model.getQuads(state, face, RandomSource.create());
-                for (int frame = 0; frame < 8; frame++) {
-                    int[] reference = raster(client, fallback, face, frame, images);
-                    int[] panel = new int[48 * 48];
-                    for (int u = 0; u < 3; u++) for (int v = 0; v < 3; v++) {
-                        int[] pixels = raster(client, WorldEaterCasingConnectionChecks.quads(client,
-                                cell(root, face, u, v), face), face, frame, images);
-                        for (int y = 0; y < 16; y++) for (int x = 0; x < 16; x++)
-                            panel[((2 - v) * 16 + y) * 48 + u * 16 + x] = pixels[y * 16 + x];
-                    }
-                    boolean correct = true;
-                    for (int edge : new int[]{0, 1, 2, 45, 46, 47}) for (int along = 3; along < 45; along++) {
-                        correct &= panel[edge * 48 + along] == reference[(edge % 16) * 16 + 8];
-                        correct &= panel[along * 48 + edge] == reference[8 * 16 + edge % 16];
-                    }
-                    if (!correct) errors.add("Broken sampled perimeter pixels: color=" + color + ", face=" + face + ", frame=" + frame);
+                int[] reference = raster(client, fallback, face, images);
+                int[] panel = new int[48 * 48];
+                for (int u = 0; u < 3; u++) for (int v = 0; v < 3; v++) {
+                    int[] pixels = raster(client, WorldEaterCasingConnectionChecks.quads(client,
+                            cell(root, face, u, v), face), face, images);
+                    for (int y = 0; y < 16; y++) for (int x = 0; x < 16; x++)
+                        panel[((2 - v) * 16 + y) * 48 + u * 16 + x] = pixels[y * 16 + x];
                 }
+                boolean correct = true;
+                for (int edge : new int[]{0, 1, 2, 45, 46, 47}) for (int along = 3; along < 45; along++) {
+                    correct &= panel[edge * 48 + along] == reference[(edge % 16) * 16 + 8];
+                    correct &= panel[along * 48 + edge] == reference[8 * 16 + edge % 16];
+                }
+                if (!correct) errors.add("Broken sampled perimeter pixels: color=" + color + ", face=" + face);
             }
         } catch (Exception error) {
             errors.add("Native perimeter sampling failed: " + error);
@@ -71,7 +69,7 @@ final class WorldEaterCasingPixelChecks {
         return Float.intBitsToFloat(data[vertex * (data.length / 4) + 4 + component]);
     }
 
-    private static int[] raster(Minecraft client, List<BakedQuad> quads, Direction face, int frame,
+    private static int[] raster(Minecraft client, List<BakedQuad> quads, Direction face,
                                 Map<ResourceLocation, NativeImage> images) throws IOException {
         int[] pixels = new int[16 * 16];
         boolean[] covered = new boolean[pixels.length];
@@ -87,6 +85,7 @@ final class WorldEaterCasingPixelChecks {
                 }
                 images.put(id, image);
             }
+            if (image.getHeight() != image.getWidth()) throw new IllegalStateException("Animated casing sprite: " + id);
             var data = quad.getVertices();
             float ax = position(data, 0, 0, face), ay = position(data, 0, 1, face);
             float bx = position(data, 1, 0, face) - ax, by = position(data, 1, 1, face) - ay;
@@ -105,7 +104,7 @@ final class WorldEaterCasingPixelChecks {
                     float max = component == 0 ? sprite.getU1() : sprite.getV1();
                     texel[component] = Math.max(0, Math.min(image.getWidth() - 1, (int) ((value - min) / (max - min) * image.getWidth())));
                 }
-                pixels[y * 16 + x] = image.getPixelRGBA(texel[0], frame * image.getWidth() + texel[1]);
+                pixels[y * 16 + x] = image.getPixelRGBA(texel[0], texel[1]);
                 covered[y * 16 + x] = true;
             }
         }

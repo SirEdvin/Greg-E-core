@@ -20,6 +20,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
@@ -165,9 +166,11 @@ public class WorldEaterStructureTests {
             for (var machine : machines) {
                 System.out.println("WORLD_EATER_TIER_CHECK facing=" + machine.getFrontFacing() + " stage=uniform-and-traversal");
                 assertTier(helper, machine, 1);
+                assertControllerAppearance(helper, machine, 0);
                 for (int color = 1; color <= 3; color++) {
                     colorFrame(machine, color);
                     assertTier(helper, machine, 2);
+                    assertControllerAppearance(helper, machine, color);
                 }
                 colorFrame(machine, -1);
                 var positions = shellPositions(machine);
@@ -208,6 +211,7 @@ public class WorldEaterStructureTests {
                 assertTier(helper, machine, 2);
                 machine.onStructureInvalid();
                 helper.assertTrue(machine.getCasingTier() == 0, "Invalidation clears tier");
+                assertControllerAppearance(helper, machine, 0);
             }
             helper.succeed();
         });
@@ -262,6 +266,7 @@ public class WorldEaterStructureTests {
         }
         for (var part : machine.getParts()) for (var side : Direction.values())
             helper.assertTrue(part.getFormedAppearance(null, null, side) == expected, "Every formed part uses dominant frame color");
+        assertControllerAppearance(helper, machine, Math.max(0, winner));
         if (stage == 8) {
             var holder = (net.minecraft.world.level.block.entity.BlockEntity) machine.getHolder();
             var saved = holder.saveWithFullMetadata();
@@ -273,10 +278,22 @@ public class WorldEaterStructureTests {
                     == WorldEaterCasingTests.casings()[0].defaultBlockState(), "Appearance is derived again, not persisted");
             assertTier(helper, fresh, 2);
             helper.assertTrue(fresh.getPartAppearance(f.input(), Direction.NORTH, null, null) == expected, "Reload recomputes orange winner");
+            assertControllerAppearance(helper, fresh, winner);
             helper.succeed();
             return;
         }
         appearanceLifecycle(helper, f, frame, stage + 1, -1);
+    }
+
+    private static void assertControllerAppearance(GameTestHelper helper, IncompleteWorldEaterTamer machine, int color) {
+        var property = machine.getDefinition().getStateDefinition().getProperty("casing_color");
+        var expected = List.of(DyeColor.BLACK, DyeColor.PURPLE, DyeColor.GREEN, DyeColor.ORANGE).get(color);
+        helper.assertTrue(property != null && machine.getRenderState().getValues().get(property) == expected,
+                "Controller has synchronized casing-color model state: " + expected);
+        var casing = WorldEaterCasingTests.casings()[color].defaultBlockState();
+        for (var side : Direction.values())
+            helper.assertTrue(machine.getBlockAppearance(machine.getBlockState(), machine.getLevel(), machine.getPos(), side, casing,
+                    machine.getPos().relative(side)) == casing, "Controller CTM appearance matches " + expected);
     }
 
     private static void lifecycle(GameTestHelper helper, WorldEaterRunTests.Fixture[] fixtures, int stage, int waited) {

@@ -26,15 +26,15 @@ def tone(rgb, offset):
     return tuple(max(0, min(255, c + offset)) for c in rgb) + (255,)
 
 
-def interior(rgb, x, y, shift):
-    # A 16px period matches the block lattice, so moving bands cross joins.
+def interior(rgb, x, y):
+    # A 16px period matches the block lattice across joins.
     x, y = x % 16, y % 16
-    delta = (-7 if (x - y + shift) % 16 < 3 else 0)
+    delta = (-7 if (x - y) % 16 < 3 else 0)
     delta += 2 if (x + 3 * y) % 17 == 0 else 0
     return tone(rgb, delta)
 
 
-def plate(rgb, shift):
+def plate(rgb):
     image = Image.new('RGBA', (16, 16), tone(rgb, -16))
     p = image.load()
     assert p is not None
@@ -45,7 +45,7 @@ def plate(rgb, shift):
             elif x in (2, 13) or y in (2, 13):
                 delta = -9 if x == 2 or y == 2 else 7
             else:
-                p[x, y] = interior(rgb, x, y, shift)
+                p[x, y] = interior(rgb, x, y)
                 continue
             p[x, y] = tone(rgb, delta)
     for x, y in ((3, 3), (11, 3), (3, 11), (11, 11)):
@@ -59,13 +59,12 @@ def plate(rgb, shift):
     return image
 
 
-def connected_corner(rgb, shift, layer, frame, origin, edges):
+def connected_corner(rgb, layer, origin, edges):
     """One native 8px submap, with only its disconnected edge profile."""
     image = Image.new('RGBA', (8, 8))
     p = image.load()
     assert p is not None
-    original = plate(rgb, shift)
-    glow = shimmer(rgb, frame, True) if layer != 'base' else None
+    original = plate(rgb)
     ox, oy = origin
     for ty in range(8):
         for tx in range(8):
@@ -74,38 +73,31 @@ def connected_corner(rgb, shift, layer, frame, origin, edges):
             # A missing diagonal is a concave corner: both distances must be
             # inside the border, and the farther distance defines its ring.
             distance, edge = max(distances) if distances else (16, '')
-            if glow is not None:
-                pixel = (0, 0, 0, 0) if distance < 2 else glow.getpixel((x, y))
+            if layer != 'base':
+                pixel = tone(rgb, 60) if distance == 2 else (0, 0, 0, 0)
             elif distance < 3:
                 # Extrude a straight edge from its midpoint. Copying (x,y)
                 # would reintroduce the standalone corner/end-cap at every join.
                 pixel = original.getpixel((x, 8) if edge in ('left', 'right') else (8, y))
             else:
-                pixel = interior(rgb, x, y, shift)
+                pixel = interior(rgb, x, y)
             assert pixel is not None
             p[tx, ty] = pixel
     return image
 
 
-def shimmer(rgb, frame, connected=False):
+def glow(rgb):
     image = Image.new('RGBA', (16, 16))
-    if frame == 0:
-        return image
-    # Traverse the whole diagonal, rather than ending at x+y=16 in the center.
-    crest = (frame - 1) * 5
     p = image.load()
     assert p is not None
-    extent = range(16) if connected else range(2, 14)
-    for y in extent:
-        for x in extent:
-            distance = x + y - crest
-            if distance in (-1, 0, 1):
-                brightness = 100 if distance == 0 else 48
-                p[x, y] = tone(rgb, brightness)
+    for y in range(16):
+        for x in range(16):
+            if min(x, y, 15 - x, 15 - y) == 2:
+                p[x, y] = tone(rgb, 60)
     return image
 
 
-def connected_tile(rgb, shift, layer, frame):
+def connected_tile(rgb, layer):
     image = Image.new('RGBA', (32, 32))
     # Author the actual 4x4 grid, not independently framed 16px quadrants.
     # LDLib 1.0.40.b samples 10/11/14/15 when
@@ -116,7 +108,7 @@ def connected_tile(rgb, shift, layer, frame):
         ((0, 0), ('top',)), ((8, 0), ('top',)), ((0, 0), ('top', 'left')), ((8, 0), ('top', 'right')),
         ((0, 8), ('bottom',)), ((8, 8), ('bottom',)), ((0, 8), ('bottom', 'left')), ((8, 8), ('bottom', 'right')))
     for index, (origin, edges) in enumerate(slots):
-        image.paste(connected_corner(rgb, shift, layer, frame, origin, edges), (index % 4 * 8, index // 4 * 8))
+        image.paste(connected_corner(rgb, layer, origin, edges), (index % 4 * 8, index // 4 * 8))
     return image
 
 
@@ -133,36 +125,28 @@ def generate():
     TEXTURES.mkdir(parents=True, exist_ok=True)
     previews = []
     for color, rgb in COLORS.items():
-        times = [170, 4, 4, 4, 4, 4, 5, 5] if color == 'black' else [5] * 8
-        shifts = (0,) * 8 if color == 'black' else (0, 0, 1, 1, 0, 0, -1, -1)
-        for layer in ('base', 'shimmer'):
-            sheet = Image.new('RGBA', (16, 128))
-            ctm = Image.new('RGBA', (32, 256))
-            for frame, shift in enumerate(shifts):
-                tile = plate(rgb, shift) if layer == 'base' else shimmer(rgb, frame)
-                sheet.paste(tile, (0, frame * 16))
-                ctm.paste(connected_tile(rgb, shift, layer, frame), (0, frame * 32))
-            filename = f'{color}{"_emissive" if layer == "shimmer" else ""}'
+        for layer in ('base', 'glow'):
+            sheet = plate(rgb) if layer == 'base' else glow(rgb)
+            ctm = connected_tile(rgb, layer)
+            filename = f'{color}{"_emissive" if layer == "glow" else ""}'
             sheet.save(TEXTURES / f'{filename}.png')
             ctm.save(TEXTURES / f'{filename}_ctm.png')
-            meta = {'animation': {'interpolate': False, 'width': 16, 'height': 16,
-                                 'frames': [{'index': i, 'time': t} for i, t in enumerate(times)]},
-                    'ldlib': {'connection': f'gregecore:block/casings/world_eater/{filename}_ctm'}}
-            if layer == 'shimmer':
+            meta: dict = {'ldlib': {'connection': f'gregecore:block/casings/world_eater/{filename}_ctm'}}
+            ctm_meta = {'ldlib': {'emissive': layer == 'glow'}}
+            if layer == 'glow':
                 meta['ldlib']['emissive'] = True
+                # Match native GTCEu coil metadata; Shimmer remains optional.
+                meta['shimmer'] = ctm_meta['shimmer'] = {'bloom': True}
             dump(TEXTURES / f'{filename}.png.mcmeta', meta)
-            dump(TEXTURES / f'{filename}_ctm.png.mcmeta',
-                 {'animation': dict(meta['animation'], width=32, height=32),
-                  'ldlib': {'emissive': layer == 'shimmer'}})
+            dump(TEXTURES / f'{filename}_ctm.png.mcmeta', ctm_meta)
         texture = f'gregecore:block/casings/world_eater/{color}'
         dump(ASSETS / f'models/block/world_eater_tamer_casing{"_" + color if color != "black" else ""}.json',
              {'parent': 'minecraft:block/block', 'render_type': 'minecraft:cutout_mipped',
               'textures': {'particle': texture, 'all': texture, 'glow': texture + '_emissive'},
               'elements': [cube('#all'), cube('#glow', 0.001, True)]})
-        for frame in (0, 2, 4):
-            tile = plate(rgb, shifts[frame])
-            tile.alpha_composite(shimmer(rgb, frame))
-            previews.append((color, frame, tile))
+        tile = plate(rgb)
+        tile.alpha_composite(glow(rgb))
+        previews.append((color, tile))
     # Controller's native workable overlay template plus a separate casing glow.
     # Four overlay directions remain controlled by GTCEu's normal status models.
     textures = {f'overlay_{side}{suffix}': 'gtceu:block/void'
@@ -181,12 +165,12 @@ def generate():
           'textures': dict(textures, particle='#all'), 'elements': elements})
     out = Path(os.environ['TMPDIR']) / 'world-eater-casings'
     out.mkdir(parents=True, exist_ok=True)
-    contact = Image.new('RGB', (3 * 192, 4 * 220), '#303038')
+    contact = Image.new('RGB', (4 * 192, 220), '#303038')
     draw = ImageDraw.Draw(contact)
-    for index, (color, frame, tile) in enumerate(previews):
-        x, y = index % 3 * 192, index // 3 * 220
+    for index, (color, tile) in enumerate(previews):
+        x, y = index * 192, 0
         contact.paste(tile.resize((176, 176), Image.Resampling.NEAREST), (x + 8, y + 26))
-        draw.text((x + 8, y + 8), f'{color} frame {frame}', fill='white')
+        draw.text((x + 8, y + 8), f'{color} static glow', fill='white')
     contact.save(out / 'pixel-contact-sheet.png')
     print(out / 'pixel-contact-sheet.png')
 

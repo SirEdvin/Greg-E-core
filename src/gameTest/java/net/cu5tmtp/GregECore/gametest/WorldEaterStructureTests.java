@@ -478,4 +478,82 @@ public class WorldEaterStructureTests {
             helper.succeed();
         });
     }
+
+    @GameTest(template = "empty", timeoutTicks = 400)
+    public static void meDemandOverlappingOwnership(GameTestHelper helper) {
+        if (!com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }
+        var origin = new BlockPos(311000, 3, 311000);
+        var absolute = helper.absolutePos(origin);
+        for (int x = (absolute.getX() >> 4) - 1; x <= (absolute.getX() >> 4) + 1; x++)
+            for (int z = (absolute.getZ() >> 4) - 1; z <= (absolute.getZ() >> 4) + 1; z++) helper.getLevel().setChunkForced(x, z, true);
+        var a = shell(helper, Direction.NORTH, origin);
+        var b = shell(helper, Direction.NORTH, origin.east(4));
+        colorFrame(a, 1); colorFrame(b, 1);
+        var pos = a.getPos().east(2).above(2);
+        helper.getLevel().setBlockAndUpdate(pos, net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(GregECore.id("me_demand_hatch")).defaultBlockState());
+        helper.runAfterDelay(8, () -> {
+            a.onStructureInvalid(); b.onStructureInvalid();
+            assertTier(helper, a, 2);
+            var hatch = (com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart) MetaMachine.getMachine(helper.getLevel(), pos);
+            helper.assertTrue(hatch.getControllers().size() == 1 && hatch.getControllers().contains(a), "First native controller owns shared-position hatch");
+            helper.assertTrue(!b.checkPatternWithLock(), "Overlapping second controller cannot attach owned hatch");
+            a.onStructureInvalid();
+            assertTier(helper, b, 2);
+            helper.assertTrue(hatch.getControllers().size() == 1 && hatch.getControllers().contains(b), "Native detachment permits one new owner");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 600)
+    public static void meDemandPlacementAndIndependentLimits(GameTestHelper helper) {
+        if (!com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }
+        var hatchBlock = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(GregECore.id("me_demand_hatch"));
+        var machines = new ArrayList<IncompleteWorldEaterTamer>();
+        int location = 310000;
+        for (var facing : Direction.Plane.HORIZONTAL) {
+            var center = helper.absolutePos(new BlockPos(location, 3, location));
+            for (int x = (center.getX() >> 4) - 1; x <= (center.getX() >> 4) + 1; x++)
+                for (int z = (center.getZ() >> 4) - 1; z <= (center.getZ() >> 4) + 1; z++) helper.getLevel().setChunkForced(x, z, true);
+            machines.add(shell(helper, facing, new BlockPos(location, 3, location)));
+            location += 100;
+        }
+        helper.runAfterDelay(8, () -> {
+            for (var machine : machines) {
+                colorFrame(machine, 1);
+                var positions = shellPositions(machine);
+                for (var pos : positions) {
+                    helper.getLevel().setBlockAndUpdate(pos, hatchBlock.defaultBlockState());
+                    assertTier(helper, machine, 2);
+                    var hatch = (com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart) MetaMachine.getMachine(helper.getLevel(), pos);
+                    helper.assertTrue(machine.getParts().contains(hatch) && !hatch.canShared(), "Single-owner demand hatch at " + pos);
+                    helper.assertTrue(machine.getIntention() == Intention.NONE && hatch.replacePartModelWhenFormed(), "No intention, native formed appearance");
+                    var second = positions.get(pos.equals(positions.get(0)) ? 1 : 0);
+                    helper.getLevel().setBlockAndUpdate(second, hatchBlock.defaultBlockState());
+                    helper.assertTrue(!machine.checkPattern(), "Second demand hatch cannot use ordinary bus allowance");
+                    machine.onStructureInvalid();
+                    helper.getLevel().setBlockAndUpdate(second, WorldEaterCasingTests.casings()[1].defaultBlockState());
+                    helper.getLevel().setBlockAndUpdate(pos, WorldEaterCasingTests.casings()[1].defaultBlockState());
+                }
+                var rear = intentionPosition(machine); positions.remove(rear);
+                MachineDefinition[] types = {GTMachines.ITEM_IMPORT_BUS[GTValues.LV], GTMachines.ITEM_EXPORT_BUS[GTValues.LV],
+                        GTMachines.FLUID_IMPORT_HATCH[GTValues.LV], GTMachines.FLUID_EXPORT_HATCH[GTValues.LV]};
+                for (int t = 0; t < types.length; t++) for (int n = 0; n < 5; n++)
+                    helper.getLevel().setBlockAndUpdate(positions.get(t * 5 + n), types[t].defaultBlockState());
+                var parallel = com.gregtechceu.gtceu.common.data.machines.GCYMMachines.PARALLEL_HATCH[GTValues.IV];
+                helper.getLevel().setBlockAndUpdate(positions.get(20), parallel.defaultBlockState());
+                helper.getLevel().setBlockAndUpdate(positions.get(21), hatchBlock.defaultBlockState());
+                helper.getLevel().setBlockAndUpdate(rear, IntentionHatchPartMachine.SAFETY.defaultBlockState());
+                for (var pos : List.of(machine.getPos().above(), BlockPos.containing(machine.getStructureCenter())))
+                    helper.getLevel().setBlockAndUpdate(pos, hatchBlock.defaultBlockState());
+                assertTier(helper, machine, 2);
+                helper.assertTrue(machine.getParts().size() == 23 && machine.getIntention() == Intention.SAFETY, "Independent allowances; decorative hatches unattached");
+                for (var type : List.of(types[0], types[1], types[2], types[3], parallel, GTMachines.ENERGY_INPUT_HATCH[GTValues.LV])) {
+                    helper.getLevel().setBlockAndUpdate(positions.get(22), type.defaultBlockState());
+                    helper.assertTrue(!machine.checkPattern(), "Existing limits preserved with demand hatch: " + type.getId());
+                }
+                machine.onStructureInvalid();
+            }
+            helper.succeed();
+        });
+    }
 }

@@ -37,6 +37,7 @@ import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import net.cu5tmtp.GregECore.block.GreggyBlocks;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.MEDemandHatchPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine.Intention;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.renderer.thingsToRender.WorldEaterPartRender;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
@@ -98,6 +99,8 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                         .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(5))
                         .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(5))
                         .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(5));
+                if (GTCEu.Mods.isAE2Loaded()) frame = frame.or(Predicates.abilities(MEDemandHatchPartMachine.DEMAND)
+                        .setMaxGlobalLimited(1).setPreviewCount(1));
                 return FactoryBlockPattern.start(RelativeDirection.LEFT, RelativeDirection.UP, RelativeDirection.BACK)
                     .aisle("CCSCC", "C###C", "C###C", "C###C", "CCCCC")
                     .aisle("C###C", "#####", "#####", "#####", "C###C")
@@ -140,6 +143,9 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                     Component.literal("Test failures and interrupted runs are harmless. Preparation is permanent."),
                     Component.literal("Accepts one optional parallel hatch; only casing conversions run in parallel."),
                     Component.literal("Optional Safety or Bravery Hatch: lower rear edge center, opposite the controller."))
+            .tooltips(Component.literal("Optional ME Demand Hatch: one at any ordinary frame I/O position, for real runs only."),
+                    Component.literal("One startup autocrafting attempt for missing demand; existing matching jobs suppress it. No retries."),
+                    Component.literal("Fire-and-forget jobs finish into ME storage, even after the run ends. Deadlines and timeout risks are unchanged."))
             .register();
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
@@ -206,14 +212,22 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
         // Formation can precede managed storage's initial sync baseline.
         getHolder().getRootStorage().markAllDirty();
         for (var part : getParts()) part.self().getHolder().getRootStorage().markAllDirty();
+        if (GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.refresh(this);
     }
 
     @Override
     public void onStructureInvalid() {
+        if (GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.clear(this);
         casingTier = 0;
         casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
         setRenderState(getRenderState().setValue(CASING_COLOR, DyeColor.BLACK));
         super.onStructureInvalid();
+    }
+
+    @Override
+    public void onUnload() {
+        if (GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.clear(this);
+        super.onUnload();
     }
 
     public int getCasingTier() {

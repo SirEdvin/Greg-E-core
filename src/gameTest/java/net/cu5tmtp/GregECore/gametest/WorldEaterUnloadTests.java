@@ -15,6 +15,10 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = GregECore.MOD_ID)
 public class WorldEaterUnloadTests {
     private static final java.util.Set<Long> unloaded = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    static boolean wasUnloaded(net.minecraft.core.BlockPos pos) {
+        return unloaded.contains(net.minecraft.world.level.ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4));
+    }
     static {
         if (Boolean.getBoolean("forge.gameTestServer")) {
             try {

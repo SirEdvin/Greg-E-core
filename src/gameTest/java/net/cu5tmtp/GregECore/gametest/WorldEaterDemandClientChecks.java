@@ -33,7 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Server-selected, native client rendering and reconnect checks in the disposable fixture world. */
 final class WorldEaterDemandClientChecks {
-    private static final BlockPos CONTROLLER = new BlockPos(8300, 80, 8192);
+    static final BlockPos CONTROLLER = new BlockPos(8300, 80, 8192);
     private static final Direction[] FACINGS = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
     static final List<String> failures = new CopyOnWriteArrayList<>();
     static volatile boolean resourceReloaded;
@@ -189,14 +189,14 @@ final class WorldEaterDemandClientChecks {
     private static WorldEaterTamerRecipeLogic logic(Minecraft client) {
         return (WorldEaterTamerRecipeLogic) ((IncompleteWorldEaterTamer) MetaMachine.getMachine(client.level, CONTROLLER)).getRecipeLogic();
     }
-    private static WorldEaterRunTests.Fixture fixture(Minecraft client) {
+    static WorldEaterRunTests.Fixture fixture(Minecraft client) {
         var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
         var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CONTROLLER);
         return new WorldEaterRunTests.Fixture(machine,
                 (ItemBusPartMachine) MetaMachine.getMachine(level, CONTROLLER.relative(machine.getFrontFacing().getClockWise(), 2)),
                 (ItemBusPartMachine) MetaMachine.getMachine(level, CONTROLLER.relative(machine.getFrontFacing().getCounterClockWise(), 2)));
     }
-    private static void build(Minecraft client, Direction front) {
+    static void build(Minecraft client, Direction front) {
         var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
         for (var pos : BlockPos.betweenClosed(CONTROLLER.offset(-6, -1, -6), CONTROLLER.offset(6, 5, 6)))
             level.setBlockAndUpdate(pos, pos.getY() == CONTROLLER.getY() - 1 ? Blocks.SMOOTH_STONE.defaultBlockState() : Blocks.AIR.defaultBlockState());
@@ -216,7 +216,7 @@ final class WorldEaterDemandClientChecks {
         var camera = CONTROLLER.relative(front, 5).above(2);
         player.connection.teleport(camera.getX() + .5, camera.getY(), camera.getZ() + .5, front.toYRot() + 180, 10);
     }
-    private static void start(Minecraft client, boolean test) {
+    static void start(Minecraft client, boolean test) {
         var f = fixture(client);
         require(f.controller().checkPatternWithLock(), "Demand structure valid"); f.controller().onStructureFormed();
         if (test) WorldEaterDemandTests.state(f.logic(), "ACTIVE");

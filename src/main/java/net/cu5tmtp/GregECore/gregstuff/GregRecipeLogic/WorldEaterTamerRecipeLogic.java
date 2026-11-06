@@ -1,6 +1,8 @@
 package net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.GTCEu;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.MEDemandHatchPartMachine;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
@@ -85,6 +87,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     private int demandTier;
     @DescSynced
     private boolean rewardPending;
+    private boolean craftingConsidered;
 
     public WorldEaterTamerRecipeLogic(IncompleteWorldEaterTamer controller) {
         super(controller);
@@ -103,6 +106,11 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     public ItemStack getPendingBook() { return pendingBook.copy(); }
     public ItemStack getDemand() { return demand.copy(); }
     public boolean hasPendingReward() { return rewardPending; }
+
+    public ItemStack getRealDemand() {
+        return lastRecipe != null && REAL_OPERATION.equals(lastRecipe.data.getString("operation"))
+                && !rewardPending ? demand.copy() : ItemStack.EMPTY;
+    }
 
     @Nullable
     public ChunkPos getCurrentChunk() { return scanning ? new ChunkPos(scanChunkX, scanChunkZ) : null; }
@@ -227,7 +235,9 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
             demand = entry.stack(1 + level.random.nextInt(5));
             demandTier = entry.tier();
             duration = entry.deadline();
+            craftingConsidered = REAL_OPERATION.equals(run.data.getString("operation"));
             onChanged();
+            if (craftingConsidered && GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.begin(controller);
         } else if (lastRecipe == run && isWorking() && OPERATION.equals(run.data.getString("operation"))) {
             var chunk = controller.getPos();
             domain = new WorldEaterScanDomain(chunk.getX() >> 4, chunk.getZ() >> 4,
@@ -270,6 +280,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
             if (!machine.onWorking()) { interruptRecipe(); return; }
             setStatus(Status.WORKING);
             if (tryPayDemand()) return;
+            if (GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.tick(controller);
             progress++;
             totalContinuousRunningTime++;
             onChanged();
@@ -417,19 +428,25 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         if (reportPending) deliverReport();
     }
 
-    private boolean handleDemand(boolean simulate) {
+    public int getDemandRemainder() { return demand.isEmpty() ? 0 : handleDemand(true); }
+
+    private int handleDemand(boolean simulate) {
         List<?> remaining = new ArrayList<>(List.of(SizedIngredient.create(demand.copy())));
-        for (var handler : new LinkedHashSet<>(controller.getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP))) {
+        var handlers = GTCEu.Mods.isAE2Loaded()
+                ? MEDemandHatchPartMachine.demandInputs(controller, demand)
+                : new ArrayList<>(new LinkedHashSet<>(controller.getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP)));
+        for (var handler : handlers) {
             remaining = handler.handleRecipe(IO.IN, lastRecipe, remaining, simulate);
-            if (remaining == null || remaining.isEmpty()) return true;
+            if (remaining == null || remaining.isEmpty()) return 0;
         }
-        return false;
+        return ((SizedIngredient) remaining.get(0)).getAmount();
     }
 
     private boolean tryPayDemand() {
-        if (!handleDemand(true)) return false;
-        if (!handleDemand(false)) { interruptRecipe(); return true; }
+        if (handleDemand(true) != 0) return false;
+        if (handleDemand(false) != 0) { interruptRecipe(); return true; }
         demand = ItemStack.EMPTY;
+        if (GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.clear(controller);
         if (TEST_OPERATION.equals(lastRecipe.data.getString("operation"))) {
             progression = State.PREPARED.name();
             settleDemand();
@@ -529,7 +546,9 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     }
 
     private void clearRun() {
+        if (GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.clear(controller);
         demand = ItemStack.EMPTY;
+        craftingConsidered = false;
         demandTier = 0;
         rewardPending = false;
         domain = null;
@@ -610,6 +629,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
             saved.put("Item", demand.save(new CompoundTag()));
             saved.putInt("Tier", demandTier);
             saved.putBoolean("RewardPending", rewardPending);
+            saved.putBoolean("CraftingConsidered", craftingConsidered);
             data.put("Demand", saved);
         }
         tag.put("WorldEaterTamer", data);
@@ -643,6 +663,8 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
                 || WorldEaterDemands.pool().stream().noneMatch(e -> e.item() == demand.getItem() && e.tier() == demandTier)) {
             throw new IllegalArgumentException("Invalid or unavailable demand");
         }
+        // Even legacy or malformed automation metadata cannot reopen a paid run's opportunity.
+        craftingConsidered = REAL_OPERATION.equals(saved.getString("Operation"));
     }
 
     @Override

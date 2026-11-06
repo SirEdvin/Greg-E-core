@@ -15,6 +15,7 @@ import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.MEDemandHatchPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterReport;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterScanDomain;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
@@ -46,6 +47,7 @@ public class GregEGTAddon implements IGTAddon {
 
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
+        if (com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.addRecipe(provider);
         GregERecipeTypes.WORLD_EATER_TAMER.recipeBuilder(GregECore.id("preparation_test"))
                 .inputItems(ChemicalHelper.get(TagPrefix.gem, GreggyItems.DESARIUM))
                 .duration(600).addData("required_state", "ACTIVE").addData("required_casing_tier", 2)

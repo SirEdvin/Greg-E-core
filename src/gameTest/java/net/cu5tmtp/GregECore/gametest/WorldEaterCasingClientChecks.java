@@ -46,7 +46,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Mod.EventBusSubscriber(modid = GregECore.MOD_ID, value = Dist.CLIENT)
 public final class WorldEaterCasingClientChecks {
     private static final BlockPos ORIGIN = new BlockPos(12288, 80, 12288);
-    private static final BlockPos CONTROLLER = ORIGIN.south(6);
+    // The large tamer stands just outside the sealed dark room, within client view distance.
+    static final BlockPos CONTROLLER = ORIGIN.south(16).above(7);
+    static final BlockPos INPUT = WorldEaterStructureTests.at(CONTROLLER, Direction.NORTH, 0, 6, 3);
+    static final BlockPos OUTPUT_BUS = WorldEaterStructureTests.at(CONTROLLER, Direction.NORTH, 0, 6, 11);
+    static final BlockPos PARALLEL = WorldEaterStructureTests.at(CONTROLLER, Direction.NORTH, 0, 8, 3);
     private static final Path OUTPUT = Path.of(System.getenv("TMPDIR"), "world-eater-casings-client");
     private static final List<String> failures = new CopyOnWriteArrayList<>();
     private static int wait, frame;
@@ -158,16 +162,10 @@ public final class WorldEaterCasingClientChecks {
         player.teleportTo(ORIGIN.getX() + .5, ORIGIN.getY() + 2, ORIGIN.getZ() - 9.5);
         player.setYRot(0); player.setXRot(9);
         WorldEaterCasingConnectionChecks.setup(level);
-        for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = 0; y < 5; y++) {
-            int borders = (back == 0 || back == 4 ? 1 : 0) + (Math.abs(x) == 2 ? 1 : 0) + (y == 0 || y == 4 ? 1 : 0);
-            if (borders >= 2) level.setBlockAndUpdate(CONTROLLER.south(back).east(x).above(y), GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState());
-        }
-        level.setBlockAndUpdate(CONTROLLER, IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.defaultBlockState());
-        level.setBlockAndUpdate(CONTROLLER.west(2), GTMachines.ITEM_IMPORT_BUS[GTValues.LV].defaultBlockState());
-        level.setBlockAndUpdate(CONTROLLER.east(2), GTMachines.ITEM_EXPORT_BUS[GTValues.LV].defaultBlockState());
-        level.setBlockAndUpdate(CONTROLLER.west(1), GCYMMachines.PARALLEL_HATCH[GTValues.IV].defaultBlockState());
-        var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CONTROLLER);
-        machine.setFrontFacing(Direction.NORTH);
+        var machine = WorldEaterStructureTests.build(level, CONTROLLER, Direction.NORTH);
+        level.setBlockAndUpdate(INPUT, GTMachines.ITEM_IMPORT_BUS[GTValues.LV].defaultBlockState());
+        level.setBlockAndUpdate(OUTPUT_BUS, GTMachines.ITEM_EXPORT_BUS[GTValues.LV].defaultBlockState());
+        level.setBlockAndUpdate(PARALLEL, GCYMMachines.PARALLEL_HATCH[GTValues.IV].defaultBlockState());
         machine.getRecipeLogic().setWorkingEnabled(false);
         lights(client, true);
     }
@@ -184,9 +182,9 @@ public final class WorldEaterCasingClientChecks {
         var logic = (WorldEaterTamerRecipeLogic) machine.getRecipeLogic();
         require(machine.checkPatternWithLock(), "Native black frame forms with hatch");
         machine.onStructureFormed();
-        var input = (ItemBusPartMachine) MetaMachine.getMachine(level, CONTROLLER.west(2));
-        var output = (ItemBusPartMachine) MetaMachine.getMachine(level, CONTROLLER.east(2));
-        var hatch = (ParallelHatchPartMachine) MetaMachine.getMachine(level, CONTROLLER.west(1));
+        var input = (ItemBusPartMachine) MetaMachine.getMachine(level, INPUT);
+        var output = (ItemBusPartMachine) MetaMachine.getMachine(level, OUTPUT_BUS);
+        var hatch = (ParallelHatchPartMachine) MetaMachine.getMachine(level, PARALLEL);
         hatch.setCurrentParallel(4);
         int cx = CONTROLLER.getX() >> 4, cz = CONTROLLER.getZ() >> 4;
         for (int x = cx - 4; x <= cx + 4; x++) for (int z = cz - 4; z <= cz + 4; z++) level.getChunk(x, z);
@@ -239,7 +237,7 @@ public final class WorldEaterCasingClientChecks {
         if (quads.stream().noneMatch(q -> q.getSprite().contents().name().getPath().endsWith("black_emissive")))
             failures.add("Controller lacks emissive black casing layer");
         inspectBloom(quads);
-        for (var pos : new BlockPos[]{CONTROLLER.west(2), CONTROLLER.east(2), CONTROLLER.west(1)}) {
+        for (var pos : new BlockPos[]{INPUT, OUTPUT_BUS, PARALLEL}) {
             var partState = client.level.getBlockState(pos);
             var partModel = client.getBlockRenderer().getBlockModel(partState);
             var data = partModel.getModelData(client.level, pos, partState, net.minecraftforge.client.model.data.ModelData.EMPTY);

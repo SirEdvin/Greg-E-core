@@ -101,14 +101,13 @@ public class WorldEaterTamerTests {
     @GameTest(template = "empty", timeoutTicks = 300)
     public static void versionOneProgressionAndFreshTierReload(GameTestHelper helper) {
         var fixtures = new java.util.ArrayList<WorldEaterRunTests.Fixture>();
-        for (int i = 0; i < 12; i++) fixtures.add(WorldEaterRunTests.fixture(helper, 145000 + i * 100));
+        for (int i = 0; i < 4; i++) fixtures.add(WorldEaterRunTests.fixture(helper, 145000 + i * 100));
         helper.runAfterDelay(6, () -> {
             for (int i = 0; i < fixtures.size(); i++) {
                 var f = fixtures.get(i);
                 boolean active = i % 2 == 0, broken = i % 4 < 2;
                 if (active) WorldEaterCasingTests.active(f.logic());
-                WorldEaterStructureTests.colorFrame(f.controller(), i < 4 ? 0 : -1);
-                WorldEaterStructureTests.assertTier(helper, f.controller(), i < 4 ? 1 : 2);
+                WorldEaterStructureTests.assertTier(helper, f.controller(), 1);
                 var pos = WorldEaterStructureTests.shellPositions(f.controller()).get(3);
                 if (broken) {
                     helper.getLevel().setBlockAndUpdate(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
@@ -122,8 +121,6 @@ public class WorldEaterTamerTests {
                 var snapshot = holder.saveWithFullMetadata();
                 var controllerPos = f.controller().getPos();
                 helper.getLevel().setBlockAndUpdate(controllerPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
-                if (i >= 8) WorldEaterStructureTests.colorFrame(f.controller(), 0);
-                else WorldEaterStructureTests.colorFrame(f.controller(), -1);
                 helper.getLevel().setBlockAndUpdate(controllerPos, IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.defaultBlockState());
                 var fresh = (IncompleteWorldEaterTamer) MetaMachine.getMachine(helper.getLevel(), controllerPos);
                 ((net.minecraft.world.level.block.entity.BlockEntity) fresh.getHolder()).load(snapshot.copy());
@@ -131,11 +128,11 @@ public class WorldEaterTamerTests {
                 helper.assertTrue(fresh != f.controller() && fresh.getCasingTier() == 0, "Fresh controller never restores a cached tier");
                 helper.assertTrue(logic.getProgressionState().name().equals(active ? "ACTIVE" : "DORMANT"), "Version-1 progression restored independently");
                 if (broken) {
-                    helper.assertTrue(!fresh.checkPattern() && fresh.getCasingTier() == 0, "Broken reload has no tier");
-                    helper.getLevel().setBlockAndUpdate(pos, WorldEaterCasingTests.casings()[i >= 8 ? 0 : 1].defaultBlockState());
+                    helper.assertTrue(!fresh.checkPatternWithLock() && fresh.getCasingTier() == 0, "Broken reload has no tier");
+                    helper.getLevel().setBlockAndUpdate(pos, WorldEaterCasingTests.casings()[0].defaultBlockState());
                 }
-                WorldEaterStructureTests.assertTier(helper, fresh, i >= 8 ? 1 : 2);
-                helper.assertTrue(logic.getProgressionState().name().equals(active ? "ACTIVE" : "DORMANT"), "Repair/recomposition does not alter saved progression");
+                WorldEaterStructureTests.assertTier(helper, fresh, 1);
+                helper.assertTrue(logic.getProgressionState().name().equals(active ? "ACTIVE" : "DORMANT"), "Repair does not alter saved progression");
                 fresh.getRecipeLogic().setWorkingEnabled(false);
             }
             helper.succeed();

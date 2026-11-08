@@ -53,7 +53,7 @@ public class IntentionHatchPartMachine extends TieredPartMachine {
                 .modelProperty(GTMachineModelProperties.IS_FORMED, false)
                 .colorOverlayTieredHullModel(GregECore.id("block/overlay/intention/" + name))
                 .tooltips(Component.literal("Optional World Eater tamer intention: " + name + "."),
-                        Component.literal("Place opposite the controller, at the lower rear edge center."),
+                        Component.literal("Place opposite the controller, at the rear face center."),
                         Component.literal("One intention hatch at most. Existing recipes are unchanged."),
                         Component.literal(intention == Intention.BRAVERY
                                 ? "Craft in an ACTIVE or PREPARED tier-2 tamer with 1 signed book; first page: I know what I am doing"

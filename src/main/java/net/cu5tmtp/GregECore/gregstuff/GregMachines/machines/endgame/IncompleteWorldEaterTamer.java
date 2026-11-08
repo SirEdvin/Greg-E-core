@@ -51,6 +51,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
 
@@ -65,6 +67,25 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     @DescSynced
     @UpdateListener(methodName = "onCasingAppearanceChanged")
     private BlockState casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
+
+    // Aisles run front to back, strings bottom to top; S is the controller, I the optional intention hatch.
+    public static final String[][] SHAPE = {
+            {"bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb", "bbbbbbacabbbbbb", "bbbbbbadabbbbbb", "bbbbbbedebbbbbb", "bbaaaeedeeaaabb", "bbccdddSdddccbb", "bbaaaeedeeaaabb", "bbbbbbedebbbbbb", "bbbbbbadabbbbbb", "bbbbbbacabbbbbb", "bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb"},
+            {"bbbbbbbbbbbbbbb", "bbbbbbagabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "babbbbhdhbbbbab", "bgbbbbdidbbbbgb", "babbbbhdhbbbbab", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbagabbbbbb", "bbbbbbbbbbbbbbb"},
+            {"bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "cbbbbbhihbbbbbc", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb"},
+            {"bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "cbbbbbhihbbbbbc", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb"},
+            {"bbbbbbadabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "dbbbbbhihbbbbbd", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbadabbbbbb"},
+            {"bbbbbbadabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbjjjjjbbbbb", "ebbbbjbbbjbbbbe", "dbbbbjbbbjbbbbd", "ebbbbjbbbjbbbbe", "bbbbbjjjjjbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbedebbbbbb"},
+            {"bbaaaaadaaaaabb", "babbbbhdhbbbbab", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "ebbbbjbbbjbbbbe", "ehhhhbbbbbhhhhe", "ddhhhbbbbbhhhdd", "ehhhhbbbbbhhhhe", "ebbbbjbbbjbbbbe", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "babbbbhdhbbbbab", "bbaaaeedeeaaabb"},
+            {"bbccdddfdddccbb", "bgbbbbdidbbbbgb", "cbbbbbhihbbbbbc", "cbbbbbhihbbbbbc", "dbbbbbhihbbbbbd", "dbbbbjbbbjbbbbd", "ddhhhbbbbbhhhdd", "fiiiibbbbbiiiif", "ddhhhbbbbbhhhdd", "dbbbbjbbbjbbbbd", "dbbbbbhihbbbbbd", "cbbbbbhihbbbbbc", "cbbbbbhihbbbbbc", "bgbbbbdidbbbbgb", "bbccdddfdddccbb"},
+            {"bbaaaaadaaaaabb", "babbbbhdhbbbbab", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "ebbbbjbbbjbbbbe", "ehhhhbbbbbhhhhe", "ddhhhbbbbbhhhdd", "ehhhhbbbbbhhhhe", "ebbbbjbbbjbbbbe", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "babbbbhdhbbbbab", "bbaaaeedeeaaabb"},
+            {"bbbbbbadabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbjjjjjbbbbb", "ebbbbjbbbjbbbbe", "dbbbbjbbbjbbbbd", "ebbbbjbbbjbbbbe", "bbbbbjjjjjbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbedebbbbbb"},
+            {"bbbbbbadabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "dbbbbbhihbbbbbd", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbadabbbbbb"},
+            {"bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "cbbbbbhihbbbbbc", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb"},
+            {"bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "cbbbbbhihbbbbbc", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb"},
+            {"bbbbbbbbbbbbbbb", "bbbbbbagabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "babbbbhdhbbbbab", "bgbbbbdidbbbbgb", "babbbbhdhbbbbab", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbagabbbbbb", "bbbbbbbbbbbbbbb"},
+            {"bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb", "bbbbbbacabbbbbb", "bbbbbbadabbbbbb", "bbbbbbedebbbbbb", "bbaaaeedeeaaabb", "bbccdddIdddccbb", "bbaaaeedeeaaabb", "bbbbbbedebbbbbb", "bbbbbbadabbbbbb", "bbbbbbacabbbbbb", "bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb"}
+    };
 
     public static final MachineDefinition INCOMPLETE_WORLD_EATER_TAMER = REGISTRATE
             .multiblock("incomplete_world_eater_tamer", IncompleteWorldEaterTamer::new)
@@ -101,16 +122,22 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                         .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(5));
                 if (GTCEu.Mods.isAE2Loaded()) frame = frame.or(Predicates.abilities(MEDemandHatchPartMachine.DEMAND)
                         .setMaxGlobalLimited(1).setPreviewCount(1));
-                return FactoryBlockPattern.start(RelativeDirection.LEFT, RelativeDirection.UP, RelativeDirection.BACK)
-                    .aisle("CCSCC", "C###C", "C###C", "C###C", "CCCCC")
-                    .aisle("C###C", "#####", "#####", "#####", "C###C")
-                    .aisle("C###C", "#####", "#####", "#####", "C###C")
-                    .aisle("C###C", "#####", "#####", "#####", "C###C")
-                    .aisle("CCICC", "C###C", "C###C", "C###C", "CCCCC")
+                var pattern = FactoryBlockPattern.start(RelativeDirection.LEFT, RelativeDirection.UP, RelativeDirection.BACK);
+                for (var aisle : SHAPE) pattern.aisle(aisle);
+                return pattern
                     .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-                    .where('#', Predicates.any())
-                    .where('C', frame)
-                    .where('I', frame.or(Predicates.abilities(IntentionHatchPartMachine.INTENTION)))
+                    .where('a', frame)
+                    .where('b', Predicates.any())
+                    .where('c', block("gtceu:inert_machine_casing"))
+                    .where('d', block("gtceu:large_scale_assembler_casing"))
+                    .where('e', block("gtceu:high_temperature_smelting_casing"))
+                    .where('f', Predicates.blocks(GreggyBlocks.ASSEMBLY_ENGINE_INTAKE.get()))
+                    .where('g', Predicates.blocks(GreggyBlocks.PTFE_ENGINE_INTAKE.get()))
+                    .where('h', block("gtceu:laminated_glass"))
+                    .where('i', block("gtceu:superconducting_coil"))
+                    .where('j', block("gtceu:shock_proof_cutting_casing"))
+                    .where('I', Predicates.blocks(GreggyBlocks.ASSEMBLY_ENGINE_INTAKE.get())
+                            .or(Predicates.abilities(IntentionHatchPartMachine.INTENTION)))
                     .build();
             })
             .modelProperty(GTMachineModelProperties.RECIPE_LOGIC_STATUS, RecipeLogic.Status.IDLE)
@@ -132,8 +159,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             .tooltips(Component.literal("Collects infrastructure information without power."),
                     Component.literal("Scans the surrounding 9×9 chunks over 120 seconds."),
                     Component.literal("A complete survey of at least 500 machines awakens the tamer."),
-                    Component.literal("Frame: any mix of black, purple, green, or orange World Eater Tamer Casings."),
-                    Component.literal("Any black frame casing: tier 1; all colored: tier 2. Reversible; progression is retained."),
+                    Component.literal("Frame: World Eater Tamer Casing."),
                     Component.literal("ACTIVE or PREPARED: 1 black casing + 16 matching terracotta → 1 colored casing in 5 seconds."),
                     Component.literal("ACTIVE or PREPARED, tier 2: 1 signed acknowledgement book → 1 Bravery Hatch in 60 seconds, without power."),
                     Component.literal("Tier 2 + intention: Desarium tests ACTIVE → PREPARED; Implementium produces essence in PREPARED."),
@@ -142,7 +168,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                     Component.literal("Only real timeout has consequences: Safety sacrifices itself; Bravery sacrifices one nearby machine. No collateral damage."),
                     Component.literal("Test failures and interrupted runs are harmless. Preparation is permanent."),
                     Component.literal("Accepts one optional parallel hatch; only casing conversions run in parallel."),
-                    Component.literal("Optional Safety or Bravery Hatch: lower rear edge center, opposite the controller."))
+                    Component.literal("Optional Safety or Bravery Hatch: rear face center, opposite the controller."))
             .tooltips(Component.literal("Optional ME Demand Hatch: one at any ordinary frame I/O position, for real runs only."),
                     Component.literal("One startup autocrafting attempt for missing demand; existing matching jobs suppress it. No retries."),
                     Component.literal("Fire-and-forget jobs finish into ME storage, even after the run ends. Deadlines and timeout risks are unchanged."))
@@ -167,24 +193,17 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
         return cover != null ? cover : casingAppearance;
     }
 
+    private static TraceabilityPredicate block(String id) {
+        return Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse(id)));
+    }
+
     private static TraceabilityPredicate casingPredicate() {
         return new TraceabilityPredicate(state -> {
-            var block = state.getBlockState().getBlock();
-            int tier;
-            if (block == GreggyBlocks.WORLD_EATER_TAMER_CASING.get()) tier = 1;
-            else if (block == GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.get()
-                    || block == GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.get()
-                    || block == GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.get()) tier = 2;
-            else return false;
-            var context = state.getMatchContext();
-            context.set(CASING_TIER, Math.min(context.getOrDefault(CASING_TIER, 2), tier));
-            // Key by position so repeated predicate checks cannot inflate the vote.
-            context.<Map<BlockPos, Block>>getOrCreate(CASING_COLORS, HashMap::new).put(state.getPos().immutable(), block);
+            if (state.getBlockState().getBlock() != GreggyBlocks.WORLD_EATER_TAMER_CASING.get()) return false;
+            // Colored casings are no longer accepted, so tier 2 stays dormant.
+            state.getMatchContext().set(CASING_TIER, 1);
             return true;
-        }, () -> new BlockInfo[]{new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState()),
-                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.getDefaultState()),
-                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.getDefaultState()),
-                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.getDefaultState())});
+        }, () -> new BlockInfo[]{new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState())});
     }
 
     @Override
@@ -236,7 +255,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     }
 
     public Vec3 getStructureCenter() {
-        return Vec3.atCenterOf(getPos().relative(getFrontFacing().getOpposite(), 2).above(2));
+        return Vec3.atCenterOf(getPos().relative(getFrontFacing().getOpposite(), 7));
     }
 
     public Intention getIntention() {

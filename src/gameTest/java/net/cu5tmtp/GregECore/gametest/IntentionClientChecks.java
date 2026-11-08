@@ -28,11 +28,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /** Runs only after the existing prefix-guarded disposable-world UI checks. */
 final class IntentionClientChecks {
     private static final BlockPos CONTROLLER = new BlockPos(8192, 80, 8192);
-    private static final BlockPos REAR = CONTROLLER.south(4);
+    private static final BlockPos REAR = CONTROLLER.south(14);
     static final List<String> failures = new CopyOnWriteArrayList<>();
     static volatile boolean recipeReloaded, resourcesReloaded;
     static boolean reconnected;
-    private static int frame, stage, postReloadFrame, ticks, colorStage, colorWait;
+    private static int frame, stage, postReloadFrame, ticks;
 
     static boolean tick() {
         var client = Minecraft.getInstance();
@@ -65,12 +65,12 @@ final class IntentionClientChecks {
                 if (frame < 120) return false;
                 if (frame == 120) {
                     recipes(client);
-                    models(client, false, "green");
+                    models(client, false);
                     screenshot(client, "intention-after-reconnect.png");
                     viewController(client);
                 }
                 if (frame < 160) return false;
-                controllerModel(client, "green");
+                controllerModel(client, "black");
                 screenshot(client, "controller-after-reconnect.png");
                 reconnected = true;
                 return true;
@@ -81,7 +81,7 @@ final class IntentionClientChecks {
                     try {
                         var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
                         for (int i = 0; i < 2; i++) {
-                            var pos = REAR.east(4 + i * 2);
+                            var pos = REAR.south().east(4 + i * 2);
                             level.setBlockAndUpdate(pos, (i == 0 ? IntentionHatchPartMachine.SAFETY : IntentionHatchPartMachine.BRAVERY).defaultBlockState());
                             MetaMachine.getMachine(level, pos).setFrontFacing(Direction.SOUTH);
                         }
@@ -140,38 +140,6 @@ final class IntentionClientChecks {
                 if (postReloadFrame == 0) postReloadFrame = frame;
                 if (frame - postReloadFrame < 40) return false;
                 recipes(client);
-                String[] colors = {"purple", "green", "orange", "black", "green"};
-                if (colorStage < colors.length) {
-                    if (colorWait++ == 0) {
-                        int selected = colorStage;
-                        client.getSingleplayerServer().execute(() -> {
-                            var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
-                            var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CONTROLLER);
-                            WorldEaterStructureTests.colorFrame(machine, selected == 3 ? 0 : selected == 4 ? 2 : selected + 1);
-                            if (selected == 4) {
-                                var positions = WorldEaterStructureTests.shellPositions(machine).stream()
-                                        .filter(pos -> level.getBlockState(pos).is(WorldEaterCasingTests.casings()[2])).toList();
-                                require(positions.size() == 40, "Forty actual frame casings for green/orange tie");
-                                for (int i = 0; i < 20; i++) level.setBlockAndUpdate(positions.get(i), WorldEaterCasingTests.casings()[3].defaultBlockState());
-                            }
-                        });
-                    }
-                    if (colorWait < 100) return false;
-                    if (colorWait == 100) {
-                        models(client, false, colors[colorStage]);
-                        screenshot(client, "intention-dominant-" + colorStage + "-" + colors[colorStage] + ".png");
-                        viewController(client);
-                    }
-                    if (colorWait < 130) return false;
-                    controllerModel(client, colors[colorStage]);
-                    screenshot(client, "controller-dominant-" + colorStage + "-" + colors[colorStage] + ".png");
-                    client.getSingleplayerServer().execute(() -> {
-                        var player = client.getSingleplayerServer().getPlayerList().getPlayer(client.player.getUUID());
-                        player.connection.teleport(REAR.getX() + 1.5, REAR.getY() + 1, REAR.getZ() + 5.5, 180, 12);
-                    });
-                    colorStage++; colorWait = 0;
-                    return false;
-                }
                 var world = client.getSingleplayerServer().getWorldPath(LevelResource.ROOT).normalize().getFileName().toString();
                 require(world.startsWith("albina-world-eater-verification-"), "Reconnect only to disposable verification world");
                 stage = 1; frame = 0;
@@ -231,7 +199,7 @@ final class IntentionClientChecks {
     private static void models(Minecraft client, boolean safety, String casing) {
         controllerModel(client, casing);
         for (int i = 0; i < 3; i++) {
-            var pos = i == 0 ? REAR : REAR.east(2 + i * 2);
+            var pos = i == 0 ? REAR : REAR.south().east(2 + i * 2);
             String variant = i == 0 ? (safety ? "safety" : "bravery") : (i == 1 ? "safety" : "bravery");
             var sprites = new ArrayList<String>();
             for (Direction face : Direction.values()) WorldEaterCasingConnectionChecks.quads(client, pos, face)

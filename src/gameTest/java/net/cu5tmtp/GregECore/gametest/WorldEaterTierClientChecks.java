@@ -44,10 +44,8 @@ final class WorldEaterTierClientChecks {
                         && hasCandidate(e.getValue(), WorldEaterCasingTests.casings()[0].asItem())).findFirst().orElseThrow();
                 var casing = entry.getValue().common.stream().filter(p -> p.getCandidates().stream()
                         .anyMatch(s -> s.is(WorldEaterCasingTests.casings()[0].asItem()))).findFirst().orElseThrow().getCandidates();
-                if (casing.size() != 4 || !casing.get(0).is(WorldEaterCasingTests.casings()[0].asItem()))
-                    throw new AssertionError("Four casing candidates, black first");
-                for (var block : WorldEaterCasingTests.casings()) if (casing.stream().noneMatch(s -> s.is(block.asItem())))
-                    throw new AssertionError("Missing casing candidate " + block);
+                if (casing.size() != 1 || !casing.get(0).is(WorldEaterCasingTests.casings()[0].asItem()))
+                    throw new AssertionError("Only the black casing is a frame candidate");
                 var sceneField = PatternPreviewWidget.class.getDeclaredField("sceneWidget");
                 sceneField.setAccessible(true);
                 var scene = (SceneWidget) sceneField.get(preview);
@@ -61,25 +59,24 @@ final class WorldEaterTierClientChecks {
                 if (rear.size() != 1 || !hasCandidate(rear.get(0).getValue(), IntentionHatchPartMachine.BRAVERY.getItem()))
                     throw new AssertionError("Exactly one slot offers both intention variants");
                 var controller = predicates.entrySet().stream().filter(e -> hasCandidate(e.getValue(), IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.getItem())).findFirst().orElseThrow().getKey();
-                if (rear.get(0).getKey().getY() != controller.getY() || rear.get(0).getKey().distManhattan(controller) != 4)
+                if (rear.get(0).getKey().getY() != controller.getY() || rear.get(0).getKey().distManhattan(controller) != 14)
                     throw new AssertionError("Rear selector is opposite the controller on the same Y");
-                for (var predicate : entry.getValue().common) for (var stack : predicate.getCandidates())
-                    if (!hasCandidate(rear.get(0).getValue(), stack.getItem())) throw new AssertionError("Lost rear casing alternative");
-                for (var predicate : entry.getValue().limited) for (var stack : predicate.getCandidates())
-                    if (!hasCandidate(rear.get(0).getValue(), stack.getItem())) throw new AssertionError("Lost rear part alternative");
+                if (!hasCandidate(rear.get(0).getValue(), WorldEaterStructureTests.rear().asItem())
+                        || hasCandidate(rear.get(0).getValue(), WorldEaterCasingTests.casings()[0].asItem()))
+                    throw new AssertionError("Rear selector offers the intake, not frame casing or parts");
                 scene.getOnSelected().accept(rear.get(0).getKey(), Direction.SOUTH);
-                if (((Object[]) candidatesField.get(preview)).length != ordinarySelectors + 1)
-                    throw new AssertionError("Rear selector adds intention without replacing old selectors");
+                if (((Object[]) candidatesField.get(preview)).length != rear.get(0).getValue().common.size() + rear.get(0).getValue().limited.size())
+                    throw new AssertionError("Rear selector offers intake and intention variants");
                 if (!client.screen.getClass().getName().contains("RecipesGui")) throw new AssertionError("JEI preview screen not displayed");
-                System.out.println("WORLD_EATER_TIER_CLIENT_VERIFIED casingCandidates=4 partSelectors=5 selected=" + entry.getKey());
+                System.out.println("WORLD_EATER_TIER_CLIENT_VERIFIED casingCandidates=1 selected=" + entry.getKey());
             }
             if (frame == 40) screenshot("tier-structure-preview.png");
             if (frame == 41) {
                 var stack = new ItemStack(IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.getItem());
                 var text = stack.getTooltipLines(client.player, TooltipFlag.Default.NORMAL).stream().map(Component::getString).toList();
-                if (text.stream().noneMatch(s -> s.contains("any mix of black, purple, green, or orange"))
-                        || text.stream().noneMatch(s -> s.contains("tier 1") && s.contains("tier 2"))
-                        || text.stream().anyMatch(s -> s.contains("Requires black"))) throw new AssertionError("Revised native tooltip missing or obsolete");
+                if (text.stream().noneMatch(s -> s.contains("Frame: World Eater Tamer Casing."))
+                        || text.stream().noneMatch(s -> s.contains("rear face center"))
+                        || text.stream().anyMatch(s -> s.contains("any mix of black"))) throw new AssertionError("Revised native tooltip missing or obsolete");
                 client.setScreen(new Screen(Component.literal("Casing tier tooltip verification")) {
                     @Override public void render(GuiGraphics graphics, int x, int y, float partialTick) {
                         renderBackground(graphics);

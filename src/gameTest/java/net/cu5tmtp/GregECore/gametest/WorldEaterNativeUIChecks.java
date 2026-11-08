@@ -3,7 +3,6 @@ package net.cu5tmtp.GregECore.gametest;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine;
-import net.cu5tmtp.GregECore.block.GreggyBlocks;
 
 import com.gregtechceu.gtceu.common.data.GTMachines;
 
@@ -18,7 +17,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -47,18 +45,16 @@ public final class WorldEaterNativeUIChecks {
             player.onUpdateAbilities();
             player.teleportTo(CENTER.getX() + .5, CENTER.getY(), CENTER.getZ() - 5.5);
             player.setYRot(0); player.setXRot(10);
-            for (int back = 0; back < 5; back++) for (int x = -2; x <= 2; x++) for (int y = -2; y < 5; y++) {
-                var pos = CENTER.south(back).east(x).above(y);
-                boolean edge = y >= 0 && (back == 0 || back == 4 ? 1 : 0) + (Math.abs(x) == 2 ? 1 : 0) + (y == 0 || y == 4 ? 1 : 0) >= 2;
-                level.setBlockAndUpdate(pos, edge ? GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState() : Blocks.AIR.defaultBlockState());
-            }
-            level.setBlockAndUpdate(CENTER, IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.defaultBlockState());
-            level.setBlockAndUpdate(CENTER.west(2), GTMachines.ITEM_IMPORT_BUS[GTValues.LV].defaultBlockState());
-            level.setBlockAndUpdate(CENTER.east(2), GTMachines.ITEM_EXPORT_BUS[GTValues.LV].defaultBlockState());
-            var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CENTER);
-            machine.setFrontFacing(Direction.NORTH);
+            var machine = WorldEaterStructureTests.build(level, CENTER, Direction.NORTH);
+            // Same part positions as the server fixture whose retry snapshot is replayed later.
+            level.setBlockAndUpdate(input(), GTMachines.ITEM_IMPORT_BUS[GTValues.LV].defaultBlockState());
+            level.setBlockAndUpdate(WorldEaterStructureTests.at(CENTER, Direction.NORTH, 0, 2, 8), GTMachines.ITEM_EXPORT_BUS[GTValues.LV].defaultBlockState());
             machine.getRecipeLogic().setWorkingEnabled(false);
         });
+    }
+
+    static BlockPos input() {
+        return WorldEaterStructureTests.at(CENTER, Direction.NORTH, 0, 2, 6);
     }
 
     static void tick() {
@@ -114,7 +110,7 @@ public final class WorldEaterNativeUIChecks {
                 custom.putInt("Version", 1); custom.putString("State", stage == 1 ? "ACTIVE" : "DORMANT");
                 tag.put("WorldEaterTamer", custom); serverLogic.loadCustomPersistedData(tag);
                 if (stage == 1) {
-                    var input = (ItemBusPartMachine) MetaMachine.getMachine(level, CENTER.west(2));
+                    var input = (ItemBusPartMachine) MetaMachine.getMachine(level, input());
                     input.getInventory().setStackInSlot(0, BraveryBookIngredient.exampleBook());
                     serverLogic.setWorkingEnabled(true);
                     serverLogic.findAndHandleRecipe();

@@ -76,7 +76,8 @@ public class WorldEaterScanTests {
                 WorldEaterRunTests.blockOutput(fixture);
                 for (int tick = 0; tick < attempt * 20; tick++) fixture.logic().serverTick();
                 helper.assertTrue(fixture.logic().getElapsedDelays() == attempt * 20, "Exactly 20 skipped ticks per retry");
-                helper.assertTrue(fixture.logic().getRetryAttempts() == attempt && fixture.logic().getCounts().isEmpty(), "Allowance and atomic pending section");
+                helper.assertTrue(fixture.logic().getRetryAttempts() == attempt && fixture.logic().getCounts().isEmpty(), "Allowance and atomic pending section: attempts="
+                        + fixture.logic().getRetryAttempts() + " counts=" + fixture.logic().getCounts());
                 int cx = fixture.controller().getPos().getX() >> 4, cz = fixture.controller().getPos().getZ() >> 4;
                 var level = helper.getLevel();
                 for (int x = cx - 4; x <= cx + 4; x++) for (int z = cz - 4; z <= cz + 4; z++) level.getChunk(x, z);
@@ -117,7 +118,8 @@ public class WorldEaterScanTests {
             level.setBlockAndUpdate(new BlockPos((cx + 5) * 16, domain.minY(), cz * 16), GTMachines.MACERATOR[GTValues.LV].defaultBlockState());
             BlockPos outside = new BlockPos((cx + 5) * 16, fixture.controller().getPos().getY() + 10, cz * 16);
             var external = WorldEaterStructureTests.shell(helper, Direction.EAST, helper.relativePos(outside));
-            var externalPart = WorldEaterStructureTests.bus(helper, outside.west(4), GTMachines.ITEM_IMPORT_BUS[GTValues.LV]);
+            var insidePos = WorldEaterStructureTests.shellPositions(external).stream().filter(pos -> pos.getX() < outside.getX()).findFirst().orElseThrow();
+            var externalPart = WorldEaterStructureTests.bus(helper, insidePos, GTMachines.ITEM_IMPORT_BUS[GTValues.LV]);
             helper.assertTrue(external.checkPatternWithLock(), "Outside controller has inside part");
             external.onStructureFormed();
             helper.assertTrue(!fixture.logic().isCountableInterface(externalPart), "Never follow outside controller through an inside part");
@@ -128,7 +130,7 @@ public class WorldEaterScanTests {
             WorldEaterRunTests.blockOutput(fixture);
             for (int tick = 0; tick < 2400; tick++) {
                 fixture.logic().serverTick();
-                if (tick == 2398) helper.assertTrue(fixture.logic().getCounts().getOrDefault(GTMachines.MACERATOR[GTValues.LV].getId(), 0L) == 1, "Final position not visited early");
+                if (tick == 2398) helper.assertTrue(fixture.logic().getCounts().getOrDefault(GTMachines.MACERATOR[GTValues.LV].getId(), 0L) == 1, "Final position not visited early: " + fixture.logic().getCounts());
             }
             helper.assertTrue(fixture.logic().hasPendingReport(), "Bounded run finished");
             helper.assertTrue(fixture.logic().getCounts().getOrDefault(GTMachines.MACERATOR[GTValues.LV].getId(), 0L) == 2, "Low and high boundary grouped; outside excluded");

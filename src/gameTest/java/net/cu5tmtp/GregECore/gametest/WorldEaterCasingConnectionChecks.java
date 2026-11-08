@@ -90,9 +90,8 @@ final class WorldEaterCasingConnectionChecks {
         var right = left.east();
         if (ICTMPredicate.DEFAULT.isConnected(client.level, client.level.getBlockState(left), left,
                 client.level.getBlockState(right), right, Direction.NORTH)) errors.add("Different colors connected");
-        // Black controller and formed hatches use the native block appearance.
-        BlockPos controller = ORIGIN.south(6);
-        for (var pos : new BlockPos[]{controller, controller.west(1), controller.west(2), controller.east(2)}) {
+        // Formed hatches use the native black appearance; the controller has no black neighbors to join.
+        for (var pos : new BlockPos[]{WorldEaterCasingClientChecks.INPUT, WorldEaterCasingClientChecks.OUTPUT_BUS, WorldEaterCasingClientChecks.PARALLEL}) {
             if (quads(client, pos, Direction.NORTH).stream().noneMatch(WorldEaterCasingConnectionChecks::isCtm))
                 errors.add("Black machine/formed-part surface did not connect: " + pos);
         }

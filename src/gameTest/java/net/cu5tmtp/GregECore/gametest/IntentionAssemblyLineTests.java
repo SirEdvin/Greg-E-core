@@ -117,9 +117,8 @@ public class IntentionAssemblyLineTests {
     @GameTest(template = "empty", batch = "intention_reload", timeoutTicks = 1600)
     public static void actualReloadPreservesLookupAndPayment(GameTestHelper helper) {
         var safety = fixture(helper, 265000, 16);
-        var bravery = IntentionTamerTests.fixture(helper, 266000);
         helper.runAfterDelay(8, () -> {
-            form(helper, safety); IntentionTamerTests.form(helper, bravery);
+            form(helper, safety);
             var oldRecipe = IntentionRecipeTests.recipe(helper.getLevel(), false);
             var server = helper.getLevel().getServer();
             server.reloadResources(server.getPackRepository().getSelectedIds()).whenComplete((ignored, error) -> server.execute(() ->
@@ -127,14 +126,7 @@ public class IntentionAssemblyLineTests {
                         helper.assertTrue(error == null, "Actual server recipe reload: " + error);
                         helper.assertTrue(oldRecipe != IntentionRecipeTests.recipe(helper.getLevel(), false), "Recipe manager replaced definitions");
                         feed(safety); craft(helper, safety);
-                        IntentionTamerTests.feed(bravery, IntentionRecipeTests.book(87, "\"invalid after reload\""));
-                        IntentionTamerTests.rejectedWithoutPayment(helper, bravery, "Reload preserves content predicate");
-                        IntentionTamerTests.feed(bravery, IntentionRecipeTests.book(88));
-                        IntentionTamerTests.start(helper, bravery);
-                        helper.assertTrue(bravery.input().getInventory().getStackInSlot(0).isEmpty(), "Reloaded craft charges one book");
-                        IntentionTamerTests.finish(helper, bravery);
                         safety.machine.getRecipeLogic().setWorkingEnabled(false);
-                        bravery.logic().setWorkingEnabled(false);
                         helper.succeed();
                     })));
         });

@@ -59,7 +59,7 @@ final class WorldEaterParticleChecks {
             level.setBlockAndUpdate(sourcePos, GTMachines.MACERATOR[GTValues.LV].defaultBlockState());
             level.setBlockAndUpdate(sourcePos.west(), GTMachines.ITEM_IMPORT_BUS[GTValues.LV].defaultBlockState());
             level.setBlockAndUpdate(sourcePos.east(), Blocks.CHEST.defaultBlockState());
-            var input = (ItemBusPartMachine) MetaMachine.getMachine(level, pos.west(2));
+            var input = (ItemBusPartMachine) MetaMachine.getMachine(level, WorldEaterNativeUIChecks.input());
             input.getInventory().setStackInSlot(0, GTItems.SENSOR_IV.asStack());
             var player = level.getServer().getPlayerList().getPlayer(client.player.getUUID());
             player.teleportTo(pos.getX() - 2, pos.getY() + 2, pos.getZ() - 8);
@@ -83,7 +83,7 @@ final class WorldEaterParticleChecks {
             var packet = packets.peek();
             Vec3 source = new Vec3(packet.getX(), packet.getY(), packet.getZ());
             Vec3 displacement = new Vec3(packet.getXDist(), packet.getYDist(), packet.getZDist());
-            Vec3 target = Vec3.atCenterOf(controllerPos.south(2).above(2));
+            Vec3 target = Vec3.atCenterOf(controllerPos.south(7));
             if (!source.equals(Vec3.atCenterOf(sourcePos)) || !source.add(displacement).equals(target)
                     || packet.getCount() != 0 || packet.getMaxSpeed() != 1)
                 WorldEaterNativeUIChecks.failures.add("Scan packet does not travel from found block to geometric structure center");

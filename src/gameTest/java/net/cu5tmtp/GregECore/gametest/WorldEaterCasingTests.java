@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.data.machines.GCYMMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.ParallelHatchPartMachine;
 import net.cu5tmtp.GregECore.block.GreggyBlocks;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.IntentionHatchPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.ModCreativeModTabs;
@@ -84,7 +85,7 @@ public class WorldEaterCasingTests {
         for (int i = 0; i < count; i++) f.logic().serverTick();
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "casingRegistrationAndLoot")
     public static void casingRegistrationAndLoot(GameTestHelper helper) {
         var tab = ModCreativeModTabs.GREGE_TAB.get();
         tab.buildContents(new CreativeModeTab.ItemDisplayParameters(FeatureFlags.DEFAULT_FLAGS, true, helper.getLevel().registryAccess()));
@@ -115,12 +116,32 @@ public class WorldEaterCasingTests {
         helper.succeed();
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "allColorsAndStateGates")
     public static void allColorsAndStateGates(GameTestHelper helper) {
-        var f = WorldEaterRunTests.fixture(helper, 100000);
+        allColorsAndStateGates(helper, 1);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "tierTwoColorsAndStateGates")
+    public static void tierTwoColorsAndStateGates(GameTestHelper helper) {
+        allColorsAndStateGates(helper, 2, IntentionHatchPartMachine.SAFETY, 101000);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "braveryColorsAndStateGates")
+    public static void braveryColorsAndStateGates(GameTestHelper helper) {
+        allColorsAndStateGates(helper, 2, IntentionHatchPartMachine.BRAVERY, 264000);
+    }
+
+    private static void allColorsAndStateGates(GameTestHelper helper, int tier) {
+        allColorsAndStateGates(helper, tier, null, 100000 + (tier - 1) * 1000);
+    }
+
+    private static void allColorsAndStateGates(GameTestHelper helper, int tier, com.gregtechceu.gtceu.api.machine.MachineDefinition intention, int location) {
+        var f = WorldEaterRunTests.fixture(helper, location);
+        if (intention != null) helper.getLevel().setBlockAndUpdate(WorldEaterStructureTests.intentionPosition(f.controller()), intention.defaultBlockState());
+        WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
         helper.runAfterDelay(6, () -> {
             WorldEaterRunTests.form(helper, f);
-            helper.assertTrue(f.controller().getCasingTier() == 1, "Processing at tier 1");
+            helper.assertTrue(f.controller().getCasingTier() == tier, "Processing at requested tier");
             f.logic().setWorkingEnabled(true);
             for (int color = 0; color < 3; color++) {
                 feed(f, color, 1, 16);
@@ -170,9 +191,19 @@ public class WorldEaterCasingTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "activeResumeAndBlockedOutput")
     public static void activeResumeAndBlockedOutput(GameTestHelper helper) {
-        var f = WorldEaterRunTests.fixture(helper, 105000);
+        activeResumeAndBlockedOutput(helper, 1);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "tierTwoResumeAndBlockedOutput")
+    public static void tierTwoResumeAndBlockedOutput(GameTestHelper helper) {
+        activeResumeAndBlockedOutput(helper, 2);
+    }
+
+    private static void activeResumeAndBlockedOutput(GameTestHelper helper, int tier) {
+        var f = WorldEaterRunTests.fixture(helper, 105000 + (tier - 1) * 1000);
+        WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
         helper.runAfterDelay(6, () -> {
             WorldEaterRunTests.form(helper, f); active(f.logic());
             f.logic().setWorkingEnabled(true);
@@ -205,10 +236,10 @@ public class WorldEaterCasingTests {
             f.logic().findAndHandleRecipe();
             ticks(f, 10);
             helper.assertTrue(f.logic().getProgress() == 10 && f.input().getInventory().getStackInSlot(0).isEmpty(), "Unfinished craft paid once");
-            f.controller().onStructureInvalid();
+            WorldEaterStructureTests.invalidated(f.controller());
             helper.assertTrue(f.logic().getProgress() == 0 && f.logic().getLastRecipe() == null
                     && f.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.ACTIVE, "Frame interruption cancels work, not ACTIVE");
-            WorldEaterStructureTests.assertTier(helper, f.controller(), 1);
+            WorldEaterStructureTests.assertTier(helper, f.controller(), tier);
             ticks(f, 100);
             helper.assertTrue(outputCount(f, casings()[1].asItem()) == 1, "Cancelled unfinished craft is not recovered");
             f.logic().setWorkingEnabled(false);
@@ -216,9 +247,19 @@ public class WorldEaterCasingTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "hatchLimitsAndParallelCrafts")
     public static void hatchLimitsAndParallelCrafts(GameTestHelper helper) {
-        var f = WorldEaterRunTests.fixture(helper, 110000);
+        hatchLimitsAndParallelCrafts(helper, 1);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "tierTwoHatchLimitsAndParallelCrafts")
+    public static void tierTwoHatchLimitsAndParallelCrafts(GameTestHelper helper) {
+        hatchLimitsAndParallelCrafts(helper, 2);
+    }
+
+    private static void hatchLimitsAndParallelCrafts(GameTestHelper helper, int tier) {
+        var f = WorldEaterRunTests.fixture(helper, 110000 + (tier - 1) * 1000);
+        WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
         var hatch = hatch(helper, f, 2);
         helper.runAfterDelay(6, () -> {
             WorldEaterRunTests.form(helper, f);
@@ -257,7 +298,7 @@ public class WorldEaterCasingTests {
             ticks(f, 100);
             helper.assertTrue(outputCount(f, casings()[2].asItem()) == 64, "No output overflow");
             f.logic().setWorkingEnabled(false);
-            f.controller().onStructureInvalid();
+            WorldEaterStructureTests.invalidated(f.controller());
             hatch(helper, f, 3);
             helper.assertTrue(!f.controller().checkPatternWithLock(), "Second hatch rejected while ACTIVE");
             helper.getLevel().setBlockAndUpdate(WorldEaterStructureTests.shellPositions(f.controller()).get(3), casings()[0].defaultBlockState());
@@ -266,9 +307,19 @@ public class WorldEaterCasingTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 400)
+    @GameTest(template = "empty", timeoutTicks = 400, batch = "parallelHatchNeverMultipliesSurvey")
     public static void parallelHatchNeverMultipliesSurvey(GameTestHelper helper) {
-        var f = WorldEaterRunTests.fixture(helper, 115000);
+        parallelHatchNeverMultipliesSurvey(helper, 1);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 400, batch = "tierTwoParallelHatchNeverMultipliesSurvey")
+    public static void tierTwoParallelHatchNeverMultipliesSurvey(GameTestHelper helper) {
+        parallelHatchNeverMultipliesSurvey(helper, 2);
+    }
+
+    private static void parallelHatchNeverMultipliesSurvey(GameTestHelper helper, int tier) {
+        var f = WorldEaterRunTests.fixture(helper, 115000 + (tier - 1) * 1000);
+        WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
         hatch(helper, f, 2).setCurrentParallel(4);
         helper.runAfterDelay(6, () -> {
             WorldEaterRunTests.form(helper, f);
@@ -292,19 +343,18 @@ public class WorldEaterCasingTests {
             helper.assertTrue(!f.logic().hasPendingReport(), "Survey cannot finish early");
             ticks(f, 1);
             helper.assertTrue(f.logic().hasPendingReport() && f.logic().getProgress() == 2400 && f.logic().getElapsedDelays() == 0, "Unchanged full survey duration");
-            // Completed report survives invalidation, unsupported-frame rejection, and a rebuild.
+            // Completed report survives invalidation, unsupported-frame rejection, and a colored rebuild.
             var holder = (BlockEntity) f.controller().getHolder();
             holder.load(holder.saveWithFullMetadata().copy());
-            f.controller().onStructureInvalid();
+            WorldEaterStructureTests.invalidated(f.controller());
             var pos = WorldEaterStructureTests.shellPositions(f.controller()).get(3);
             helper.getLevel().setBlockAndUpdate(pos, com.gregtechceu.gtceu.common.data.GTBlocks.MACHINE_CASING_UHV.getDefaultState());
             helper.assertTrue(!f.controller().checkPatternWithLock(), "UHV cannot reform saved controller");
-            helper.getLevel().setBlockAndUpdate(pos, casings()[1].defaultBlockState());
-            helper.assertTrue(!f.controller().checkPatternWithLock(), "Colored casing cannot reform saved controller");
             helper.getLevel().setBlockAndUpdate(pos, casings()[0].defaultBlockState());
-            helper.assertTrue(f.controller().checkPatternWithLock(), "Black rebuild forms");
-            f.controller().onStructureFormed();
-            helper.assertTrue(f.controller().getCasingTier() == 1, "Retained report on rebuild");
+            WorldEaterStructureTests.colorFrame(f.controller(), -1);
+            helper.assertTrue(f.controller().checkPatternWithLock(), "Colored rebuild forms");
+            WorldEaterStructureTests.formed(f.controller());
+            helper.assertTrue(f.controller().getCasingTier() == 2, "Retained report on tier-2 rebuild");
             f.output().getInventory().setStackInSlot(0, ItemStack.EMPTY);
             ticks(f, 1);
             helper.assertTrue(outputCount(f, Items.WRITTEN_BOOK) == 1 && f.input().getInventory().getStackInSlot(0).getCount() == 3, "One retained report, surplus sensors unchanged");

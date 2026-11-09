@@ -67,13 +67,23 @@ public class WorldEaterClientChecks {
             }
             return;
         }
+        if (nativeWorld && Boolean.getBoolean("gregecore.meClientVerification")) {
+            if (WorldEaterMEClientChecks.tick()) {
+                failures.addAll(WorldEaterMEClientChecks.failures);
+                finish(client);
+            }
+            return;
+        }
         if (nativeWorld && current == books.size() && uiStarted) {
             WorldEaterNativeUIChecks.tick();
             if (WorldEaterNativeUIChecks.done) {
                 if (!intentionDone) intentionDone = IntentionClientChecks.tick();
-                if (!intentionDone) return;
+                if (!intentionDone || !WorldEaterDemandClientChecks.tick()) return;
+                if (com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded() && !WorldEaterMEClientChecks.tick()) return;
                 failures.addAll(WorldEaterNativeUIChecks.failures);
                 failures.addAll(IntentionClientChecks.failures);
+                failures.addAll(WorldEaterDemandClientChecks.failures);
+                if (com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded()) failures.addAll(WorldEaterMEClientChecks.failures);
                 finish(client);
             }
             return;
@@ -125,7 +135,9 @@ public class WorldEaterClientChecks {
         Files.writeString(Path.of(System.getenv("TMPDIR"), "world-eater-client", "result.json"),
                 new Gson().toJson(Map.of("passed", failures.isEmpty(), "pagesChecked", pages, "nativeUI", uiStarted, "failures", failures,
                         "intentionRecipeReload", IntentionClientChecks.recipeReloaded, "intentionResourceReload", IntentionClientChecks.resourcesReloaded,
-                        "intentionReconnect", IntentionClientChecks.reconnected)));
+                        "intentionReconnect", IntentionClientChecks.reconnected,
+                        "demandResourceReload", WorldEaterDemandClientChecks.resourceReloaded,
+                        "demandReconnect", WorldEaterDemandClientChecks.reconnected)));
         System.out.println("WORLD_EATER_CLIENT_VERIFIED passed=" + failures.isEmpty() + " pages=" + pages + " nativeUI=" + uiStarted);
         client.stop();
     }

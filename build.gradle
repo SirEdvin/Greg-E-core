@@ -124,6 +124,9 @@ minecraft {
         gameTestServer {
             property 'forge.enabledGameTestNamespaces', mod_id
             property 'forge.logging.console.level', 'info'
+            if (providers.gradleProperty('gameTests').isPresent()) {
+                property 'gregecore.gameTests', providers.gradleProperty('gameTests').get()
+            }
             workingDirectory project.file('run-gametest')
             mods {
                 "${mod_id}" { source sourceSets.gameTest }
@@ -258,6 +261,11 @@ publishing {
             url "file://${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+// Fresh world each run: stale machines at the shared test origin and the flat preset only apply to new worlds.
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    doFirst { delete file('run-gametest/world') }
 }
 
 tasks.withType(JavaCompile).configureEach {

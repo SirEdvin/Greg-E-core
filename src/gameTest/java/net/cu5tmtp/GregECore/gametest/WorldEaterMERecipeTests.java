@@ -21,7 +21,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 @GameTestHolder(GregECore.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class WorldEaterMERecipeTests {
-    @GameTest(template = "empty", timeoutTicks = 600)
+    @GameTest(template = "empty", timeoutTicks = 600, batch = "craftingConsumptionLayoutsReloadAndNetwork")
     public static void craftingConsumptionLayoutsReloadAndNetwork(GameTestHelper helper) {
         if (!GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }
         verify(helper);

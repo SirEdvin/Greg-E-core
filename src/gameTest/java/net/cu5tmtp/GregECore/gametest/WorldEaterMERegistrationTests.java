@@ -14,7 +14,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 @GameTestHolder(GregECore.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class WorldEaterMERegistrationTests {
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "optionalDemandHatchRegistration")
     public static void optionalDemandHatchRegistration(GameTestHelper helper) {
         var id = GregECore.id("me_demand_hatch");
         boolean enabled = GTCEu.Mods.isAE2Loaded();

@@ -41,6 +41,22 @@ public final class WorldEaterCasingJeiChecks implements IModPlugin {
         return true;
     }
 
+    static boolean showDemandRecipe(boolean test) {
+        if (runtime == null) return false;
+        var recipe = WorldEaterDemandTests.recipe(Minecraft.getInstance().level, test);
+        var type = runtime.getRecipeManager().getRecipeType(recipe.recipeType.getCategory().registryKey, GTRecipe.class).orElseThrow();
+        runtime.getRecipesGui().showRecipes(runtime.getRecipeManager().getRecipeCategory(type), List.of(recipe), List.of());
+        return true;
+    }
+
+    static boolean showMEDemandRecipe() {
+        if (runtime == null) return false;
+        var recipe = (net.minecraft.world.item.crafting.CraftingRecipe) Minecraft.getInstance().level.getRecipeManager()
+                .byKey(GregECore.id("me_demand_hatch")).orElseThrow();
+        runtime.getRecipesGui().showRecipes(runtime.getRecipeManager().getRecipeCategory(mezz.jei.api.constants.RecipeTypes.CRAFTING), List.of(recipe), List.of());
+        return true;
+    }
+
     static boolean showIntentionRecipe(boolean safety) {
         if (runtime == null) return false;
         var recipe = IntentionRecipeTests.recipe(Minecraft.getInstance().level, safety);

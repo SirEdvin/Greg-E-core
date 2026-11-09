@@ -30,7 +30,7 @@ public class WorldEaterRunTests {
     }
 
     static Fixture fixture(GameTestHelper helper, int location) {
-        BlockPos center = helper.absolutePos(new BlockPos(location, 3, location));
+        BlockPos center = WorldEaterStructureTests.far(helper, new BlockPos(location, 3, location));
         for (int x = (center.getX() >> 4) - 1; x <= (center.getX() >> 4) + 1; x++)
             for (int z = (center.getZ() >> 4) - 1; z <= (center.getZ() >> 4) + 1; z++)
                 helper.getLevel().setChunkForced(x, z, true);
@@ -56,15 +56,26 @@ public class WorldEaterRunTests {
         boolean matches = fixture.controller.checkPatternWithLock();
         helper.assertTrue(matches, "Fixture shell valid: " + (fixture.controller.getMultiblockState().error == null ? "none" : fixture.controller.getMultiblockState().error.getErrorInfo().getString())
                 + " at " + fixture.controller.getMultiblockState().getPos() + " controller " + fixture.controller.getPos());
-        fixture.controller.onStructureFormed();
+        WorldEaterStructureTests.formed(fixture.controller);
         fixture.input.getInventory().setStackInSlot(0, GTItems.SENSOR_IV.asStack(2));
     }
 
-    @GameTest(template = "empty", timeoutTicks = 400)
+    @GameTest(template = "empty", timeoutTicks = 400, batch = "loadedThresholdsAndBlockedDelivery")
     public static void loadedThresholdsAndBlockedDelivery(GameTestHelper helper) {
-        Fixture[] fixtures = {fixture(helper, 5000), fixture(helper, 10000), fixture(helper, 15000), fixture(helper, 20000)};
+        loadedThresholdsAndBlockedDelivery(helper, 1);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 400, batch = "tierTwoThresholdsAndBlockedDelivery")
+    public static void tierTwoThresholdsAndBlockedDelivery(GameTestHelper helper) {
+        loadedThresholdsAndBlockedDelivery(helper, 2);
+    }
+
+    private static void loadedThresholdsAndBlockedDelivery(GameTestHelper helper, int tier) {
+        Fixture[] fixtures = {fixture(helper, 5000 + (tier - 1) * 500), fixture(helper, 10000 + (tier - 1) * 500),
+                fixture(helper, 15000 + (tier - 1) * 500), fixture(helper, 20000 + (tier - 1) * 500)};
         for (int i = 0; i < fixtures.length; i++) {
             var f = fixtures[i];
+            WorldEaterStructureTests.colorFrame(f.controller(), tier == 1 ? 0 : -1);
             if (i == 1 || i == 2) helper.getLevel().setBlockAndUpdate(WorldEaterStructureTests.intentionPosition(f.controller()),
                     (i == 1 ? IntentionHatchPartMachine.SAFETY : IntentionHatchPartMachine.BRAVERY).defaultBlockState());
         }
@@ -113,19 +124,20 @@ public class WorldEaterRunTests {
                 if (test == 1 || test == 2) {
                     var rear = WorldEaterStructureTests.intentionPosition(controller);
                     helper.getLevel().setBlockAndUpdate(rear, (test == 1 ? IntentionHatchPartMachine.BRAVERY : IntentionHatchPartMachine.SAFETY).defaultBlockState());
-                    WorldEaterStructureTests.assertTier(helper, controller, 1);
+                    WorldEaterStructureTests.assertTier(helper, controller, tier);
                     helper.assertTrue(ItemStack.matches(pending, fixture.logic().getPendingBook()), "Swapping intention retains completed report");
                     helper.getLevel().setBlockAndUpdate(rear, WorldEaterStructureTests.rear().defaultBlockState());
-                    WorldEaterStructureTests.assertTier(helper, controller, 1);
+                    WorldEaterStructureTests.assertTier(helper, controller, tier);
                     helper.assertTrue(controller.getIntention() == IntentionHatchPartMachine.Intention.NONE
                             && ItemStack.matches(pending, fixture.logic().getPendingBook()), "Removing intention retains completed report");
                 }
                 var framePos = WorldEaterStructureTests.shellPositions(controller).get(3);
                 helper.getLevel().setBlockAndUpdate(framePos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
-                controller.onStructureInvalid();
+                WorldEaterStructureTests.invalidated(controller);
                 helper.getLevel().setBlockAndUpdate(framePos, WorldEaterCasingTests.casings()[0].defaultBlockState());
-                WorldEaterStructureTests.assertTier(helper, controller, 1);
-                helper.assertTrue(ItemStack.matches(pending, fixture.logic().getPendingBook()), "Same completed successful report retained through rebuild");
+                WorldEaterStructureTests.colorFrame(controller, -1);
+                WorldEaterStructureTests.assertTier(helper, controller, 2);
+                helper.assertTrue(ItemStack.matches(pending, fixture.logic().getPendingBook()), "Same completed successful report retained through colored rebuild");
                 CompoundTag saved = ((net.minecraft.world.level.block.entity.BlockEntity) controller.getHolder()).saveWithFullMetadata();
                 ((net.minecraft.world.level.block.entity.BlockEntity) controller.getHolder()).load(saved);
                 helper.assertTrue(fixture.logic().hasPendingReport(), "Blocked report persists through native NBT");
@@ -142,9 +154,9 @@ public class WorldEaterRunTests {
                 var holder = (net.minecraft.world.level.block.entity.BlockEntity) controller.getHolder();
                 holder.load(holder.saveWithFullMetadata());
                 helper.assertTrue(fixture.logic().getProgressionState().name().equals(totals[test] >= 500 ? "ACTIVE" : "DORMANT"), "Native state round trip");
-                controller.onStructureInvalid();
+                WorldEaterStructureTests.invalidated(controller);
                 helper.assertTrue(controller.checkPatternWithLock(), "Shell still valid after cancellation");
-                controller.onStructureFormed();
+                WorldEaterStructureTests.formed(controller);
                 if (totals[test] >= 500) {
                     fixture.logic().setupRecipe(recipe());
                     fixture.logic().findAndHandleRecipe();
@@ -168,9 +180,19 @@ public class WorldEaterRunTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "metadataGatesAndCancellation")
     public static void metadataGatesAndCancellation(GameTestHelper helper) {
-        Fixture fixture = fixture(helper, 25000);
+        metadataGatesAndCancellation(helper, 1);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "tierTwoMetadataGatesAndCancellation")
+    public static void tierTwoMetadataGatesAndCancellation(GameTestHelper helper) {
+        metadataGatesAndCancellation(helper, 2);
+    }
+
+    private static void metadataGatesAndCancellation(GameTestHelper helper, int tier) {
+        Fixture fixture = fixture(helper, 25000 + (tier - 1) * 1000);
+        WorldEaterStructureTests.colorFrame(fixture.controller(), tier == 1 ? 0 : -1);
         helper.runAfterDelay(4, () -> {
             form(helper, fixture);
             fixture.logic().setWorkingEnabled(true);
@@ -196,14 +218,14 @@ public class WorldEaterRunTests {
             fixture.logic().setWorkingEnabled(true);
             fixture.logic().serverTick();
             helper.assertTrue(fixture.logic().getProgress() == 1, "Part unavailability preserves delay");
-            fixture.controller.onStructureInvalid();
+            WorldEaterStructureTests.invalidated(fixture.controller);
             helper.assertTrue(fixture.logic().getProgress() == 0 && fixture.logic().getCounts().isEmpty(), "True cancellation clears run");
             fixture.logic().setWorkingEnabled(false);
             helper.succeed();
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "resumedMetadataFailsClosed")
     public static void resumedMetadataFailsClosed(GameTestHelper helper) {
         var fixture = fixture(helper, 73000);
         helper.runAfterDelay(4, () -> {
@@ -231,17 +253,17 @@ public class WorldEaterRunTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "retryExhaustionAndNativePersistence")
     public static void retryExhaustionAndNativePersistence(GameTestHelper helper) {
         retryExhaustionAndNativePersistence(helper, null, 30000);
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "safetySurveyFailure")
     public static void safetySurveyFailure(GameTestHelper helper) {
         retryExhaustionAndNativePersistence(helper, IntentionHatchPartMachine.SAFETY, 262000);
     }
 
-    @GameTest(template = "empty", timeoutTicks = 200)
+    @GameTest(template = "empty", timeoutTicks = 200, batch = "braverySurveyFailure")
     public static void braverySurveyFailure(GameTestHelper helper) {
         retryExhaustionAndNativePersistence(helper, IntentionHatchPartMachine.BRAVERY, 263000);
     }
@@ -279,11 +301,11 @@ public class WorldEaterRunTests {
             helper.assertTrue(fixture.logic().getDuration() == 2500, "Exactly five extensions");
             helper.assertTrue(fixture.logic().getProgress() == 100, "No sixth delay or waiting base remainder");
             var book = fixture.logic().getPendingBook();
-            fixture.controller.onStructureInvalid();
+            WorldEaterStructureTests.invalidated(fixture.controller);
             var holder = (net.minecraft.world.level.block.entity.BlockEntity) fixture.controller.getHolder();
             CompoundTag saved = holder.saveWithFullMetadata(); holder.load(saved);
             helper.assertTrue(fixture.logic().hasPendingReport() && ItemStack.matches(book, fixture.logic().getPendingBook()), "Completed report survives cancellation and NBT");
-            fixture.controller.checkPatternWithLock(); fixture.controller.onStructureFormed();
+            fixture.controller.checkPatternWithLock(); WorldEaterStructureTests.formed(fixture.controller);
             fixture.output.getInventory().setStackInSlot(0, ItemStack.EMPTY);
             fixture.logic().serverTick();
             helper.assertTrue(fixture.output.getInventory().getStackInSlot(0).is(Items.WRITTEN_BOOK), "Failure delivered");

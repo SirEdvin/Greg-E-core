@@ -181,7 +181,7 @@ public final class WorldEaterCasingClientChecks {
         var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CONTROLLER);
         var logic = (WorldEaterTamerRecipeLogic) machine.getRecipeLogic();
         require(machine.checkPatternWithLock(), "Native black frame forms with hatch");
-        machine.onStructureFormed();
+        WorldEaterStructureTests.formed(machine);
         var input = (ItemBusPartMachine) MetaMachine.getMachine(level, INPUT);
         var output = (ItemBusPartMachine) MetaMachine.getMachine(level, OUTPUT_BUS);
         var hatch = (ParallelHatchPartMachine) MetaMachine.getMachine(level, PARALLEL);

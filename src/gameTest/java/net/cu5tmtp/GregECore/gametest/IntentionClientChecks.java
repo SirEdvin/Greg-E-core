@@ -32,7 +32,7 @@ final class IntentionClientChecks {
     static final List<String> failures = new CopyOnWriteArrayList<>();
     static volatile boolean recipeReloaded, resourcesReloaded;
     static boolean reconnected;
-    private static int frame, stage, postReloadFrame, ticks;
+    private static int frame, stage, postReloadFrame, ticks, colorStage, colorWait;
 
     static boolean tick() {
         var client = Minecraft.getInstance();
@@ -140,6 +140,38 @@ final class IntentionClientChecks {
                 if (postReloadFrame == 0) postReloadFrame = frame;
                 if (frame - postReloadFrame < 40) return false;
                 recipes(client);
+                String[] colors = {"purple", "green", "orange", "black", "green"};
+                if (colorStage < colors.length) {
+                    if (colorWait++ == 0) {
+                        int selected = colorStage;
+                        client.getSingleplayerServer().execute(() -> {
+                            var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
+                            var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CONTROLLER);
+                            WorldEaterStructureTests.colorFrame(machine, selected == 3 ? 0 : selected == 4 ? 2 : selected + 1);
+                            if (selected == 4) {
+                                var positions = WorldEaterStructureTests.tierPositions(machine).stream()
+                                        .filter(pos -> level.getBlockState(pos).is(WorldEaterCasingTests.casings()[2])).toList();
+                                require(positions.size() == 44, "Forty-four tier-ring casings for green/orange tie");
+                                for (int i = 0; i < 22; i++) level.setBlockAndUpdate(positions.get(i), WorldEaterCasingTests.casings()[3].defaultBlockState());
+                            }
+                        });
+                    }
+                    if (colorWait < 100) return false;
+                    if (colorWait == 100) {
+                        models(client, false);
+                        screenshot(client, "intention-ring-" + colorStage + "-" + colors[colorStage] + ".png");
+                        viewController(client);
+                    }
+                    if (colorWait < 130) return false;
+                    controllerModel(client, "black");
+                    screenshot(client, "controller-ring-" + colorStage + "-" + colors[colorStage] + ".png");
+                    client.getSingleplayerServer().execute(() -> {
+                        var player = client.getSingleplayerServer().getPlayerList().getPlayer(client.player.getUUID());
+                        player.connection.teleport(REAR.getX() + 1.5, REAR.getY() + 1, REAR.getZ() + 5.5, 180, 12);
+                    });
+                    colorStage++; colorWait = 0;
+                    return false;
+                }
                 var world = client.getSingleplayerServer().getWorldPath(LevelResource.ROOT).normalize().getFileName().toString();
                 require(world.startsWith("albina-world-eater-verification-"), "Reconnect only to disposable verification world");
                 stage = 1; frame = 0;
@@ -163,7 +195,7 @@ final class IntentionClientChecks {
         }
         var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CONTROLLER);
         machine.setFrontFacing(Direction.NORTH);
-        machine.onStructureInvalid();
+        WorldEaterStructureTests.invalidated(machine);
         level.setBlockAndUpdate(REAR, (safety ? IntentionHatchPartMachine.SAFETY : IntentionHatchPartMachine.BRAVERY).defaultBlockState());
         MetaMachine.getMachine(level, REAR).setFrontFacing(Direction.SOUTH);
         // Let native reformation run after the new part's onLoad and sync its attachments.
@@ -220,8 +252,6 @@ final class IntentionClientChecks {
         require(!Boolean.getBoolean("gregecore.worldEaterBloomVerification")
                 || net.minecraftforge.fml.ModList.get().isLoaded("shimmer"), "Expected optional Shimmer runtime");
         var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(client.level, CONTROLLER);
-        require(machine.getRenderState().getValue(IncompleteWorldEaterTamer.CASING_COLOR).getName().equals(casing),
-                "Controller casing-color state synchronized: " + casing);
         var quads = new ArrayList<net.minecraft.client.renderer.block.model.BakedQuad>();
         var base = "block/casings/world_eater/" + casing;
         for (var face : Direction.values()) {

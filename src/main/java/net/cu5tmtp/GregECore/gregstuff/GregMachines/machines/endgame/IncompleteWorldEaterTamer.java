@@ -16,14 +16,8 @@ import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.gui.widget.DraggableScrollableWidgetGroup;
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
-import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
-import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener;
-import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeColor;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
@@ -44,12 +38,6 @@ import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -57,34 +45,27 @@ import net.minecraftforge.registries.ForgeRegistries;
 import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
 
 public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine implements IFancyUIMachine, IDisplayUIMachine {
-    private static final ManagedFieldHolder FIELDS = new ManagedFieldHolder(
-            IncompleteWorldEaterTamer.class, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER);
     private static final String CASING_TIER = "gregecore:world_eater_casing_tier";
-    private static final String CASING_COLORS = "gregecore:world_eater_casing_colors";
-    public static final EnumProperty<DyeColor> CASING_COLOR = EnumProperty.create("casing_color", DyeColor.class,
-            DyeColor.BLACK, DyeColor.PURPLE, DyeColor.GREEN, DyeColor.ORANGE);
     private int casingTier;
-    @DescSynced
-    @UpdateListener(methodName = "onCasingAppearanceChanged")
-    private BlockState casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
 
-    // Aisles run front to back, strings bottom to top; S is the controller, I the optional intention hatch.
+    // Aisles run front to back, strings bottom to top. K controller, C frame casing (parts allowed),
+    // T tier casing (any World Eater color), I intention slot, E/P engine intakes, space = any block.
     public static final String[][] SHAPE = {
-            {"bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb", "bbbbbbacabbbbbb", "bbbbbbadabbbbbb", "bbbbbbedebbbbbb", "bbaaaeedeeaaabb", "bbccdddSdddccbb", "bbaaaeedeeaaabb", "bbbbbbedebbbbbb", "bbbbbbadabbbbbb", "bbbbbbacabbbbbb", "bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb"},
-            {"bbbbbbbbbbbbbbb", "bbbbbbagabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "babbbbhdhbbbbab", "bgbbbbdidbbbbgb", "babbbbhdhbbbbab", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbagabbbbbb", "bbbbbbbbbbbbbbb"},
-            {"bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "cbbbbbhihbbbbbc", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb"},
-            {"bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "cbbbbbhihbbbbbc", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb"},
-            {"bbbbbbadabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "dbbbbbhihbbbbbd", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbadabbbbbb"},
-            {"bbbbbbadabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbjjjjjbbbbb", "ebbbbjbbbjbbbbe", "dbbbbjbbbjbbbbd", "ebbbbjbbbjbbbbe", "bbbbbjjjjjbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbedebbbbbb"},
-            {"bbaaaaadaaaaabb", "babbbbhdhbbbbab", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "ebbbbjbbbjbbbbe", "ehhhhbbbbbhhhhe", "ddhhhbbbbbhhhdd", "ehhhhbbbbbhhhhe", "ebbbbjbbbjbbbbe", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "babbbbhdhbbbbab", "bbaaaeedeeaaabb"},
-            {"bbccdddfdddccbb", "bgbbbbdidbbbbgb", "cbbbbbhihbbbbbc", "cbbbbbhihbbbbbc", "dbbbbbhihbbbbbd", "dbbbbjbbbjbbbbd", "ddhhhbbbbbhhhdd", "fiiiibbbbbiiiif", "ddhhhbbbbbhhhdd", "dbbbbjbbbjbbbbd", "dbbbbbhihbbbbbd", "cbbbbbhihbbbbbc", "cbbbbbhihbbbbbc", "bgbbbbdidbbbbgb", "bbccdddfdddccbb"},
-            {"bbaaaaadaaaaabb", "babbbbhdhbbbbab", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "ebbbbjbbbjbbbbe", "ehhhhbbbbbhhhhe", "ddhhhbbbbbhhhdd", "ehhhhbbbbbhhhhe", "ebbbbjbbbjbbbbe", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "abbbbbhhhbbbbba", "babbbbhdhbbbbab", "bbaaaeedeeaaabb"},
-            {"bbbbbbadabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbjjjjjbbbbb", "ebbbbjbbbjbbbbe", "dbbbbjbbbjbbbbd", "ebbbbjbbbjbbbbe", "bbbbbjjjjjbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbedebbbbbb"},
-            {"bbbbbbadabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "dbbbbbhihbbbbbd", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbadabbbbbb"},
-            {"bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "cbbbbbhihbbbbbc", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb"},
-            {"bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "abbbbbhhhbbbbba", "cbbbbbhihbbbbbc", "abbbbbhhhbbbbba", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb"},
-            {"bbbbbbbbbbbbbbb", "bbbbbbagabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "babbbbhdhbbbbab", "bgbbbbdidbbbbgb", "babbbbhdhbbbbab", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbagabbbbbb", "bbbbbbbbbbbbbbb"},
-            {"bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbacabbbbbb", "bbbbbbacabbbbbb", "bbbbbbadabbbbbb", "bbbbbbedebbbbbb", "bbaaaeedeeaaabb", "bbccdddIdddccbb", "bbaaaeedeeaaabb", "bbbbbbedebbbbbb", "bbbbbbadabbbbbb", "bbbbbbacabbbbbb", "bbbbbbacabbbbbb", "bbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbb"}
+            {"               ", "               ", "      CNC      ", "      CNC      ", "      CAC      ", "      HAH      ", "  CCCHHAHHCCC  ", "  NNAAAKAAANN  ", "  CCCHHAHHCCC  ", "      HAH      ", "      CAC      ", "      CNC      ", "      CNC      ", "               ", "               "},
+            {"               ", "      CPC      ", "               ", "               ", "               ", "               ", " C    GAG    C ", " P    ASA    P ", " C    GAG    C ", "               ", "               ", "               ", "               ", "      CPC      ", "               "},
+            {"      CNC      ", "               ", "               ", "               ", "               ", "               ", "C     GGG     C", "N     GSG     N", "C     GGG     C", "               ", "               ", "               ", "               ", "               ", "      CNC      "},
+            {"      CNC      ", "               ", "               ", "               ", "               ", "               ", "C     GGG     C", "N     GSG     N", "C     GGG     C", "               ", "               ", "               ", "               ", "               ", "      CNC      "},
+            {"      CAC      ", "               ", "               ", "               ", "               ", "               ", "C     GGG     C", "A     GSG     A", "C     GGG     C", "               ", "               ", "               ", "               ", "               ", "      CAC      "},
+            {"      CAC      ", "               ", "               ", "               ", "               ", "     TTTTT     ", "H    T   T    H", "A    T   T    A", "H    T   T    H", "     TTTTT     ", "               ", "               ", "               ", "               ", "      HAH      "},
+            {"  CCCCCACCCCC  ", " C    GAG    C ", "C     GGG     C", "C     GGG     C", "C     GGG     C", "H    T   T    H", "HGGGG     GGGGH", "AAGGG     GGGAA", "HGGGG     GGGGH", "H    T   T    H", "C     GGG     C", "C     GGG     C", "C     GGG     C", " C    GAG    C ", "  CCCHHAHHCCC  "},
+            {"  NNAAAEAAANN  ", " P    ASA    P ", "N     GSG     N", "N     GSG     N", "A     GSG     A", "A    T   T    A", "AAGGG     GGGAA", "ESSSS     SSSSE", "AAGGG     GGGAA", "A    T   T    A", "A     GSG     A", "N     GSG     N", "N     GSG     N", " P    ASA    P ", "  NNAAAEAAANN  "},
+            {"  CCCCCACCCCC  ", " C    GAG    C ", "C     GGG     C", "C     GGG     C", "C     GGG     C", "H    T   T    H", "HGGGG     GGGGH", "AAGGG     GGGAA", "HGGGG     GGGGH", "H    T   T    H", "C     GGG     C", "C     GGG     C", "C     GGG     C", " C    GAG    C ", "  CCCHHAHHCCC  "},
+            {"      CAC      ", "               ", "               ", "               ", "               ", "     TTTTT     ", "H    T   T    H", "A    T   T    A", "H    T   T    H", "     TTTTT     ", "               ", "               ", "               ", "               ", "      HAH      "},
+            {"      CAC      ", "               ", "               ", "               ", "               ", "               ", "C     GGG     C", "A     GSG     A", "C     GGG     C", "               ", "               ", "               ", "               ", "               ", "      CAC      "},
+            {"      CNC      ", "               ", "               ", "               ", "               ", "               ", "C     GGG     C", "N     GSG     N", "C     GGG     C", "               ", "               ", "               ", "               ", "               ", "      CNC      "},
+            {"      CNC      ", "               ", "               ", "               ", "               ", "               ", "C     GGG     C", "N     GSG     N", "C     GGG     C", "               ", "               ", "               ", "               ", "               ", "      CNC      "},
+            {"               ", "      CPC      ", "               ", "               ", "               ", "               ", " C    GAG    C ", " P    ASA    P ", " C    GAG    C ", "               ", "               ", "               ", "               ", "      CPC      ", "               "},
+            {"               ", "               ", "      CNC      ", "      CNC      ", "      CAC      ", "      HAH      ", "  CCCHHAHHCCC  ", "  NNAAAIAAANN  ", "  CCCHHAHHCCC  ", "      HAH      ", "      CAC      ", "      CNC      ", "      CNC      ", "               ", "               "}
     };
 
     public static final MachineDefinition INCOMPLETE_WORLD_EATER_TAMER = REGISTRATE
@@ -92,7 +73,6 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             .langValue("Incomplete World Eater tamer")
             .rotationState(RotationState.NON_Y_AXIS)
             .appearanceBlock(GreggyBlocks.WORLD_EATER_TAMER_CASING)
-            .partAppearance((controller, part, side) -> ((IncompleteWorldEaterTamer) controller).casingAppearance)
             .recipeTypes(GregERecipeTypes.WORLD_EATER_TAMER)
             .recipeModifiers((machine, recipe) -> {
                 if (machine instanceof IncompleteWorldEaterTamer tamer
@@ -114,7 +94,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                 return ModifierFunction.IDENTITY;
             })
             .pattern(definition -> {
-                var frame = casingPredicate()
+                var frame = Predicates.blocks(GreggyBlocks.WORLD_EATER_TAMER_CASING.get())
                         .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(5))
                         .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(5))
@@ -125,28 +105,27 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                 var pattern = FactoryBlockPattern.start(RelativeDirection.LEFT, RelativeDirection.UP, RelativeDirection.BACK);
                 for (var aisle : SHAPE) pattern.aisle(aisle);
                 return pattern
-                    .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-                    .where('a', frame)
-                    .where('b', Predicates.any())
-                    .where('c', block("gtceu:inert_machine_casing"))
-                    .where('d', block("gtceu:large_scale_assembler_casing"))
-                    .where('e', block("gtceu:high_temperature_smelting_casing"))
-                    .where('f', Predicates.blocks(GreggyBlocks.ASSEMBLY_ENGINE_INTAKE.get()))
-                    .where('g', Predicates.blocks(GreggyBlocks.PTFE_ENGINE_INTAKE.get()))
-                    .where('h', block("gtceu:laminated_glass"))
-                    .where('i', block("gtceu:superconducting_coil"))
-                    .where('j', block("gtceu:shock_proof_cutting_casing"))
+                    .where('K', Predicates.controller(Predicates.blocks(definition.get())))
+                    .where('C', frame)
+                    .where('T', tierCasingPredicate())
+                    .where(' ', Predicates.any())
+                    .where('N', block("gtceu:inert_machine_casing"))
+                    .where('A', block("gtceu:large_scale_assembler_casing"))
+                    .where('H', block("gtceu:high_temperature_smelting_casing"))
+                    .where('E', Predicates.blocks(GreggyBlocks.ASSEMBLY_ENGINE_INTAKE.get()))
+                    .where('P', Predicates.blocks(GreggyBlocks.PTFE_ENGINE_INTAKE.get()))
+                    .where('G', block("gtceu:laminated_glass"))
+                    .where('S', block("gtceu:superconducting_coil"))
                     .where('I', Predicates.blocks(GreggyBlocks.ASSEMBLY_ENGINE_INTAKE.get())
                             .or(Predicates.abilities(IntentionHatchPartMachine.INTENTION)))
                     .build();
             })
             .modelProperty(GTMachineModelProperties.RECIPE_LOGIC_STATUS, RecipeLogic.Status.IDLE)
-            .modelProperty(CASING_COLOR, DyeColor.BLACK)
             .model((ctx, prov, builder) -> {
                 var overlays = WorkableOverlays.get(GTCEu.id("block/multiblock/research_station"), prov.getExistingFileHelper());
                 builder.forAllStates(state -> {
-                    var color = state.getValue(GTMachineModelProperties.IS_FORMED) ? state.getValue(CASING_COLOR) : DyeColor.BLACK;
-                    var casing = GregECore.id("block/casings/world_eater/" + color.getName());
+                    // Tier-ring colors never change the controller's black casing.
+                    var casing = GregECore.id("block/casings/world_eater/black");
                     return GTMachineModels.addWorkableOverlays(overlays,
                             state.getValue(GTMachineModelProperties.RECIPE_LOGIC_STATUS), prov.models().nested()
                                     .parent(prov.models().getExistingFile(GregECore.id("block/world_eater_controller_template")))
@@ -159,7 +138,8 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
             .tooltips(Component.literal("Collects infrastructure information without power."),
                     Component.literal("Scans the surrounding 9×9 chunks over 120 seconds."),
                     Component.literal("A complete survey of at least 500 machines awakens the tamer."),
-                    Component.literal("Frame: World Eater Tamer Casing."),
+                    Component.literal("Frame: black World Eater Tamer Casing; inner rings: any World Eater casing color."),
+                    Component.literal("Any black inner-ring casing: tier 1; all colored: tier 2. Reversible; progression is retained."),
                     Component.literal("ACTIVE or PREPARED: 1 black casing + 16 matching terracotta → 1 colored casing in 5 seconds."),
                     Component.literal("ACTIVE or PREPARED, tier 2: 1 signed acknowledgement book → 1 Bravery Hatch in 60 seconds, without power."),
                     Component.literal("Tier 2 + intention: Desarium tests ACTIVE → PREPARED; Implementium produces essence in PREPARED."),
@@ -176,34 +156,27 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
 
-    @Override
-    public ManagedFieldHolder getFieldHolder() { return FIELDS; }
-
-    private void onCasingAppearanceChanged(BlockState newValue, BlockState oldValue) {
-        if (isRemote()) {
-            scheduleRenderUpdate();
-            for (var part : getParts()) part.self().scheduleRenderUpdate();
-        }
-    }
-
-    @Override
-    public BlockState getBlockAppearance(BlockState state, BlockAndTintGetter level, BlockPos pos, Direction side,
-                                         BlockState sourceState, BlockPos sourcePos) {
-        var cover = getCoverContainer().getBlockAppearance(state, level, pos, side, sourceState, sourcePos);
-        return cover != null ? cover : casingAppearance;
-    }
-
     private static TraceabilityPredicate block(String id) {
         return Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse(id)));
     }
 
-    private static TraceabilityPredicate casingPredicate() {
+    /** Inner ring casing: black gives tier 1, a ring of only colored casings gives tier 2. */
+    private static TraceabilityPredicate tierCasingPredicate() {
         return new TraceabilityPredicate(state -> {
-            if (state.getBlockState().getBlock() != GreggyBlocks.WORLD_EATER_TAMER_CASING.get()) return false;
-            // Colored casings are no longer accepted, so tier 2 stays dormant.
-            state.getMatchContext().set(CASING_TIER, 1);
+            var block = state.getBlockState().getBlock();
+            int tier;
+            if (block == GreggyBlocks.WORLD_EATER_TAMER_CASING.get()) tier = 1;
+            else if (block == GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.get()
+                    || block == GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.get()
+                    || block == GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.get()) tier = 2;
+            else return false;
+            var context = state.getMatchContext();
+            context.set(CASING_TIER, Math.min(context.getOrDefault(CASING_TIER, 2), tier));
             return true;
-        }, () -> new BlockInfo[]{new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState())});
+        }, () -> new BlockInfo[]{new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState()),
+                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.getDefaultState()),
+                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.getDefaultState()),
+                new BlockInfo(GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.getDefaultState())});
     }
 
     @Override
@@ -211,23 +184,6 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
         super.onStructureFormed();
         var context = getMultiblockState().getMatchContext();
         casingTier = context.getInt(CASING_TIER);
-        casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
-        if (casingTier == 2) {
-            var casings = context.<Map<BlockPos, Block>>getOrCreate(CASING_COLORS, HashMap::new).values();
-            long most = 0;
-            for (var color : List.of(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.get(),
-                    GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.get(), GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.get())) {
-                long count = casings.stream().filter(block -> block == color).count();
-                if (count > most) {
-                    most = count;
-                    casingAppearance = color.defaultBlockState();
-                }
-            }
-        }
-        var color = casingAppearance.is(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE.get()) ? DyeColor.PURPLE
-                : casingAppearance.is(GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN.get()) ? DyeColor.GREEN
-                : casingAppearance.is(GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE.get()) ? DyeColor.ORANGE : DyeColor.BLACK;
-        setRenderState(getRenderState().setValue(CASING_COLOR, color));
         // Formation can precede managed storage's initial sync baseline.
         getHolder().getRootStorage().markAllDirty();
         for (var part : getParts()) part.self().getHolder().getRootStorage().markAllDirty();
@@ -238,8 +194,6 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     public void onStructureInvalid() {
         if (GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.clear(this);
         casingTier = 0;
-        casingAppearance = GreggyBlocks.WORLD_EATER_TAMER_CASING.getDefaultState();
-        setRenderState(getRenderState().setValue(CASING_COLOR, DyeColor.BLACK));
         super.onStructureInvalid();
     }
 

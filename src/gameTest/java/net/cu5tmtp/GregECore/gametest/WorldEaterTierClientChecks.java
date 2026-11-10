@@ -40,12 +40,18 @@ final class WorldEaterTierClientChecks {
                 var field = PatternPreviewWidget.MBPattern.class.getDeclaredField("predicateMap");
                 field.setAccessible(true);
                 var predicates = (Map<BlockPos, TraceabilityPredicate>) field.get(preview.patterns[0]);
-                var entry = predicates.entrySet().stream().filter(e -> !hasCandidate(e.getValue(), IntentionHatchPartMachine.SAFETY.getItem())
-                        && hasCandidate(e.getValue(), WorldEaterCasingTests.casings()[0].asItem())).findFirst().orElseThrow();
-                var casing = entry.getValue().common.stream().filter(p -> p.getCandidates().stream()
-                        .anyMatch(s -> s.is(WorldEaterCasingTests.casings()[0].asItem()))).findFirst().orElseThrow().getCandidates();
+                // Frame casing allows parts (black only); tier-ring casing offers all four colors, black first.
+                var entry = predicates.entrySet().stream().filter(e -> hasCandidate(e.getValue(), WorldEaterCasingTests.casings()[0].asItem())
+                        && hasCandidate(e.getValue(), com.gregtechceu.gtceu.common.data.GTMachines.ITEM_IMPORT_BUS[1].getItem())).findFirst().orElseThrow();
+                var casing = casingCandidates(entry.getValue());
                 if (casing.size() != 1 || !casing.get(0).is(WorldEaterCasingTests.casings()[0].asItem()))
                     throw new AssertionError("Only the black casing is a frame candidate");
+                var ring = predicates.values().stream().filter(p -> hasCandidate(p, WorldEaterCasingTests.casings()[1].asItem())).toList();
+                if (ring.size() != 44) throw new AssertionError("44 tier-ring selectors, got " + ring.size());
+                var colors = casingCandidates(ring.get(0));
+                if (colors.size() != 4 || !colors.get(0).is(WorldEaterCasingTests.casings()[0].asItem())
+                        || hasCandidate(ring.get(0), com.gregtechceu.gtceu.common.data.GTMachines.ITEM_IMPORT_BUS[1].getItem()))
+                    throw new AssertionError("Tier ring offers four casing colors, black first, and no parts");
                 var sceneField = PatternPreviewWidget.class.getDeclaredField("sceneWidget");
                 sceneField.setAccessible(true);
                 var scene = (SceneWidget) sceneField.get(preview);
@@ -68,13 +74,14 @@ final class WorldEaterTierClientChecks {
                 if (((Object[]) candidatesField.get(preview)).length != rear.get(0).getValue().common.size() + rear.get(0).getValue().limited.size())
                     throw new AssertionError("Rear selector offers intake and intention variants");
                 if (!client.screen.getClass().getName().contains("RecipesGui")) throw new AssertionError("JEI preview screen not displayed");
-                System.out.println("WORLD_EATER_TIER_CLIENT_VERIFIED casingCandidates=1 selected=" + entry.getKey());
+                System.out.println("WORLD_EATER_TIER_CLIENT_VERIFIED frameCandidates=1 ringCandidates=4 selected=" + entry.getKey());
             }
             if (frame == 40) screenshot("tier-structure-preview.png");
             if (frame == 41) {
                 var stack = new ItemStack(IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.getItem());
                 var text = stack.getTooltipLines(client.player, TooltipFlag.Default.NORMAL).stream().map(Component::getString).toList();
-                if (text.stream().noneMatch(s -> s.contains("Frame: World Eater Tamer Casing."))
+                if (text.stream().noneMatch(s -> s.contains("inner rings: any World Eater casing color"))
+                        || text.stream().noneMatch(s -> s.contains("tier 1") && s.contains("tier 2"))
                         || text.stream().noneMatch(s -> s.contains("rear face center"))
                         || text.stream().anyMatch(s -> s.contains("any mix of black"))) throw new AssertionError("Revised native tooltip missing or obsolete");
                 client.setScreen(new Screen(Component.literal("Casing tier tooltip verification")) {
@@ -96,6 +103,11 @@ final class WorldEaterTierClientChecks {
         var client = Minecraft.getInstance();
         Screenshot.grab(Path.of(System.getenv("TMPDIR"), "world-eater-client").toFile(), name,
                 client.getMainRenderTarget(), message -> {});
+    }
+
+    private static List<ItemStack> casingCandidates(TraceabilityPredicate predicate) {
+        return predicate.common.stream().filter(p -> p.getCandidates().stream()
+                .anyMatch(s -> s.is(WorldEaterCasingTests.casings()[0].asItem()))).findFirst().orElseThrow().getCandidates();
     }
 
     private static boolean hasCandidate(TraceabilityPredicate predicate, net.minecraft.world.item.Item item) {

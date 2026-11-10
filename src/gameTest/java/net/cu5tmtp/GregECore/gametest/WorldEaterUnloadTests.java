@@ -14,7 +14,7 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 @net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = GregECore.MOD_ID)
 public class WorldEaterUnloadTests {
-    private static final java.util.Set<Long> unloaded = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    static final java.util.Set<Long> unloaded = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     static boolean wasUnloaded(net.minecraft.core.BlockPos pos) {
         return unloaded.contains(net.minecraft.world.level.ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4));
@@ -29,6 +29,7 @@ public class WorldEaterUnloadTests {
                             @Override public void onTestFailed(net.minecraft.gametest.framework.GameTestInfo test) {
                                 super.onTestFailed(test);
                                 System.err.println("WORLD_EATER_TEST_FAILED " + test.getTestName() + ": " + test.getError());
+                                if (!(test.getError() instanceof net.minecraft.gametest.framework.GameTestAssertException)) test.getError().printStackTrace();
                                 saveProgress();
                             }
                             @Override public void onTestSuccess(net.minecraft.gametest.framework.GameTestInfo test) {
@@ -48,17 +49,36 @@ public class WorldEaterUnloadTests {
     }
 
     @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void peaceful(net.minecraftforge.event.server.ServerStartingEvent event) {
+        if (!(event.getServer() instanceof net.minecraft.gametest.framework.GameTestServer server)) return;
+        server.setDifficulty(net.minecraft.world.Difficulty.PEACEFUL, true);
+        // -PgameTests=methodA,methodB runs only those tests (each test is its own batch, named after its method).
+        var only = System.getProperty("gregecore.gameTests");
+        if (only == null || only.isBlank()) return;
+        var names = java.util.Set.of(only.split(","));
+        try {
+            var field = net.minecraft.gametest.framework.GameTestServer.class.getDeclaredField("testBatches");
+            field.setAccessible(true);
+            var batches = (java.util.List<net.minecraft.gametest.framework.GameTestBatch>) field.get(server);
+            field.set(server, batches.stream().filter(batch -> names.contains(batch.getName().split(":")[0])).toList());
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException(exception);
+        }
+    }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void onChunkUnload(net.minecraftforge.event.level.ChunkEvent.Unload event) {
         if (event.getLevel() instanceof net.minecraft.server.level.ServerLevel level
                 && level.dimension().equals(net.minecraft.world.level.Level.OVERWORLD))
             unloaded.add(event.getChunk().getPos().toLong());
     }
 
-    @GameTest(template = "empty", timeoutTicks = 1200)
+    @GameTest(template = "empty", timeoutTicks = 1200, batch = "nativeControllerEvictionAndReload")
     public static void nativeControllerEvictionAndReload(GameTestHelper helper) {
         var fixtures = new WorldEaterRunTests.Fixture[4];
         for (int i = 0; i < fixtures.length; i++) {
             fixtures[i] = WorldEaterRunTests.fixture(helper, 56000 + i * 1000);
+            if (i % 2 == 0) WorldEaterStructureTests.colorFrame(fixtures[i].controller(), -1);
         }
         helper.runAfterDelay(4, () -> {
             for (int i = 0; i < fixtures.length; i++) {
@@ -113,8 +133,10 @@ public class WorldEaterUnloadTests {
                 helper.assertTrue(logic.hasPendingReport() == fixture.logic().hasPendingReport()
                         && ItemStack.matches(logic.getPendingBook(), fixture.logic().getPendingBook()), "Exact pending output retained");
                 helper.assertTrue(reloaded.checkPatternWithLock(), "Reloaded shell forms");
-                reloaded.onStructureFormed();
-                helper.assertTrue(reloaded.getCasingTier() == 1, "Native eviction recomputes current casing tier");
+                WorldEaterStructureTests.formed(reloaded);
+                int expectedTier = helper.getLevel().getBlockState(WorldEaterStructureTests.tierPositions(reloaded).get(3))
+                        .is(WorldEaterCasingTests.casings()[0]) ? 1 : 2;
+                helper.assertTrue(reloaded.getCasingTier() == expectedTier, "Native eviction recomputes current casing tier");
                 helper.assertTrue(logic.getProgressionState() == WorldEaterTamerRecipeLogic.State.DORMANT, "Eviction retains progression independently of tier");
                 var inputPos = fixture.input().getPos();
                 var input = (com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine) MetaMachine.getMachine(helper.getLevel(), inputPos);
@@ -138,7 +160,67 @@ public class WorldEaterUnloadTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 1200)
+    @GameTest(template = "empty", timeoutTicks = 1600, batch = "demandAndEarnedRewardSurviveRealEviction")
+    public static void demandAndEarnedRewardSurviveRealEviction(GameTestHelper helper) {
+        var fixtures = new WorldEaterRunTests.Fixture[]{WorldEaterDemandTests.fixture(helper, 290000, false),
+                WorldEaterDemandTests.fixture(helper, 291000, true)};
+        helper.runAfterDelay(8, () -> {
+            for (int i = 0; i < fixtures.length; i++) {
+                var f = fixtures[i]; WorldEaterDemandTests.prepare(helper, f); WorldEaterDemandTests.start(helper, f, false);
+                WorldEaterCasingTests.ticks(f, 7);
+                if (i == 1) { WorldEaterRunTests.blockOutput(f); WorldEaterDemandTests.pay(f); }
+                f.logic().setWorkingEnabled(false);
+                int cx = f.controller().getPos().getX() >> 4, cz = f.controller().getPos().getZ() >> 4;
+                for (int x = cx - 1; x <= cx + 1; x++) for (int z = cz - 1; z <= cz + 1; z++) helper.getLevel().setChunkForced(x, z, false);
+            }
+            waitForDemandEviction(helper, fixtures, 0);
+        });
+    }
+
+    private static void waitForDemandEviction(GameTestHelper helper, WorldEaterRunTests.Fixture[] fixtures, int waited) {
+        boolean gone = true;
+        for (var f : fixtures) {
+            var pos = f.controller().getPos();
+            gone &= unloaded.contains(net.minecraft.world.level.ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4))
+                    && helper.getLevel().getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null;
+        }
+        if (!gone) {
+            helper.assertTrue(waited < 1400, "Demand controller chunks really evict");
+            helper.runAfterDelay(1, () -> waitForDemandEviction(helper, fixtures, waited + 1));
+            return;
+        }
+        for (var f : fixtures) {
+            var pos = f.controller().getPos();
+            var forced = new java.util.HashSet<>(helper.getLevel().getForcedChunks());
+            helper.assertTrue(f.logic().findBraveryVictim(pos) == null, "No target in truly unloaded region");
+            helper.assertTrue(helper.getLevel().getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null
+                    && forced.equals(helper.getLevel().getForcedChunks()), "Search neither reloads nor tickets evicted chunks");
+            helper.getLevel().setChunkForced(pos.getX() >> 4, pos.getZ() >> 4, true);
+            helper.getLevel().getChunk(pos.getX() >> 4, pos.getZ() >> 4);
+        }
+        helper.runAfterDelay(8, () -> {
+            for (var f : fixtures) {
+                var fresh = (IncompleteWorldEaterTamer) MetaMachine.getMachine(helper.getLevel(), f.controller().getPos());
+                helper.assertTrue(fresh != f.controller() && fresh.checkPatternWithLock(), "Fresh native controller reforms");
+                WorldEaterStructureTests.formed(fresh);
+                var logic = (WorldEaterTamerRecipeLogic) fresh.getRecipeLogic();
+                helper.assertTrue(logic.getProgress() == f.logic().getProgress() && logic.getDuration() == f.logic().getDuration()
+                        && ItemStack.matches(logic.getDemand(), f.logic().getDemand()) && logic.hasPendingReward() == f.logic().hasPendingReward(), "Paid work pauses unchanged while unloaded");
+                var input = (com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine) MetaMachine.getMachine(helper.getLevel(), f.input().getPos());
+                var output = (com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine) MetaMachine.getMachine(helper.getLevel(), f.output().getPos());
+                helper.assertTrue(input.getInventory().getStackInSlot(0).isEmpty(), "No token repayment");
+                if (!logic.hasPendingReward()) input.getInventory().setStackInSlot(1, logic.getDemand());
+                output.getInventory().setStackInSlot(0, ItemStack.EMPTY);
+                logic.setWorkingEnabled(true); logic.serverTick(); logic.onRecipeFinish();
+                helper.assertTrue(output.getInventory().getStackInSlot(0).is(WorldEaterDemandTests.reward().getItem())
+                        && output.getInventory().getStackInSlot(0).getCount() == 1, "One earned reward after real eviction");
+                logic.setWorkingEnabled(false);
+            }
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 1200, batch = "enabledScanDoesNotRetainTargetChunk")
     public static void enabledScanDoesNotRetainTargetChunk(GameTestHelper helper) {
         var fixture = WorldEaterRunTests.fixture(helper, 62000);
         helper.runAfterDelay(4, () -> {
@@ -167,7 +249,10 @@ public class WorldEaterUnloadTests {
             return;
         }
         for (int tick = 0; tick < 101 && !fixture.logic().hasPendingReport(); tick++) fixture.logic().serverTick();
-        helper.assertTrue(fixture.logic().hasPendingReport(), "Unavailable target produces early failure");
+        helper.assertTrue(fixture.logic().hasPendingReport(), "Unavailable target produces early failure: waited=" + waited
+                + " progress=" + fixture.logic().getProgress() + " delays=" + fixture.logic().getElapsedDelays()
+                + " retries=" + fixture.logic().getRetryAttempts() + " chunk=" + fixture.logic().getCurrentChunk()
+                + " target=" + x + "," + z + " formed=" + fixture.controller().isFormed() + " status=" + fixture.logic().getStatus());
         helper.assertTrue(helper.getLevel().getChunkSource().getChunkNow(x, z) == null, "Retries never reload the evicted target");
         helper.assertTrue(!helper.getLevel().getForcedChunks().contains(net.minecraft.world.level.ChunkPos.asLong(x, z)), "No forced scan ticket");
         fixture.logic().setWorkingEnabled(false);

@@ -18,7 +18,7 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @GameTestHolder(GregECore.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class WorldEaterDemandMaterialTests {
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "generatedTokensAndReward")
     public static void generatedTokensAndReward(GameTestHelper helper) {
         String[] ids = {"desarium", "implementium", "tamed_world_eater_essense"};
         String[] names = {"Desarium", "Implementium", "Tamed world eater essense"};
@@ -40,7 +40,7 @@ public class WorldEaterDemandMaterialTests {
         helper.succeed();
     }
 
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "requestedNativeMaterialForms")
     public static void requestedNativeMaterialForms(GameTestHelper helper) {
         var processed = new java.util.HashSet<net.minecraft.world.item.Item>();
         for (var recipe : helper.getLevel().getRecipeManager().getRecipes()) {

@@ -76,7 +76,7 @@ public final class WorldEaterNativeUIChecks {
             var level = client.getSingleplayerServer().getLevel(Level.OVERWORLD);
             var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, CENTER);
             if (!machine.checkPatternWithLock()) { failures.add("Native client fixture did not form"); return; }
-            machine.onStructureFormed();
+            WorldEaterStructureTests.formed(machine);
             var player = client.getSingleplayerServer().getPlayerList().getPlayer(client.player.getUUID());
             level.getBlockState(CENTER).use(level, player, InteractionHand.MAIN_HAND,
                     new BlockHitResult(Vec3.atCenterOf(CENTER), Direction.NORTH, CENTER, false));

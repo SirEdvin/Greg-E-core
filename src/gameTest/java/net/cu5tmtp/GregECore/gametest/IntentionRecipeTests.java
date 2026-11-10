@@ -55,7 +55,7 @@ public class IntentionRecipeTests {
                 + (safety ? "safety" : "bravery") + "_intention_hatch")).orElseThrow();
     }
 
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "exactBookMatchingAndSerialization")
     public static void exactBookMatchingAndSerialization(GameTestHelper helper) {
         var original = BraveryBookIngredient.INSTANCE;
         var network = new FriendlyByteBuf(Unpooled.buffer());
@@ -131,7 +131,7 @@ public class IntentionRecipeTests {
                 && stack.is((safety ? IntentionHatchPartMachine.SAFETY : IntentionHatchPartMachine.BRAVERY).getItem()), "Single correct hatch output");
     }
 
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "loadedRecipeContracts")
     public static void loadedRecipeContracts(GameTestHelper helper) {
         helper.assertTrue(helper.getLevel().getRecipeManager().byKey(GregECore.id("assembly_line/bravery_intention_hatch")).isEmpty(), "No obsolete Assembly Line Bravery recipe");
         for (var loaded : helper.getLevel().getRecipeManager().getAllRecipesFor(GregERecipeTypes.WORLD_EATER_TAMER)) {
@@ -159,7 +159,7 @@ public class IntentionRecipeTests {
         helper.succeed();
     }
 
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "hatchPlacementCreativeAndRecovery")
     public static void hatchPlacementCreativeAndRecovery(GameTestHelper helper) {
         var tab = net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.ModCreativeModTabs.GREGE_TAB.get();
         tab.buildContents(new net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters(

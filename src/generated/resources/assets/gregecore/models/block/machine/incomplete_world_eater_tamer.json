@@ -11,7 +11,7 @@
     "all": "gregecore:block/casings/world_eater/black"
   },
   "variants": {
-    "casing_color=black,is_formed=false,recipe_logic_status=idle": {
+    "is_formed=false,recipe_logic_status=idle": {
       "model": {
         "parent": "gregecore:block/world_eater_controller_template",
         "textures": {
@@ -22,7 +22,7 @@
         }
       }
     },
-    "casing_color=black,is_formed=false,recipe_logic_status=suspend": {
+    "is_formed=false,recipe_logic_status=suspend": {
       "model": {
         "parent": "gregecore:block/world_eater_controller_template",
         "textures": {
@@ -33,7 +33,7 @@
         }
       }
     },
-    "casing_color=black,is_formed=false,recipe_logic_status=waiting": {
+    "is_formed=false,recipe_logic_status=waiting": {
       "model": {
         "parent": "gregecore:block/world_eater_controller_template",
         "textures": {
@@ -44,7 +44,7 @@
         }
       }
     },
-    "casing_color=black,is_formed=false,recipe_logic_status=working": {
+    "is_formed=false,recipe_logic_status=working": {
       "model": {
         "parent": "gregecore:block/world_eater_controller_template",
         "textures": {
@@ -55,7 +55,7 @@
         }
       }
     },
-    "casing_color=black,is_formed=true,recipe_logic_status=idle": {
+    "is_formed=true,recipe_logic_status=idle": {
       "model": {
         "parent": "gregecore:block/world_eater_controller_template",
         "textures": {
@@ -66,7 +66,7 @@
         }
       }
     },
-    "casing_color=black,is_formed=true,recipe_logic_status=suspend": {
+    "is_formed=true,recipe_logic_status=suspend": {
       "model": {
         "parent": "gregecore:block/world_eater_controller_template",
         "textures": {
@@ -77,7 +77,7 @@
         }
       }
     },
-    "casing_color=black,is_formed=true,recipe_logic_status=waiting": {
+    "is_formed=true,recipe_logic_status=waiting": {
       "model": {
         "parent": "gregecore:block/world_eater_controller_template",
         "textures": {
@@ -88,276 +88,12 @@
         }
       }
     },
-    "casing_color=black,is_formed=true,recipe_logic_status=working": {
+    "is_formed=true,recipe_logic_status=working": {
       "model": {
         "parent": "gregecore:block/world_eater_controller_template",
         "textures": {
           "all": "gregecore:block/casings/world_eater/black",
           "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=green,is_formed=false,recipe_logic_status=idle": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=green,is_formed=false,recipe_logic_status=suspend": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=green,is_formed=false,recipe_logic_status=waiting": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=green,is_formed=false,recipe_logic_status=working": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=green,is_formed=true,recipe_logic_status=idle": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/green",
-          "glow": "gregecore:block/casings/world_eater/green_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=green,is_formed=true,recipe_logic_status=suspend": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/green",
-          "glow": "gregecore:block/casings/world_eater/green_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=green,is_formed=true,recipe_logic_status=waiting": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/green",
-          "glow": "gregecore:block/casings/world_eater/green_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=green,is_formed=true,recipe_logic_status=working": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/green",
-          "glow": "gregecore:block/casings/world_eater/green_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=orange,is_formed=false,recipe_logic_status=idle": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=orange,is_formed=false,recipe_logic_status=suspend": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=orange,is_formed=false,recipe_logic_status=waiting": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=orange,is_formed=false,recipe_logic_status=working": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=orange,is_formed=true,recipe_logic_status=idle": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/orange",
-          "glow": "gregecore:block/casings/world_eater/orange_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=orange,is_formed=true,recipe_logic_status=suspend": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/orange",
-          "glow": "gregecore:block/casings/world_eater/orange_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=orange,is_formed=true,recipe_logic_status=waiting": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/orange",
-          "glow": "gregecore:block/casings/world_eater/orange_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=orange,is_formed=true,recipe_logic_status=working": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/orange",
-          "glow": "gregecore:block/casings/world_eater/orange_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=purple,is_formed=false,recipe_logic_status=idle": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=purple,is_formed=false,recipe_logic_status=suspend": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=purple,is_formed=false,recipe_logic_status=waiting": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=purple,is_formed=false,recipe_logic_status=working": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/black",
-          "glow": "gregecore:block/casings/world_eater/black_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=purple,is_formed=true,recipe_logic_status=idle": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/purple",
-          "glow": "gregecore:block/casings/world_eater/purple_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=purple,is_formed=true,recipe_logic_status=suspend": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/purple",
-          "glow": "gregecore:block/casings/world_eater/purple_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
-        }
-      }
-    },
-    "casing_color=purple,is_formed=true,recipe_logic_status=waiting": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/purple",
-          "glow": "gregecore:block/casings/world_eater/purple_emissive",
-          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
-        }
-      }
-    },
-    "casing_color=purple,is_formed=true,recipe_logic_status=working": {
-      "model": {
-        "parent": "gregecore:block/world_eater_controller_template",
-        "textures": {
-          "all": "gregecore:block/casings/world_eater/purple",
-          "glow": "gregecore:block/casings/world_eater/purple_emissive",
           "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
           "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
         }

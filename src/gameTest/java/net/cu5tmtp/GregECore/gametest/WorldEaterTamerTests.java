@@ -28,7 +28,7 @@ import java.util.TreeMap;
 @GameTestHolder(GregECore.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class WorldEaterTamerTests {
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "registration")
     public static void registration(GameTestHelper helper) {
         var type = GregERecipeTypes.WORLD_EATER_TAMER;
         helper.assertTrue(type.registryName.equals(ResourceLocation.parse("gtceu:world_eater_tamer")), "Existing registration namespace");
@@ -47,18 +47,8 @@ public class WorldEaterTamerTests {
         var definition = IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER;
         helper.assertTrue(GTRegistries.MACHINES.get(GregECore.id("incomplete_world_eater_tamer")) == definition, "Controller lookup");
         helper.assertTrue(definition.getItem().getDescription().getString().equals("Incomplete World Eater tamer"), "Controller name");
-        var colorProperty = definition.getStateDefinition().getProperty("casing_color");
-        helper.assertTrue(colorProperty != null && colorProperty.getPossibleValues().size() == 4,
-                "Controller registers exactly four native casing-color states");
-        var codec = com.gregtechceu.gtceu.client.model.machine.MachineRenderState.CODEC;
-        var legacy = (CompoundTag) codec.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, definition.defaultRenderState()
-                        .setValue(IncompleteWorldEaterTamer.CASING_COLOR, net.minecraft.world.item.DyeColor.ORANGE))
-                .getOrThrow(false, message -> { throw new AssertionError(message); });
-        legacy.getCompound("Properties").remove("casing_color");
-        var restored = codec.parse(net.minecraft.nbt.NbtOps.INSTANCE, legacy)
-                .getOrThrow(false, message -> { throw new AssertionError(message); });
-        helper.assertTrue(restored.getValues().get(colorProperty) == net.minecraft.world.item.DyeColor.BLACK,
-                "Old render states without casing_color load with the safe black default");
+        helper.assertTrue(definition.getStateDefinition().getProperty("casing_color") == null,
+                "Controller model has no casing-color states; tier-ring colors keep it black");
         helper.setBlock(new BlockPos(1, 1, 1), definition.defaultBlockState());
         var machine = (IncompleteWorldEaterTamer) MetaMachine.getMachine(helper.getLevel(), helper.absolutePos(new BlockPos(1, 1, 1)));
         var logic = (WorldEaterTamerRecipeLogic) machine.getRecipeLogic();
@@ -70,7 +60,7 @@ public class WorldEaterTamerTests {
             logic.loadCustomPersistedData(data);
             CompoundTag saved = new CompoundTag(); logic.saveCustomPersistedData(saved, false);
             logic.loadCustomPersistedData(saved);
-            machine.onStructureInvalid();
+            WorldEaterStructureTests.invalidated(machine);
             helper.assertTrue(logic.getProgressionState().name().equals(state), "State round trip and invalidation " + state);
         }
         logic.loadCustomPersistedData(new CompoundTag());
@@ -98,20 +88,21 @@ public class WorldEaterTamerTests {
         helper.succeed();
     }
 
-    @GameTest(template = "empty", timeoutTicks = 300)
+    @GameTest(template = "empty", timeoutTicks = 300, batch = "versionOneProgressionAndFreshTierReload")
     public static void versionOneProgressionAndFreshTierReload(GameTestHelper helper) {
         var fixtures = new java.util.ArrayList<WorldEaterRunTests.Fixture>();
-        for (int i = 0; i < 4; i++) fixtures.add(WorldEaterRunTests.fixture(helper, 145000 + i * 100));
+        for (int i = 0; i < 12; i++) fixtures.add(WorldEaterRunTests.fixture(helper, 145000 + i * 100));
         helper.runAfterDelay(6, () -> {
             for (int i = 0; i < fixtures.size(); i++) {
                 var f = fixtures.get(i);
                 boolean active = i % 2 == 0, broken = i % 4 < 2;
                 if (active) WorldEaterCasingTests.active(f.logic());
-                WorldEaterStructureTests.assertTier(helper, f.controller(), 1);
+                WorldEaterStructureTests.colorFrame(f.controller(), i < 4 ? 0 : -1);
+                WorldEaterStructureTests.assertTier(helper, f.controller(), i < 4 ? 1 : 2);
                 var pos = WorldEaterStructureTests.shellPositions(f.controller()).get(3);
                 if (broken) {
                     helper.getLevel().setBlockAndUpdate(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
-                    f.controller().onStructureInvalid();
+                    WorldEaterStructureTests.invalidated(f.controller());
                 }
                 CompoundTag oldData = new CompoundTag();
                 f.logic().saveCustomPersistedData(oldData, false);
@@ -121,6 +112,8 @@ public class WorldEaterTamerTests {
                 var snapshot = holder.saveWithFullMetadata();
                 var controllerPos = f.controller().getPos();
                 helper.getLevel().setBlockAndUpdate(controllerPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                if (i >= 8) WorldEaterStructureTests.colorFrame(f.controller(), 0);
+                else WorldEaterStructureTests.colorFrame(f.controller(), -1);
                 helper.getLevel().setBlockAndUpdate(controllerPos, IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.defaultBlockState());
                 var fresh = (IncompleteWorldEaterTamer) MetaMachine.getMachine(helper.getLevel(), controllerPos);
                 ((net.minecraft.world.level.block.entity.BlockEntity) fresh.getHolder()).load(snapshot.copy());
@@ -131,15 +124,15 @@ public class WorldEaterTamerTests {
                     helper.assertTrue(!fresh.checkPatternWithLock() && fresh.getCasingTier() == 0, "Broken reload has no tier");
                     helper.getLevel().setBlockAndUpdate(pos, WorldEaterCasingTests.casings()[0].defaultBlockState());
                 }
-                WorldEaterStructureTests.assertTier(helper, fresh, 1);
-                helper.assertTrue(logic.getProgressionState().name().equals(active ? "ACTIVE" : "DORMANT"), "Repair does not alter saved progression");
+                WorldEaterStructureTests.assertTier(helper, fresh, i >= 8 ? 1 : 2);
+                helper.assertTrue(logic.getProgressionState().name().equals(active ? "ACTIVE" : "DORMANT"), "Repair/recomposition does not alter saved progression");
                 fresh.getRecipeLogic().setWorkingEnabled(false);
             }
             helper.succeed();
         });
     }
 
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "deterministicCoverage")
     public static void deterministicCoverage(GameTestHelper helper) {
         for (int[] height : new int[][]{{-64, 320}, {0, 256}, {-2032, 2032}, {-16, 16}}) {
             var domain = new WorldEaterScanDomain(-7, -9, height[0], height[1]);
@@ -158,7 +151,7 @@ public class WorldEaterTamerTests {
         helper.succeed();
     }
 
-    @GameTest(template = "empty")
+    @GameTest(template = "empty", batch = "reportSerialization")
     public static void reportSerialization(GameTestHelper helper) {
         var empty = WorldEaterReport.create(Map.of(), true, 0, 0);
         helper.assertTrue(WrittenBookItem.makeSureTagIsValid(empty.getTag()), "Valid empty book");

@@ -29,7 +29,7 @@ public class IntentionAssemblyLineTests {
     record Fixture(AssemblyLineMachine machine, List<ItemBusPartMachine> inputs, ItemBusPartMachine output) {}
 
     static Fixture fixture(GameTestHelper helper, int location, int inputCount) {
-        var origin = helper.absolutePos(new BlockPos(location, 5, location));
+        var origin = WorldEaterStructureTests.far(helper, new BlockPos(location, 5, location));
         for (int x = (origin.getX() >> 4) - 1; x <= (origin.getX() >> 4) + 2; x++)
             for (int z = (origin.getZ() >> 4) - 1; z <= (origin.getZ() >> 4) + 1; z++) helper.getLevel().setChunkForced(x, z, true);
         var inputs = new ArrayList<ItemBusPartMachine>();
@@ -65,7 +65,7 @@ public class IntentionAssemblyLineTests {
         helper.assertTrue(matches, "Native Assembly Line pattern: " + (state.error == null ? "none" : state.error.getErrorInfo().getString())
                 + " at " + state.getPos() + " actual=" + helper.getLevel().getBlockState(state.getPos())
                 + " origin=" + f.machine.getPos() + " up=" + f.machine.getUpwardsFacing());
-        f.machine.onStructureFormed();
+        WorldEaterStructureTests.formed(f.machine);
         helper.assertTrue(ConfigHolder.INSTANCE.machines.enableResearch && ConfigHolder.INSTANCE.machines.orderedAssemblyLineItems,
                 "Run fixture with ordinary research and input ordering enabled");
         f.machine.getRecipeLogic().setWorkingEnabled(true);
@@ -114,11 +114,12 @@ public class IntentionAssemblyLineTests {
         helper.assertTrue(f.output.getInventory().getStackInSlot(0).getCount() == 1, "No duplicate delivery or second partial payment");
     }
 
-    @GameTest(template = "empty", batch = "intention_reload", timeoutTicks = 1600)
+    @GameTest(template = "empty", timeoutTicks = 1600, batch = "actualReloadPreservesLookupAndPayment")
     public static void actualReloadPreservesLookupAndPayment(GameTestHelper helper) {
         var safety = fixture(helper, 265000, 16);
+        var bravery = IntentionTamerTests.fixture(helper, 266000);
         helper.runAfterDelay(8, () -> {
-            form(helper, safety);
+            form(helper, safety); IntentionTamerTests.form(helper, bravery);
             var oldRecipe = IntentionRecipeTests.recipe(helper.getLevel(), false);
             var server = helper.getLevel().getServer();
             server.reloadResources(server.getPackRepository().getSelectedIds()).whenComplete((ignored, error) -> server.execute(() ->
@@ -126,13 +127,20 @@ public class IntentionAssemblyLineTests {
                         helper.assertTrue(error == null, "Actual server recipe reload: " + error);
                         helper.assertTrue(oldRecipe != IntentionRecipeTests.recipe(helper.getLevel(), false), "Recipe manager replaced definitions");
                         feed(safety); craft(helper, safety);
+                        IntentionTamerTests.feed(bravery, IntentionRecipeTests.book(87, "\"invalid after reload\""));
+                        IntentionTamerTests.rejectedWithoutPayment(helper, bravery, "Reload preserves content predicate");
+                        IntentionTamerTests.feed(bravery, IntentionRecipeTests.book(88));
+                        IntentionTamerTests.start(helper, bravery);
+                        helper.assertTrue(bravery.input().getInventory().getStackInSlot(0).isEmpty(), "Reloaded craft charges one book");
+                        IntentionTamerTests.finish(helper, bravery);
                         safety.machine.getRecipeLogic().setWorkingEnabled(false);
+                        bravery.logic().setWorkingEnabled(false);
                         helper.succeed();
                     })));
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 300)
+    @GameTest(template = "empty", timeoutTicks = 300, batch = "safetyPaymentAndRejections")
     public static void safetyPaymentAndRejections(GameTestHelper helper) {
         var f = fixture(helper, 250000, 16);
         helper.runAfterDelay(8, () -> {
@@ -154,7 +162,7 @@ public class IntentionAssemblyLineTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 300)
+    @GameTest(template = "empty", timeoutTicks = 300, batch = "safetyRequiresPower")
     public static void safetyRequiresPower(GameTestHelper helper) {
         var f = fixture(helper, 251000, 16);
         helper.runAfterDelay(8, () -> {

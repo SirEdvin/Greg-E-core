@@ -1,19 +1,20 @@
 # World Eater casings
 
-The incomplete World Eater tamer accepts any mixture of black, dark purple,
-dark green, and very dark orange World Eater Tamer Casings in its frame.
-Old UHV casing and unrelated blocks are not accepted.
-The 5×5×5 edge skeleton and controller position are unchanged; up to five of
-each item/fluid import/export part and at most one optional standard GTCEu
-parallel hatch may replace casing. No energy hatch is needed or accepted.
+The incomplete World Eater tamer is a 15×15×15 structure (layout in
+`IncompleteWorldEaterTamer.SHAPE`). Its outer frame (`C`) accepts only black
+World Eater Tamer Casing; up to five of each item/fluid import/export part and
+at most one optional standard GTCEu parallel hatch may replace frame casing.
+Its inner tier ring (`T`, 44 blocks) accepts any mixture of black, dark purple,
+dark green, and very dark orange casings and no parts. Old UHV casing and
+unrelated blocks are not accepted. No energy hatch is needed or accepted.
 
 ## Reversible casing tiers
 
-Any actual black frame casing makes the formed machine tier 1. Replacing the
-last black casing with any colored variant makes it tier 2; different colors
-may be freely mixed. Putting black back downgrades it to tier 1. Only actual
-required frame casings count: the controller, permitted parts (even with black
-appearances), unrestricted face panels, and interior do not contribute.
+Any black tier-ring casing makes the formed machine tier 1. Replacing the last
+black ring casing with any colored variant makes it tier 2; different colors
+may be freely mixed. Putting black back downgrades it to tier 1. Only the tier
+ring counts: the frame, controller, permitted parts, and unrestricted positions
+do not contribute.
 
 Tier is derived from the current validated frame, not a permanent unlock or
 saved upgrade. A broken/unvalidated frame has no usable tier; reformation and
@@ -30,15 +31,8 @@ Completed pending survey reports retain their existing protection and deliver
 once when the frame and output capacity are available, without another sensor
 or scan. Registry IDs, version-1 progression saves, and acquisition are unchanged.
 
-The controller, formed hatches and buses use black casing at tier 1. At tier 2
-they use the most common actual frame casing color, breaking ties in purple,
-green, orange order.
-Controller, hatch, face-panel, and interior blocks do not vote. Replacing casings
-and reloading recompute the appearance. The controller's native `casing_color`
-model state selects matching base and emissive textures while preserving its
-front/status overlays and connected-texture appearance. Unformed controllers
-and inventory items use black; old saves without this property default to black
-until formation recomputes the color. Progression and block identity are unchanged.
+The controller, formed hatches and buses always use black casing, matching the
+black frame they sit in; tier-ring colors never change their appearance.
 
 ## Acquisition and recipes
 
@@ -73,8 +67,7 @@ PNG pixels are copied. The editable source is
 Adjacent casings of the same color use native LDLib connected textures like
 Industrial Steam Casing: internal frame seams disappear, while outside borders
 and concave corners remain. Different colors retain their boundary. The
-controller joins surrounding matching casing; formed buses/hatches join casing
-matching their current tier-derived appearance.
+controller and formed buses/hatches join surrounding black casing.
 
 All four variants are static: no sweeping highlight, moving shadows, or texture
 animation metadata. Base plates stay normally shaded. A separate, thin emissive

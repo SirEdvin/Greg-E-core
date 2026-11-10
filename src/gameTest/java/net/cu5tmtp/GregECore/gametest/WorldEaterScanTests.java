@@ -18,7 +18,7 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @GameTestHolder(GregECore.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class WorldEaterScanTests {
-    @GameTest(template = "empty", timeoutTicks = 400)
+    @GameTest(template = "empty", timeoutTicks = 400, batch = "currentChunkTracksScanAndRetry")
     public static void currentChunkTracksScanAndRetry(GameTestHelper helper) {
         var fixture = WorldEaterRunTests.fixture(helper, -65000);
         helper.runAfterDelay(4, () -> {
@@ -63,7 +63,7 @@ public class WorldEaterScanTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 400)
+    @GameTest(template = "empty", timeoutTicks = 400, batch = "recoveryOnEveryAllowedAttempt")
     public static void recoveryOnEveryAllowedAttempt(GameTestHelper helper) {
         var fixtures = new WorldEaterRunTests.Fixture[5];
         for (int attempt = 1; attempt <= 5; attempt++) fixtures[attempt - 1] = WorldEaterRunTests.fixture(helper, 40000 + attempt * 1000);
@@ -99,7 +99,7 @@ public class WorldEaterScanTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 400)
+    @GameTest(template = "empty", timeoutTicks = 400, batch = "eligibilityAndBoundaryCoverage")
     public static void eligibilityAndBoundaryCoverage(GameTestHelper helper) {
         var fixture = WorldEaterRunTests.fixture(helper, 51000);
         helper.runAfterDelay(4, () -> {
@@ -121,7 +121,7 @@ public class WorldEaterScanTests {
             var insidePos = WorldEaterStructureTests.shellPositions(external).stream().filter(pos -> pos.getX() < outside.getX()).findFirst().orElseThrow();
             var externalPart = WorldEaterStructureTests.bus(helper, insidePos, GTMachines.ITEM_IMPORT_BUS[GTValues.LV]);
             helper.assertTrue(external.checkPatternWithLock(), "Outside controller has inside part");
-            external.onStructureFormed();
+            WorldEaterStructureTests.formed(external);
             helper.assertTrue(!fixture.logic().isCountableInterface(externalPart), "Never follow outside controller through an inside part");
             helper.assertTrue(fixture.logic().isCountableInterface(MetaMachine.getMachine(level, controllerPos)), "Other controller eligible");
             helper.assertTrue(!fixture.logic().isCountableInterface(MetaMachine.getMachine(level, partPos)), "Unattached part excluded");
@@ -140,7 +140,7 @@ public class WorldEaterScanTests {
         });
     }
 
-    @GameTest(template = "empty", timeoutTicks = 400)
+    @GameTest(template = "empty", timeoutTicks = 400, batch = "failureAfterHighPartialCount")
     public static void failureAfterHighPartialCount(GameTestHelper helper) {
         var fixture = WorldEaterRunTests.fixture(helper, 53000);
         helper.runAfterDelay(4, () -> {

@@ -145,7 +145,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                     Component.literal("Tier 2 + intention: Desarium tests ACTIVE → PREPARED; Implementium produces essence in PREPARED."),
                     Component.literal("Deliver the displayed 1–5 items to any input bus for immediate success; no power or fluids."),
                     Component.literal("Deadline: 30 seconds per voltage tier (LV–UEV); quantity does not change it."),
-                    Component.literal("Only real timeout has consequences: Safety sacrifices itself; Bravery sacrifices one nearby machine. No collateral damage."),
+                    Component.literal("Only real timeout has consequences: Safety sacrifices itself; Bravery sacrifices one of your team's nearby machines. No collateral damage."),
                     Component.literal("Test failures and interrupted runs are harmless. Preparation is permanent."),
                     Component.literal("Accepts one optional parallel hatch; only casing conversions run in parallel."),
                     Component.literal("Optional Safety or Bravery Hatch: rear face center, opposite the controller."))

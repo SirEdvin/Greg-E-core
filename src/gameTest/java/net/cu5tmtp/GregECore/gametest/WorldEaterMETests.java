@@ -157,10 +157,7 @@ final class WorldEaterMETests {
     }
 
     static void await(GameTestHelper helper, BooleanSupplier condition, int waited, Runnable action) {
-        if (condition.getAsBoolean()) { action.run(); return; }
-        helper.assertTrue(waited < 300, "Native asynchronous operation completes within bound");
-        try { Thread.sleep(10); } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new AssertionError(e); }
-        helper.runAfterDelay(1, () -> await(helper, condition, waited + 1, action));
+        WorldEaterDemandTests.await(helper, condition, waited, action);
     }
 
     static Object pending(Fixture f) {
@@ -353,8 +350,8 @@ final class WorldEaterMETests {
                 && deadline == f.tamer().logic().getDuration() && pending(f) == null, "Fresh NBT replay preserves paid demand and elapsed deadline without replaying opportunity");
         var data = new CompoundTag(); f.tamer().logic().saveCustomPersistedData(data, false);
         var saved = data.getCompound("WorldEaterTamer").getCompound("Demand");
-        helper.assertTrue(saved.getBoolean("CraftingConsidered") && saved.getAllKeys().stream().noneMatch(k -> k.toLowerCase(java.util.Locale.ROOT).contains("job")
-                || k.toLowerCase(java.util.Locale.ROOT).contains("link")), "Only considered marker persists, never job ownership");
+        helper.assertTrue(saved.getAllKeys().stream().noneMatch(k -> k.toLowerCase(java.util.Locale.ROOT).contains("job")
+                || k.toLowerCase(java.util.Locale.ROOT).contains("link")), "Job ownership never persists");
     }
 
     static void legacyPersistenceAndReadOnlyControls(GameTestHelper helper) {
@@ -362,16 +359,10 @@ final class WorldEaterMETests {
         awaitNetwork(helper, f, 0, () -> {
             var t = f.tamer(); WorldEaterDemandTests.prepare(helper, t); startExact(helper, f);
             var snapshot = ((net.minecraft.world.level.block.entity.BlockEntity) t.controller().getHolder()).saveWithFullMetadata();
-            for (int mode = 0; mode < 4; mode++) {
-                var copy = snapshot.copy();
-                rewriteMarker(copy, mode);
-                ((net.minecraft.world.level.block.entity.BlockEntity) t.controller().getHolder()).load(copy);
-                MEDemandHatchPartMachine.refresh(t.controller());
-                helper.assertTrue(t.logic().getDemand().getCount() == 3 && t.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.PREPARED
-                        && pending(f) == null, "Valid saved demand survives automation-only legacy/corruption without retry: " + mode);
-                var data = new CompoundTag(); t.logic().saveCustomPersistedData(data, false);
-                helper.assertTrue(data.getCompound("WorldEaterTamer").getCompound("Demand").getBoolean("CraftingConsidered"), "Restored opportunity is spent");
-            }
+            ((net.minecraft.world.level.block.entity.BlockEntity) t.controller().getHolder()).load(snapshot.copy());
+            MEDemandHatchPartMachine.refresh(t.controller());
+            helper.assertTrue(t.logic().getDemand().getCount() == 3 && t.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.PREPARED
+                    && pending(f) == null, "Valid saved demand survives reload without retry");
             var stick = new ItemStack(Items.STICK); var tag = new CompoundTag(); var copied = new CompoundTag();
             copied.putBoolean("AutoPull", true); copied.putByte("GhostCircuit", (byte) 5); copied.putBoolean("DistinctBuses", false);
             tag.put("MEInputBus", copied); stick.setTag(tag);
@@ -404,8 +395,6 @@ final class WorldEaterMETests {
             helper.getLevel().setBlockAndUpdate(f.hatch().getPos(), WorldEaterCasingTests.casings()[0].defaultBlockState());
             helper.assertTrue(t.controller().checkPatternWithLock(), "Frame without optional hatch reforms"); WorldEaterStructureTests.formed(t.controller());
             startExact(helper, f);
-            var data = new CompoundTag(); t.logic().saveCustomPersistedData(data, false);
-            helper.assertTrue(data.getCompound("WorldEaterTamer").getCompound("Demand").getBoolean("CraftingConsidered"), "Absent hatch consumes startup opportunity");
             WorldEaterDemandTests.pay(t);
             helper.assertTrue(t.logic().getDemand().isEmpty(), "Hatchless run still accepts ordinary local payment");
             t.logic().setWorkingEnabled(false); helper.succeed(); return;
@@ -678,17 +667,5 @@ final class WorldEaterMETests {
                 });
             });
         });
-    }
-
-    private static void rewriteMarker(CompoundTag tag, int mode) {
-        if (tag.contains("CraftingConsidered")) {
-            switch (mode) {
-                case 0 -> tag.remove("CraftingConsidered");
-                case 1 -> tag.putString("CraftingConsidered", "invalid");
-                case 2 -> tag.putBoolean("CraftingConsidered", false);
-                default -> tag.putBoolean("CraftingConsidered", true);
-            }
-        }
-        for (String key : java.util.Set.copyOf(tag.getAllKeys())) if (tag.get(key) instanceof CompoundTag child) rewriteMarker(child, mode);
     }
 }

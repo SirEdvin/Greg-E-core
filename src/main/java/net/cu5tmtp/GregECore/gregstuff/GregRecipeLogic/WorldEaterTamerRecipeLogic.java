@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.GTCEu;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.MEDemandHatchPartMachine;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.feature.IDropSaveMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
@@ -140,7 +141,6 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     private int demandTier;
     @DescSynced
     private boolean rewardPending;
-    private boolean craftingConsidered;
 
     public WorldEaterTamerRecipeLogic(IncompleteWorldEaterTamer controller) {
         super(controller);
@@ -259,9 +259,8 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
             demand = entry.stack(1 + level.random.nextInt(5));
             demandTier = entry.tier();
             duration = entry.deadline();
-            craftingConsidered = op == Op.REAL;
             onChanged();
-            if (craftingConsidered && GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.begin(controller);
+            if (op == Op.REAL && GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.begin(controller);
         } else if (op == Op.SURVEY) {
             domain = region(level);
             dimension = level.dimension().location().toString();
@@ -375,6 +374,14 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
             if (part.self().getPos().equals(candidate.getPos())) return false;
         }
         return candidate instanceof IMultiController || !(candidate instanceof IMultiPart);
+    }
+
+    /** Survey eligibility plus ownership: the tamer's owner or team; unowned only for an unowned tamer. */
+    private boolean isBraveryVictim(MetaMachine candidate) {
+        if (!isCountableInterface(candidate)) return false;
+        var owner = controller.getOwner();
+        var other = candidate.getOwner();
+        return owner == null ? other == null : other != null && owner.isPlayerInTeam(other.getPlayerUUID());
     }
 
     private void unavailable(int x, int z) {
@@ -546,7 +553,7 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
                 for (var pos : chunk.getBlockEntities().keySet()) {
                     if (pos.getY() < region.minY() || pos.getY() >= region.maxY()) continue;
                     var candidate = MetaMachine.getMachine(chunk, pos);
-                    if (!isCountableInterface(candidate)) continue;
+                    if (!isBraveryVictim(candidate)) continue;
                     double d = pos.distSqr(origin);
                     if (d < distance || d == distance && (nearest == null || pos.compareTo(nearest.getPos()) < 0)) {
                         nearest = candidate;
@@ -565,8 +572,9 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
         if (chunk == null || MetaMachine.getMachine(chunk, pos) != victim) return;
         if (victim instanceof IntentionHatchPartMachine hatch) {
             if (hatch.getIntention() != Intention.SAFETY || !controller.getParts().contains(hatch)) return;
-        } else if (!isCountableInterface(victim)) return;
-        if (!level.destroyBlock(pos, true)) return;
+        } else if (!isBraveryVictim(victim)) return;
+        // The block is lost; only a machine that carries its contents in its item still drops.
+        if (!level.destroyBlock(pos, victim instanceof IDropSaveMachine saved && saved.saveBreak())) return;
         level.sendParticles(ParticleTypes.EXPLOSION, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1, 0, 0, 0, 0);
         level.playSound(null, pos, SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 1, 1);
     }
@@ -574,7 +582,6 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     private void clearRun() {
         if (GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.clear(controller);
         demand = ItemStack.EMPTY;
-        craftingConsidered = false;
         demandTier = 0;
         rewardPending = false;
         domain = null;
@@ -655,7 +662,6 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
             saved.put("Item", demand.save(new CompoundTag()));
             saved.putInt("Tier", demandTier);
             saved.putBoolean("RewardPending", rewardPending);
-            saved.putBoolean("CraftingConsidered", craftingConsidered);
             data.put("Demand", saved);
         }
         tag.put("WorldEaterTamer", data);
@@ -715,8 +721,6 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
                 || WorldEaterDemands.pool().stream().noneMatch(e -> e.item() == demand.getItem() && e.tier() == demandTier)) {
             throw new IllegalArgumentException("Invalid or unavailable demand");
         }
-        // Even legacy or malformed automation metadata cannot reopen a paid run's opportunity.
-        craftingConsidered = REAL_OPERATION.equals(saved.getString("Operation"));
     }
 
     private void loadScan(CompoundTag data) {

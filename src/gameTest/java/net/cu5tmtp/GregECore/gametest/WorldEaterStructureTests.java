@@ -147,7 +147,9 @@ public class WorldEaterStructureTests {
         level.removeBlock(center, false);
         level.setBlockAndUpdate(center, IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.defaultBlockState());
         var controller = (IncompleteWorldEaterTamer) MetaMachine.getMachine(level, center);
-        controller.setFrontFacing(facing);
+        // setFrontFacing re-checks the pattern bare; hold the lock so GTCEu's async checker cannot race it.
+        controller.getPatternLock().lock();
+        try { controller.setFrontFacing(facing); } finally { controller.getPatternLock().unlock(); }
         controller.getRecipeLogic().setWorkingEnabled(false);
         return controller;
     }

@@ -11,4 +11,4 @@
 - [x] 2.1 Rebuild GameTest fixtures from `SHAPE`; cover required blocks, part-only-on-frame positions, colored-frame rejection, tier-ring upgrades/downgrades, rear-slot rules, rotation, overlapping ME demand ownership and scan exclusion.
 - [x] 2.2 Keep tier-2 GameTests and client checks (Bravery crafting, demand runs, ME demand integration, always-black appearance) by recoloring the tier ring.
 - [x] 2.3 `compileJava compileGameTestJava` and the full `runGameTestServer` suite pass.
-- [ ] 2.4 Re-run the opt-in client checks after the tier-ring and always-black appearance change.
+- [x] 2.4 Re-run the opt-in client checks after the tier-ring and always-black appearance change.

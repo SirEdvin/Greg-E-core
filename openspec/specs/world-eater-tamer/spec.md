@@ -6,34 +6,6 @@ Provide the initial World Eater tamer progression machine with persistent state-
 
 ## Requirements
 
-### Requirement: Initial tamer structure
-
-The system SHALL expose a multiblock named `Incomplete World Eater tamer` with outer dimensions 5×5×5 and an edge-only skeleton: the 12 cube edges including their corners, totaling 44 blocks. The controller SHALL occupy the middle of the lower front edge. Face panels and the 3×3×3 interior SHALL be unrestricted. The frame SHALL use dedicated World Eater Tamer Casings subject to its casing-color requirements and allow up to five of EACH of item input buses, item output buses, fluid input hatches, and fluid output hatches. Zero or one Safety or Bravery intention hatch SHALL be accepted at the middle of the lower rear edge, subject to its position and selection requirements. Energy hatches SHALL NOT be accepted as frame substitutions or be required for processing. This change SHALL NOT introduce the future 15×15×15 variant.
-
-#### Scenario: Skeleton frame
-- **WHEN** the player builds only the cube edges with the controller at the middle of the lower front edge, leaving face panels and the interior empty
-- **THEN** the structure forms
-- **WHEN** any required frame edge or corner block is missing
-- **THEN** the structure does not form
-
-#### Scenario: Interior contains blocks
-- **WHEN** the player completes the valid shell with arbitrary blocks inside
-- **THEN** the interior contents do not prevent formation
-
-#### Scenario: Independent hatch limits
-- **WHEN** the shell contains five item input buses, five item output buses, five fluid input hatches, and five fluid output hatches
-- **THEN** those per-type counts are permitted
-- **WHEN** any one permitted type has six parts
-- **THEN** the structure does not form
-
-#### Scenario: Energy hatch rejection
-- **WHEN** an energy hatch replaces a required shell casing
-- **THEN** the structure does not form
-
-#### Scenario: Optional intention slot does not require rebuilding
-- **WHEN** an existing valid tamer has no intention hatch and its rear-center position contains an allowed casing or an otherwise permitted existing part
-- **THEN** it remains valid without moving or replacing that block
-
 ### Requirement: Persistent state-gated recipes
 
 The tamer SHALL initially be `DORMANT` and support persistent `ACTIVE` and `PREPARED` states. Its state SHALL be stored with its recipe logic, remain distinct from whether a recipe is currently running, and survive save/load and structure reformation. All recipes SHALL use `world_eater_tamer` and declare a valid required state. DORMANT surveys, ACTIVE preparation tests, and PREPARED real runs SHALL retain their distinct gates. PREPARED SHALL additionally satisfy the existing ACTIVE casing-conversion and Bravery-acquisition gates, but not the preparation-test gate. Missing, unknown, or otherwise mismatched states SHALL NOT consume inputs or start.
@@ -201,28 +173,6 @@ Every successfully completed or retry-exhausted information collection run SHALL
 - **WHEN** a completed report is saved and reloaded before it can be delivered
 - **THEN** the saved report remains pending and is delivered once without another scan or sensor consumption
 
-### Requirement: Mixed-color small tamer frame
-
-The small tamer SHALL accept black, dark purple, dark green, and very dark orange World Eater Tamer Casings in any mixture at required casing positions. Its 5x5x5 edge-only skeleton, controller at the middle of the lower front edge, and unrestricted face panels and interior SHALL remain unchanged. UHV and unrelated blocks SHALL NOT become valid casing substitutes. The controller and formed parts SHALL retain black casing appearance and readable overlays.
-
-#### Scenario: Existing black frame
-- **WHEN** an existing valid black frame is checked after the update
-- **THEN** it remains valid without replacing its controller or moving blocks
-
-#### Scenario: Freely mixed casing variants
-- **WHEN** a complete frame uses any mixture of the four allowed casing variants, with permitted parts and the correctly positioned controller
-- **THEN** it forms in each supported horizontal orientation
-- **AND** a frame made from one colored variant or a mixture of colored variants also forms
-
-#### Scenario: Missing or unrelated frame block
-- **WHEN** a required edge or corner is missing or replaced with UHV casing or an unrelated block
-- **THEN** the structure does not form
-- **AND** an existing UHV frame is not silently converted to tamer casing
-
-#### Scenario: Consistent machine appearance
-- **WHEN** the controller and attached parts are inspected on a formed tamer
-- **THEN** their casing appearance uses the black casing rather than UHV casing while retaining readable machine and part overlays
-
 ### Requirement: Optional single standard parallel hatch
 
 The tamer SHALL accept zero or one standard GTCEu parallel hatch as a frame part substitution in DORMANT, ACTIVE, and PREPARED. A second parallel hatch SHALL prevent structure formation. The hatch SHALL NOT introduce an energy requirement or replace the existing independent item/fluid part limits.
@@ -281,46 +231,29 @@ Every tamer recipe SHALL declare a valid required progression state accepted by 
 - **THEN** its progression is preserved
 - **AND** paused surveys and pending reports retain the existing non-duplication and non-loading guarantees
 
-### Requirement: Existing part substitutions remain valid
-
-At either casing tier and in DORMANT, ACTIVE, or PREPARED, the tamer SHALL retain independent limits of five each for item input buses, item output buses, fluid input hatches, and fluid output hatches, plus zero or one standard parallel hatch. It SHALL additionally accept zero or one intention hatch only at its designated rear-center position. Energy hatches and other unsupported substitutions SHALL remain rejected. No tamer power requirement SHALL be introduced.
-
-#### Scenario: Permitted parts in a colored frame
-- **WHEN** an otherwise valid colored frame includes up to five of each allowed item/fluid part category and zero or one standard parallel hatch
-- **THEN** these substitutions do not prevent formation or require energy
-
-#### Scenario: Part limits are not weakened
-- **WHEN** a frame has six parts of any one limited item/fluid category, a second parallel hatch, or an energy hatch
-- **THEN** the structure does not form, regardless of its casing colors or progression state
-
-#### Scenario: Intention does not consume another part allowance
-- **WHEN** an otherwise valid frame contains five of each allowed item/fluid category, one parallel hatch, and one intention hatch in its designated position
-- **THEN** the structure forms without power
-- **AND** the intention hatch does not count against the item/fluid or parallel-hatch allowances
-
 ### Requirement: Reversible casing-derived tier
 
-A formed small tamer SHALL have tier 1 if any actual frame casing is black, and tier 2 if every actual frame casing is colored. Colored variants SHALL be freely mixable and equivalent for tier calculation. The controller, permitted parts, unrestricted face panels, and interior SHALL NOT contribute to the casing tier. Tier SHALL reflect current composition, not a permanent unlock.
+A formed tamer SHALL have tier 1 if any tier-ring casing is black, and tier 2 if every tier-ring casing is colored. Colored variants SHALL be freely mixable and equivalent for tier calculation. Frame casings, the controller, permitted parts, and unrestricted positions SHALL NOT contribute to the casing tier. Tier SHALL reflect current composition, not a permanent unlock.
 
 #### Scenario: Partial upgrade
-- **WHEN** one or more black casings remain in an otherwise valid frame, including a mixture with colored casings
+- **WHEN** one or more black casings remain in the tier ring of an otherwise valid structure, including a mixture with colored casings
 - **THEN** its tier is 1
 
 #### Scenario: Last black casing is replaced
-- **WHEN** the final black frame casing is replaced with any allowed colored casing and the structure validates
+- **WHEN** the final black tier-ring casing is replaced with any allowed colored casing and the structure validates
 - **THEN** its tier becomes 2
 - **AND** no activation recipe or additional item payment is required for the tier change itself
 
 #### Scenario: Downgrade and subsequent upgrade
-- **WHEN** any actual casing in a tier-2 frame is replaced with black and the structure validates
+- **WHEN** any tier-ring casing of a tier-2 structure is replaced with black and the structure validates
 - **THEN** its tier becomes 1
 - **WHEN** that last black casing is replaced with an allowed colored casing and the structure validates again
 - **THEN** its tier returns to 2
 
 #### Scenario: Color and non-casing independence
-- **WHEN** every actual frame casing is colored, permitted parts retain their black appearance, and black casings are present only in unrestricted face panels or the interior
+- **WHEN** every tier-ring casing is colored, while the frame, permitted parts and unrestricted positions hold black casing
 - **THEN** the structure remains tier 2
-- **WHEN** one colored frame casing is replaced with another allowed color and the structure validates
+- **WHEN** one colored tier-ring casing is replaced with another allowed color and the structure validates
 - **THEN** it remains tier 2
 
 ### Requirement: Tier belongs to a successfully validated structure
@@ -390,27 +323,6 @@ DORMANT surveys and ACTIVE/PREPARED casing conversions SHALL remain available at
 - **THEN** the existing recipe-cancellation behavior remains unchanged
 - **AND** the controller's earned progression is not reset by that cancellation
 
-### Requirement: Optional single fixed-position intention hatch
-
-The only eligible intention-hatch position SHALL be the center of the lower rear edge, directly opposite the controller at the same Y level. The position SHALL rotate with the controller's horizontal orientation. It SHALL accept either intention variant or any previously valid substitution. Intention hatches SHALL NOT substitute for any other required frame block. The maximum SHALL be one attached intention hatch total, not one per variant.
-
-#### Scenario: Either variant in each orientation
-- **WHEN** an otherwise valid tamer facing north, south, east, or west has one Safety or Bravery Hatch in the designated rear-center position
-- **THEN** it forms and attaches that hatch
-- **AND** it also forms without an intention hatch when an existing permitted block occupies that position
-
-#### Scenario: Wrong frame position or height
-- **WHEN** an intention hatch replaces a different required frame block, including a rear edge block at a different Y level
-- **THEN** the structure does not form
-
-#### Scenario: Additional attached intention hatch
-- **WHEN** one intention hatch occupies the designated position and another Safety or Bravery Hatch replaces a different required frame block
-- **THEN** the structure does not form, whether the variants match or differ
-
-#### Scenario: Unrestricted positions do not select intention
-- **WHEN** extra intention hatch blocks stand in unrestricted face-panel or interior positions while all required frame positions are valid
-- **THEN** those blocks neither prevent formation nor attach as intention parts or affect the selected intention
-
 ### Requirement: Intention is derived from the validated structure
 
 A successfully validated formed tamer SHALL expose Safety, Bravery, or no declared intention according to its attached intention hatch. Missing, invalid, and not-yet-validated structures SHALL expose no operative intention. Reformation and reload SHALL derive selection from current attached hardware, not retain a stale selection. Absence of a hatch SHALL NOT implicitly select Safety or Bravery.
@@ -473,3 +385,131 @@ The tamer SHALL process the Bravery acquisition recipe only while formed with va
 - **WHEN** output capacity becomes blocked after the book was consumed
 - **THEN** the completed Bravery craft waits for capacity, including across save/load, and delivers exactly one hatch without charging another book
 - **AND** no survey report, demand challenge, consequence, or progression transition occurs
+
+### Requirement: Optional single freely positioned ME Demand Hatch
+
+At either casing tier and in any progression state, the tamer SHALL accept zero or one ME Demand Hatch at any required frame position that accepts ordinary item/fluid I/O parts. A second attached demand hatch SHALL prevent formation. The hatch SHALL be excluded from casing-tier calculation, SHALL NOT select intention, and SHALL NOT change existing progression or recipe gates.
+
+#### Scenario: Every ordinary I/O location and orientation
+- **WHEN** one ME Demand Hatch substitutes for a permitted frame I/O position in each supported horizontal controller orientation
+- **THEN** the tamer forms and attaches that hatch
+- **AND** this includes the lower-rear center when it is not occupied by an intention hatch
+
+#### Scenario: Optional means no existing frame migration
+- **WHEN** an existing valid frame has no ME Demand Hatch
+- **THEN** it remains valid and manual demand delivery remains available
+
+#### Scenario: A second demand hatch is rejected
+- **WHEN** two ME Demand Hatches occupy required frame positions
+- **THEN** the structure does not form
+- **AND** neither can bypass this limit by being treated as an ordinary input or output bus
+
+#### Scenario: Unrestricted positions are not attachments
+- **WHEN** additional ME Demand Hatches are placed only in unrestricted face-panel or interior positions
+- **THEN** those blocks do not attach to the tamer, receive its demand, or initiate crafting for it
+- **AND** their presence does not invalidate an otherwise valid frame
+
+#### Scenario: No inherited tier or intention
+- **WHEN** an otherwise valid all-colored frame includes an ME Demand Hatch
+- **THEN** that hatch does not reduce its casing tier or change earned progression
+- **WHEN** the demand hatch occupies the rear-center slot instead of Safety or Bravery
+- **THEN** it provides no intention and does not bypass the real-run intention gate
+
+#### Scenario: Replacement preserves earned state
+- **WHEN** the controller remains while its ME Demand Hatch is installed, removed, or replaced and the frame is revalidated
+- **THEN** earned progression and existing pending-reward/report retention remain unchanged
+- **AND** an unfinished run follows the existing structural-interruption rules without punishment or token refund
+
+### Requirement: A demand hatch has one attached controller
+
+An ME Demand Hatch SHALL serve at most one formed tamer at a time. It SHALL NOT merge requests, choose implicitly between controllers, or allow shared attachment to multiply a run's scheduling opportunity.
+
+#### Scenario: Overlapping structures try to share a hatch
+- **WHEN** two tamers would attach the same ME Demand Hatch as a frame part
+- **THEN** the second attachment is rejected while the first attachment remains valid
+- **AND** no request or crafting decision is transferred between those controllers
+
+### Requirement: Large tamer structure
+
+The system SHALL expose a multiblock named `Incomplete World Eater tamer` with the fixed 15×15×15 layout defined by the controller's shared shape. The controller SHALL replace the front-face center intake. Other non-empty positions SHALL require their listed block, including 44 tier-ring World Eater casings; empty positions SHALL be unrestricted. Parts SHALL only replace frame casing positions, and energy hatches SHALL NOT be accepted or required.
+
+#### Scenario: Complete layout
+- **WHEN** the player builds every required block of the layout with the controller at the front-face center, leaving unrestricted positions empty or filled with arbitrary blocks
+- **THEN** the structure forms
+- **WHEN** any required block is missing
+- **THEN** the structure does not form
+
+#### Scenario: Independent hatch limits
+- **WHEN** World Eater casing positions contain five item input buses, five item output buses, five fluid input hatches, and five fluid output hatches
+- **THEN** those per-type counts are permitted
+- **WHEN** any one permitted type has six parts
+- **THEN** the structure does not form
+
+#### Scenario: Parts only replace World Eater casing
+- **WHEN** a permitted part replaces any other required block, including a tier-ring casing
+- **THEN** the structure does not form
+
+#### Scenario: Energy hatch rejection
+- **WHEN** an energy hatch replaces a required World Eater casing
+- **THEN** the structure does not form
+
+#### Scenario: Optional intention slot does not require rebuilding
+- **WHEN** a valid tamer has no intention hatch and its rear-face center contains the assembly engine intake
+- **THEN** it remains valid without moving or replacing that block
+
+### Requirement: Part substitutions on World Eater casing
+
+In every progression state, World Eater casing positions SHALL accept up to five each of item input buses, item output buses, fluid input hatches and fluid output hatches, zero or one standard parallel hatch, and zero or one ME Demand Hatch with its own allowance. Zero or one intention hatch SHALL be accepted only at the rear-face center. Energy hatches and other substitutions SHALL be rejected, and no tamer power requirement SHALL be introduced.
+
+#### Scenario: Permitted parts in the frame
+- **WHEN** an otherwise valid frame includes up to five of each allowed item/fluid part category and zero or one standard parallel hatch
+- **THEN** these substitutions do not prevent formation or require energy
+
+#### Scenario: Part limits are not weakened
+- **WHEN** a frame has six parts of any one limited item/fluid category, a second parallel hatch, or an energy hatch
+- **THEN** the structure does not form, regardless of progression state
+
+#### Scenario: Intention does not consume another part allowance
+- **WHEN** an otherwise valid frame contains five of each allowed item/fluid category, one parallel hatch, and one intention hatch in its designated position
+- **THEN** the structure forms without power
+- **AND** the intention hatch does not count against the item/fluid or parallel-hatch allowances
+
+#### Scenario: Demand hatch has its own allowance
+- **WHEN** an otherwise valid frame has five of each ordinary item/fluid category, one parallel hatch, its correctly placed intention hatch, and one ME Demand Hatch
+- **THEN** the structure forms without a tamer energy hatch
+- **AND** the demand hatch neither consumes an ordinary part allowance nor lets a sixth ordinary item/fluid part or second special hatch bypass its limit
+
+### Requirement: Rear-face intention hatch slot
+
+The only eligible intention-hatch position SHALL be the center of the rear face, directly opposite the controller at the same Y level, replacing that face's assembly engine intake. The position SHALL rotate with the controller's horizontal orientation. It SHALL accept either intention variant or the assembly engine intake, and nothing else. Intention hatches SHALL NOT substitute for any other required block. The maximum SHALL be one attached intention hatch total, not one per variant.
+
+#### Scenario: Either variant in each orientation
+- **WHEN** an otherwise valid tamer facing north, south, east, or west has one Safety or Bravery Hatch at the rear-face center
+- **THEN** it forms and attaches that hatch
+- **AND** it also forms without an intention hatch when the assembly engine intake occupies that position
+
+#### Scenario: Wrong position or substitution
+- **WHEN** an intention hatch replaces a different required block, or an ordinary part, parallel hatch or energy hatch replaces the rear-face center
+- **THEN** the structure does not form
+
+#### Scenario: Additional attached intention hatch
+- **WHEN** one intention hatch occupies the designated position and another Safety or Bravery Hatch replaces a different required block
+- **THEN** the structure does not form, whether the variants match or differ
+
+#### Scenario: Unrestricted positions do not select intention
+- **WHEN** extra intention hatch blocks stand in unrestricted positions while all required positions are valid
+- **THEN** those blocks neither prevent formation nor attach as intention parts or affect the selected intention
+
+### Requirement: Black-only tamer frame
+
+Frame casing positions SHALL accept only the black World Eater Tamer Casing, or a permitted part. Dark purple, dark green, and very dark orange casings, UHV casing and unrelated blocks SHALL NOT form the frame. Tier-ring positions SHALL accept black, dark purple, dark green, and very dark orange casings in any mixture, and nothing else. The controller and formed parts SHALL always use the black casing appearance with readable overlays; tier-ring colors SHALL NOT change it.
+
+#### Scenario: Colored or unrelated frame casing
+- **WHEN** a frame casing position holds a colored casing, UHV casing, or an unrelated block
+- **THEN** the structure does not form
+
+#### Scenario: Upgradable tier ring
+- **WHEN** tier-ring positions hold any mixture of the four casing variants
+- **THEN** the structure forms in each horizontal orientation
+- **WHEN** a tier-ring position holds UHV casing, an unrelated block, or a part
+- **THEN** the structure does not form

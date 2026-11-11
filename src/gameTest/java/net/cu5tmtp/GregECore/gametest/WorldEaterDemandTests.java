@@ -60,6 +60,19 @@ public class WorldEaterDemandTests {
         try { var field = owner.getDeclaredField(name); field.setAccessible(true); field.set(target, value); }
         catch (ReflectiveOperationException e) { throw new AssertionError(e); }
     }
+    /** Waits for wall-clock work (async grids, chunk promotion) that a fixed tick delay cannot bound. */
+    static void await(GameTestHelper helper, java.util.function.BooleanSupplier condition, int waited, Runnable action) {
+        if (condition.getAsBoolean()) { action.run(); return; }
+        helper.assertTrue(waited < 300, "Native asynchronous operation completes within bound");
+        try { Thread.sleep(10); } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new AssertionError(e); }
+        helper.runAfterDelay(1, () -> await(helper, condition, waited + 1, action));
+    }
+    /** Dropped items only show up in entity queries once the position is entity-ticking. */
+    static int drops(GameTestHelper helper, BlockPos pos, net.minecraft.world.item.Item item) {
+        helper.assertTrue(helper.getLevel().isPositionEntityTicking(pos), "Drops observable");
+        return helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                new net.minecraft.world.phys.AABB(pos).inflate(3), e -> e.getItem().is(item)).size();
+    }
     static void demand(WorldEaterRunTests.Fixture f, WorldEaterDemands.Entry entry, int count) {
         field(f.logic(), WorldEaterTamerRecipeLogic.class, "demand", entry.stack(count));
         field(f.logic(), WorldEaterTamerRecipeLogic.class, "demandTier", entry.tier());
@@ -336,7 +349,7 @@ public class WorldEaterDemandTests {
     public static void timeoutOnlySafetyAndHarmlessInterruption(GameTestHelper helper) {
         var f = fixture(helper, 284000, true);
         var hatch = WorldEaterStructureTests.intentionPosition(f.controller());
-        helper.runAfterDelay(8, () -> {
+        helper.runAfterDelay(8, () -> await(helper, () -> helper.getLevel().isPositionEntityTicking(hatch), 0, () -> {
             IntentionTamerTests.form(helper, f); start(helper, f, true);
             field(f.logic(), RecipeLogic.class, "progress", f.logic().getDuration() - 1); f.logic().serverTick();
             helper.assertTrue(f.logic().getDemand().isEmpty() && f.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.ACTIVE
@@ -362,10 +375,11 @@ public class WorldEaterDemandTests {
             field(f.logic(), RecipeLogic.class, "progress", f.logic().getDuration() - 1); f.logic().serverTick(); f.logic().onRecipeFinish();
             helper.assertTrue(helper.getLevel().isEmptyBlock(hatch) && helper.getLevel().getBlockState(neighbor).is(Blocks.STONE)
                     && entity.isAlive() && entity.getHealth() == health, "Only Safety block removed; no collateral or entity damage");
+            helper.assertTrue(drops(helper, hatch, IntentionHatchPartMachine.SAFETY.getItem()) == 0, "Sacrificed Safety Hatch is lost, not dropped");
             for (var e : before.entrySet()) if (!e.getKey().equals(hatch)) helper.assertTrue(helper.getLevel().getBlockState(e.getKey()).equals(e.getValue()), "Other frame blocks unchanged");
             helper.assertTrue(f.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.PREPARED && WorldEaterCasingTests.outputCount(f, reward().getItem()) == 0, "Timeout retains PREPARED without reward");
             f.logic().setWorkingEnabled(false); helper.succeed();
-        });
+        }));
     }
 
     @GameTest(template = "empty", timeoutTicks = 400, batch = "braveryNearestOriginAndOneVictim")
@@ -374,17 +388,32 @@ public class WorldEaterDemandTests {
         var a = f.controller().getPos().east(8); var b = a.east(4);
         helper.getLevel().setBlockAndUpdate(a, GTMachines.MACERATOR[GTValues.LV].defaultBlockState());
         helper.getLevel().setBlockAndUpdate(b, GTMachines.ELECTRIC_FURNACE[GTValues.LV].defaultBlockState());
-        helper.runAfterDelay(8, () -> {
+        helper.runAfterDelay(8, () -> await(helper, () -> helper.getLevel().isPositionEntityTicking(a), 0, () -> {
             prepare(helper, f);
             helper.assertTrue(f.logic().findBraveryVictim(a).getPos().equals(a) && f.logic().findBraveryVictim(b).getPos().equals(b), "Random origin controls nearest search");
             helper.assertTrue(f.logic().findBraveryVictim(a.east(2)).getPos().equals(a), "Stable coordinate tie");
+            var level = helper.getLevel(); var mine = java.util.UUID.randomUUID();
+            f.controller().setOwnerUUID(mine);
+            helper.assertTrue(f.logic().findBraveryVictim(a) == null, "Owned tamer spares unowned machines");
+            MetaMachine.getMachine(level, a).setOwnerUUID(mine); MetaMachine.getMachine(level, b).setOwnerUUID(java.util.UUID.randomUUID());
+            helper.assertTrue(f.logic().findBraveryVictim(b).getPos().equals(a), "Only the tamer owner's machine is eligible");
+            f.controller().setOwnerUUID(null);
+            helper.assertTrue(f.logic().findBraveryVictim(a) == null, "Unowned tamer spares owned machines");
+            f.controller().setOwnerUUID(mine);
             start(helper, f, false); field(f.logic(), RecipeLogic.class, "progress", f.logic().getDuration() - 1);
             f.logic().serverTick(); f.logic().onRecipeFinish();
-            helper.assertTrue(helper.getLevel().isEmptyBlock(a) != helper.getLevel().isEmptyBlock(b), "Exactly one surrounding victim");
-            helper.assertTrue(!helper.getLevel().isEmptyBlock(WorldEaterStructureTests.intentionPosition(f.controller())) && f.controller().isFormed(), "Bravery and frame survive");
-            f.logic().onRecipeFinish(); helper.assertTrue(helper.getLevel().isEmptyBlock(a) != helper.getLevel().isEmptyBlock(b), "No second victim on stale finish");
+            helper.assertTrue(level.isEmptyBlock(a) && !level.isEmptyBlock(b)
+                    && drops(helper, a, GTMachines.MACERATOR[GTValues.LV].getItem()) == 0, "Exactly one own victim, lost without a drop");
+            helper.assertTrue(!level.isEmptyBlock(WorldEaterStructureTests.intentionPosition(f.controller())) && f.controller().isFormed(), "Bravery and frame survive");
+            f.logic().onRecipeFinish(); helper.assertTrue(!level.isEmptyBlock(b), "No second victim on stale finish");
+            level.setBlockAndUpdate(a, GTMachines.WOODEN_CRATE.defaultBlockState());
+            var crate = MetaMachine.getMachine(level, a); crate.setOwnerUUID(mine);
+            field(crate, com.gregtechceu.gtceu.common.machine.storage.CrateMachine.class, "isTaped", true);
+            start(helper, f, false); field(f.logic(), RecipeLogic.class, "progress", f.logic().getDuration() - 1);
+            f.logic().serverTick(); f.logic().onRecipeFinish();
+            helper.assertTrue(level.isEmptyBlock(a) && drops(helper, a, GTMachines.WOODEN_CRATE.getItem()) == 1, "A machine carrying its contents still drops");
             f.logic().setWorkingEnabled(false); helper.succeed();
-        });
+        }));
     }
 
     @GameTest(template = "empty", timeoutTicks = 400, batch = "preparedRetainsCasingParallelAndBraveryCrafts")

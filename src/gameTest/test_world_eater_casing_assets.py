@@ -150,25 +150,22 @@ class CasingAssetsTest(unittest.TestCase):
             self.assertNotIn('forge_data', model['elements'][0])
 
 
-    def test_controller_color_states_preserve_workable_overlays(self):
+    def test_controller_is_always_black_and_preserves_workable_overlays(self):
         path = Path(__file__).resolve().parents[2] / 'src/generated/resources/assets/gregecore/models/block/machine/incomplete_world_eater_tamer.json'
         model = json.loads(path.read_text())
-        expected = {(color, formed, status) for color in ('black', 'purple', 'green', 'orange')
-                    for formed in ('false', 'true') for status in ('idle', 'suspend', 'waiting', 'working')}
+        expected = {(formed, status) for formed in ('false', 'true') for status in ('idle', 'suspend', 'waiting', 'working')}
         actual = set()
         for key, variant in model['variants'].items():
             state = dict(part.split('=') for part in key.split(','))
-            self.assertIn('casing_color', state)
-            color = state['casing_color'] if state['is_formed'] == 'true' else 'black'
             textures = variant['model']['textures']
-            base = f'gregecore:block/casings/world_eater/{color}'
+            base = 'gregecore:block/casings/world_eater/black'
             self.assertEqual(textures['all'], base)
             self.assertEqual(textures['glow'], base + '_emissive')
             active = '_active' if state['recipe_logic_status'] in ('waiting', 'working') else ''
             overlay = 'gtceu:block/multiblock/research_station/overlay_front' + active
             self.assertEqual(textures['overlay_front'], overlay)
             self.assertEqual(textures['overlay_front_emissive'], overlay + '_emissive')
-            actual.add((state['casing_color'], state['is_formed'], state['recipe_logic_status']))
+            actual.add((state['is_formed'], state['recipe_logic_status']))
         self.assertEqual(actual, expected)
         self.assertEqual(model['dynamic_renders'], [{'type': 'gregecore:world_eater_parts'}])
 

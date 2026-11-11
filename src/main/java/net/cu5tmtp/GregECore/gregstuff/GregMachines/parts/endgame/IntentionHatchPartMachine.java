@@ -62,7 +62,7 @@ public class IntentionHatchPartMachine extends TieredPartMachine {
                                 ? "Any title or author; copies accepted."
                                 : "A real demand timeout destroys only this hatch."),
                         Component.literal(intention == Intention.BRAVERY
-                                ? "A real demand timeout destroys at most one eligible nearby machine, not this hatch."
+                                ? "A real demand timeout destroys at most one nearby machine of the tamer's owner or team, not this hatch."
                                 : "Repair the frame and install an intention hatch before the next run."),
                         Component.literal("No collateral damage. Test failures, frame breaks, and other cancellations cause no punishment."))
                 .register();

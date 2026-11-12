@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "gregecore:block/machine/creative_demand_pattern_provider",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "gregecore:block/machine/creative_demand_pattern_provider",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gregecore:block/machine/creative_demand_pattern_provider"
+    },
+    "facing=south": {
+      "model": "gregecore:block/machine/creative_demand_pattern_provider",
+      "y": 180
+    },
+    "facing=up": {
+      "gtceu:z": 180,
+      "model": "gregecore:block/machine/creative_demand_pattern_provider",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "gregecore:block/machine/creative_demand_pattern_provider",
+      "y": 270
+    }
+  }
+}

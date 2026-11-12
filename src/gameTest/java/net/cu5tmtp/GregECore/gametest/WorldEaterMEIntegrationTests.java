@@ -87,4 +87,22 @@ public class WorldEaterMEIntegrationTests {
         if (!GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }
         WorldEaterMETests.startupShortageAndAbsentHatch(helper);
     }
+
+    @GameTest(template = "empty", timeoutTicks = 1600, batch = "creativeProviderPatternsDeliveryAndIronCost")
+    public static void creativeProviderPatternsDeliveryAndIronCost(GameTestHelper helper) {
+        if (!GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }
+        WorldEaterCreativeProviderTests.patternsDeliveryAndIronCost(helper);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 1600, batch = "creativeProviderReloadAndRemoval")
+    public static void creativeProviderReloadAndRemoval(GameTestHelper helper) {
+        if (!GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }
+        WorldEaterCreativeProviderTests.reloadAndRemoval(helper);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 1600, batch = "creativeProviderPaysDemandHatch")
+    public static void creativeProviderPaysDemandHatch(GameTestHelper helper) {
+        if (!GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }
+        WorldEaterCreativeProviderTests.demandHatchPaidThroughProvider(helper);
+    }
 }

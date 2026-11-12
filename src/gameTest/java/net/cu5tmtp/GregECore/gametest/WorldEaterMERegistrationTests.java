@@ -42,4 +42,28 @@ public class WorldEaterMERegistrationTests {
         }
         helper.succeed();
     }
+
+    @GameTest(template = "empty", batch = "creativeDemandProviderRegistration")
+    public static void creativeDemandProviderRegistration(GameTestHelper helper) {
+        var id = GregECore.id("creative_demand_pattern_provider");
+        boolean enabled = GTCEu.Mods.isAE2Loaded();
+        helper.assertTrue(ForgeRegistries.ITEMS.containsKey(id) == enabled && ForgeRegistries.BLOCKS.containsKey(id) == enabled,
+                "Creative provider registration follows AE2 availability");
+        var tab = ModCreativeModTabs.GREGE_TAB.get();
+        tab.buildContents(new CreativeModeTab.ItemDisplayParameters(FeatureFlags.DEFAULT_FLAGS, true, helper.getLevel().registryAccess()));
+        helper.assertTrue(tab.getDisplayItems().stream().anyMatch(stack -> id.equals(ForgeRegistries.ITEMS.getKey(stack.getItem()))) == enabled,
+                "Creative inventory lists the provider exactly when available");
+        helper.assertTrue(helper.getLevel().getRecipeManager().getRecipes().stream()
+                .noneMatch(r -> id.equals(ForgeRegistries.ITEMS.getKey(r.getResultItem(helper.getLevel().registryAccess()).getItem()))),
+                "No recipe produces the creative provider");
+        if (enabled) {
+            var stack = new net.minecraft.world.item.ItemStack(ForgeRegistries.ITEMS.getValue(id));
+            helper.assertTrue(stack.getHoverName().getString().equals("Creative Demand Pattern Provider"), "Readable localized name");
+            var help = stack.getTooltipLines(null, net.minecraft.world.item.TooltipFlag.Default.NORMAL).stream()
+                    .map(net.minecraft.network.chat.Component::getString).collect(java.util.stream.Collectors.joining("\n"));
+            for (var phrase : java.util.List.of("Creative-only", "no recipe", "1 Iron Ingot", "2 seconds"))
+                helper.assertTrue(help.contains(phrase), "Provider help explains: " + phrase);
+        }
+        helper.succeed();
+    }
 }

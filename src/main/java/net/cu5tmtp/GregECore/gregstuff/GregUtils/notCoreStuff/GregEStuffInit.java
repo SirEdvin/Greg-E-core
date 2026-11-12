@@ -73,6 +73,7 @@ public class GregEStuffInit {
     public static void initGregEParts(){
         IntentionHatchPartMachine.init();
         if (com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.init();
+        if (com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded()) CreativeDemandPatternProviderMachine.init();
         StarFeederPartMachine.init();
         ParallelBoosterPartMachine.init();
         AdvancedParallelBoosterPartMachine.init();

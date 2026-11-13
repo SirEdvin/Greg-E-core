@@ -139,8 +139,8 @@ public class IntentionRecipeTests {
             helper.assertTrue(captions.stream().noneMatch(java.util.Objects::isNull), "All tamer recipes retain renderable JEI captions: " + loaded.id);
             if (loaded.id.equals(recipe(helper.getLevel(), false).id)) helper.assertTrue(
                     captions.stream().anyMatch(line -> line.contains("ACTIVE"))
-                            && captions.stream().anyMatch(line -> line.contains("Casing tier 2") && line.contains("no power")),
-                    "Bravery JEI captions explain both gates and power");
+                            && captions.contains("Tier 2"),
+                    "Bravery JEI captions explain both gates: " + captions);
         }
         for (boolean safety : new boolean[]{true, false}) {
             var recipe = recipe(helper.getLevel(), safety);

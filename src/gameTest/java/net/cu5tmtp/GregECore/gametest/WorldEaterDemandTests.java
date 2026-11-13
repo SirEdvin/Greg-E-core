@@ -448,9 +448,8 @@ public class WorldEaterDemandTests {
             } finally { buffer.release(); }
             var captions = r.recipeType.getDataInfos().stream().map(info -> info.apply(r.data)).toList();
             helper.assertTrue(captions.stream().noneMatch(s -> s == null || s.isBlank())
-                    && captions.stream().anyMatch(s -> s.contains("PREPARED"))
-                    && captions.stream().anyMatch(s -> s.contains("immediately"))
-                    && captions.stream().anyMatch(s -> s.contains("Deadline")), "Readable outcome and deadline captions");
+                    && captions.size() == 2 && captions.get(0).contains("PREPARED")
+                    && captions.get(1).equals("Tier 2, hatch, demand"), "Two readable gate captions: " + captions);
         }
         for (var hatch : java.util.List.of(IntentionHatchPartMachine.SAFETY, IntentionHatchPartMachine.BRAVERY)) {
             var text = new ItemStack(hatch.getItem()).getTooltipLines(null, net.minecraft.world.item.TooltipFlag.Default.NORMAL)

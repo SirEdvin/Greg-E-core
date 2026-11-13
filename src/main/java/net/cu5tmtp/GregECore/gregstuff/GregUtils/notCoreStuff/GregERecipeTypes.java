@@ -10,6 +10,8 @@ import com.lowdragmc.lowdraglib.gui.widget.PhantomSlotWidget;
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.locale.Language;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -23,32 +25,14 @@ public class GregERecipeTypes {
     public static final GTRecipeType WORLD_EATER_TAMER = GTRecipeTypes.register("world_eater_tamer", "endgame")
             .setMaxIOSize(2, 1, 0, 0)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
-            .addDataInfo(data -> "State: " + (List.of("casing_conversion", "bravery_crafting").contains(data.getString("operation"))
-                    ? "ACTIVE / PREPARED" : data.getString("required_state")))
-            .addDataInfo(data -> switch (data.getString("operation")) {
-                case "information_collection" -> "Information collection";
-                case "casing_conversion" -> "Casing conversion";
-                case "bravery_crafting" -> "Casing tier " + data.getInt("required_casing_tier") + "; no power";
-                case "preparation_test" -> "Unlock PREPARED; one run";
-                case "essence_production" -> "One essence; one run";
-                default -> "Operation: " + data.getString("operation");
-            })
-            .addDataInfo(data -> switch (data.getString("operation")) {
-                case "preparation_test", "essence_production" -> "Tier 2 + hatch; no power";
-                default -> "Power-free processing";
-            })
-            .addDataInfo(data -> switch (data.getString("operation")) {
-                case "preparation_test", "essence_production" -> "Random: 1–5; any input bus";
-                default -> "Inputs paid at startup";
-            })
-            .addDataInfo(data -> switch (data.getString("operation")) {
-                case "preparation_test", "essence_production" -> "Deadline: 30s/tier (LV–UEV)";
-                default -> "Output requires free space";
-            })
-            .addDataInfo(data -> switch (data.getString("operation")) {
-                case "preparation_test", "essence_production" -> "Pay: finish immediately";
-                default -> "";
-            });
+            .addDataInfo(data -> worldEaterCaption(data, 0))
+            .addDataInfo(data -> worldEaterCaption(data, 1));
+
+    /** Localized line {@code gregecore.world_eater.recipe.<operation>.<line>}; blank when the operation has none. */
+    private static String worldEaterCaption(CompoundTag data, int line) {
+        String key = "gregecore.world_eater.recipe." + data.getString("operation") + "." + line;
+        return Language.getInstance().has(key) ? Component.translatable(key).getString() : "";
+    }
 
     public static GTRecipeType LAUNCH_SAILS = GTRecipeTypes.register("launch_sails", GTRecipeTypes.MULTIBLOCK)
             .setMaxIOSize(3,3,3,3)

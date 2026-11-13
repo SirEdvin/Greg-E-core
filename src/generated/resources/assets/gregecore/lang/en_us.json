@@ -230,5 +230,14 @@
   "gregecore.tooltip.me_demand_hatch.1": "Mirrors the current real-run demand from ME storage and tries one autocraft for missing items.",
   "gregecore.tooltip.me_demand_hatch.2": "No retries; late products stay in ME storage.",
   "gregecore.tooltip.creative_demand_pattern_provider.0": "Creative-only testing tool; no recipe.",
-  "gregecore.tooltip.creative_demand_pattern_provider.1": "Crafts any World Eater demand item from 1 Iron Ingot in 2 seconds."
+  "gregecore.tooltip.creative_demand_pattern_provider.1": "Crafts any World Eater demand item from 1 Iron Ingot in 2 seconds.",
+  "gregecore.world_eater.recipe.information_collection.0": "DORMANT",
+  "gregecore.world_eater.recipe.information_collection.1": "500 machines awaken it",
+  "gregecore.world_eater.recipe.casing_conversion.0": "ACTIVE or PREPARED",
+  "gregecore.world_eater.recipe.bravery_crafting.0": "ACTIVE or PREPARED",
+  "gregecore.world_eater.recipe.bravery_crafting.1": "Tier 2",
+  "gregecore.world_eater.recipe.preparation_test.0": "ACTIVE → PREPARED",
+  "gregecore.world_eater.recipe.preparation_test.1": "Tier 2, hatch, demand",
+  "gregecore.world_eater.recipe.essence_production.0": "PREPARED",
+  "gregecore.world_eater.recipe.essence_production.1": "Tier 2, hatch, demand"
 }

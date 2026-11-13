@@ -87,3 +87,11 @@ The provider SHALL be usable by the ME Demand Hatch's single startup autocraftin
 - **WHEN** a real run starts with an attached ME Demand Hatch on a network holding enough Iron Ingots, a crafting CPU, and the provider, and the demand item is not in stock
 - **THEN** the hatch's single attempt submits a job for the missing quantity
 - **AND** the demand is paid from the delivered items no earlier than 40 ticks after the job starts
+
+### Requirement: Any-side ME connection
+
+The provider SHALL accept AE2 cable connections on every face, regardless of and after changing its facing. Its UI SHALL show only its ME connection state and pending delivery count.
+
+#### Scenario: Cable on a non-front face
+- **WHEN** an ME cable touches the provider on any face other than the front
+- **THEN** the provider joins that ME network and offers its patterns

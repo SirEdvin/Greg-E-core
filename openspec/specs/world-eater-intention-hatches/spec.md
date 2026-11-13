@@ -16,7 +16,7 @@ The system SHALL provide separate placeable Safety Hatch and Bravery Hatch items
 
 ### Requirement: Safety Assembly Line crafting parameters
 
-Safety SHALL have one recipe in the standard Assembly Line producing exactly one hatch with a base duration of 60 seconds and LuV recipe power of 30,720 EU/t. It SHALL NOT require fluids, research, or a research data item. Ordinary Assembly Line power, input ordering, and overclocking behavior SHALL remain unchanged.
+Safety SHALL have one recipe in the standard Assembler producing exactly one hatch with a base duration of 60 seconds and LuV recipe power of 30,720 EU/t. It SHALL NOT require fluids, research, or a research data item, and SHALL have no Assembly Line recipe. Ordinary Assembler power and overclocking behavior SHALL remain unchanged.
 
 #### Scenario: Base crafting parameters
 - **WHEN** the Safety recipe runs continuously at its base voltage without overclocking, with valid inputs and usable output capacity
@@ -24,20 +24,20 @@ Safety SHALL have one recipe in the standard Assembly Line producing exactly one
 - **AND** its power requirement is 30,720 EU/t
 
 #### Scenario: No fluid or research payment
-- **WHEN** a valid Assembly Line is supplied the required items and power, with research enabled but without fluids or a research data item
+- **WHEN** a valid Assembler is supplied the required items and power, with research enabled but without fluids or a research data item
 - **THEN** the Safety recipe can be discovered and started without completing research
 
 #### Scenario: Normal power requirement
-- **WHEN** the Assembly Line cannot supply the required recipe power
+- **WHEN** the Assembler cannot supply the required recipe power
 - **THEN** the hatch recipe does not bypass normal power checks or progress as a power-free recipe
 
 ### Requirement: Fixed Safety machine payment
 
-The Safety recipe SHALL consume exactly eight of each of the sixteen LuV single-block machine identities listed in its payment scenario. All sixteen types SHALL be required together, with no substitutions by another machine type or voltage tier and no additional item payment. The set SHALL remain fixed rather than changing with registry order, optional machines, or future additions.
+The Safety recipe SHALL consume exactly eight of each of the eight LuV single-block machine identities listed in its payment scenario, with no substitutions by another machine type or voltage tier and no additional item payment.
 
 #### Scenario: Complete Safety payment
-- **WHEN** the Assembly Line receives eight of every machine below in its recipe input order
-- **THEN** one Safety Hatch craft consumes exactly those 128 machines
+- **WHEN** the Assembler receives eight of every machine below
+- **THEN** one Safety Hatch craft consumes exactly those 64 machines
 
 | Order | Machine | Required item | Count |
 | --- | --- | --- | --- |
@@ -49,14 +49,6 @@ The Safety recipe SHALL consume exactly eight of each of the sixteen LuV single-
 | 6 | Autoclave | `gtceu:luv_autoclave` | 8 |
 | 7 | Bender | `gtceu:luv_bender` | 8 |
 | 8 | Brewery | `gtceu:luv_brewery` | 8 |
-| 9 | Centrifuge | `gtceu:luv_centrifuge` | 8 |
-| 10 | Chemical Bath | `gtceu:luv_chemical_bath` | 8 |
-| 11 | Chemical Reactor | `gtceu:luv_chemical_reactor` | 8 |
-| 12 | Circuit Assembler | `gtceu:luv_circuit_assembler` | 8 |
-| 13 | Cutter | `gtceu:luv_cutter` | 8 |
-| 14 | Electrolyzer | `gtceu:luv_electrolyzer` | 8 |
-| 15 | Electromagnetic Separator | `gtceu:luv_electromagnetic_separator` | 8 |
-| 16 | Extractor | `gtceu:luv_extractor` | 8 |
 
 #### Scenario: Incomplete or substituted Safety payment
 - **WHEN** any required machine has fewer than eight available, is replaced by another machine or tier, or is absent
@@ -117,23 +109,23 @@ A qualifying book SHALL be a signed written book whose decoded first-page text e
 
 ### Requirement: Reload-safe recipes and understandable presentation
 
-Both hatch recipes SHALL retain matching behavior after recipe reload and server-to-client synchronization. Recipe viewers SHALL display the correct machine, output, counts, duration, power, and input order. Bravery SHALL show its ACTIVE-or-PREPARED tier-2 requirement and first-page phrase without implying a required title or author. The native structure preview SHALL identify the optional hatch position and both variants.
+Both hatch recipes SHALL retain matching behavior after recipe reload and server-to-client synchronization. Recipe viewers SHALL display the correct machine, output, counts, duration and power. Bravery SHALL show its ACTIVE-or-PREPARED tier-2 requirement and first-page phrase without implying a required title or author. The native structure preview SHALL identify the optional hatch position and both variants.
 
 #### Scenario: Reload and synchronization preserve book matching
 - **WHEN** recipes reload and a client reconnects to the server
 - **THEN** both hatch recipes remain available and Bravery still accepts valid books with differing metadata while rejecting invalid books
 
 #### Scenario: Recipe viewer and structure preview
-- **WHEN** a player views Safety's Assembly Line recipe, Bravery's World Eater tamer recipe, and the tamer's structure preview
-- **THEN** Safety shows its sixteen counted machine inputs and LuV power, while Bravery shows one qualifying book, its acknowledgement rule, ACTIVE-or-PREPARED progression, casing tier 2, and power-free processing
+- **WHEN** a player views Safety's Assembler recipe, Bravery's World Eater tamer recipe, and the tamer's structure preview
+- **THEN** Safety shows its eight counted machine inputs and LuV power, while Bravery shows one qualifying book, its acknowledgement rule, ACTIVE-or-PREPARED progression, casing tier 2, and power-free processing
 - **AND** both show a 60-second duration and one matching hatch output
 - **AND** the structure preview presents both intention variants only at the optional rear-center position while retaining that position's existing alternatives
 
 ### Requirement: Timeout-only intention help
 
-Hatch help SHALL explain that a normally expiring unmet real demand destroys only the attached Safety Hatch or, with Bravery, at most one eligible nearby machine. It SHALL describe no collateral damage and no punishment for preparation-test failure or interrupted recipes. Placement, fixed variant identity, and acquisition instructions SHALL remain available.
+Short localized hatch help SHALL state the rear-face-center placement, that a real demand timeout destroys only the attached Safety Hatch or, with Bravery, one nearby machine of the owner's team, and that there is no collateral damage and no punishment for test failures or cancellations.
 
 #### Scenario: Players understand the installed consequence
 - **WHEN** a player inspects either intention hatch's help
-- **THEN** it explains the implemented real-timeout behavior rather than promising only a future policy
+- **THEN** it explains placement and the implemented real-timeout behavior
 - **AND** it does not describe five victims, a damaging area explosion, or punishment for frame breaks or other cancellations

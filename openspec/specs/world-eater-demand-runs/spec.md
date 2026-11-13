@@ -296,7 +296,7 @@ Normal save/load SHALL preserve the run kind, demanded item, quantity, tier, rem
 
 ### Requirement: Demand is visible inside the structure
 
-During a pending challenge, clients SHALL see the demanded item's icon, readable display name, and numerical quantity together inside the structure at its center. The display SHALL reflect server-selected data, remain consistent through suspension and reconnect, and clear after payment, timeout, or cancellation. The native machine UI SHALL report the demand, remaining deadline, progression, and pending-reward status when applicable.
+During a pending challenge, clients SHALL see the demanded item's icon, readable display name, and numerical quantity together inside the structure at its center. The display SHALL reflect server-selected data, remain consistent through suspension and reconnect, and clear after payment, timeout, or cancellation. The native machine UI hint SHALL report the demand and remaining deadline, or the pending reward, when applicable.
 
 #### Scenario: Readable world-space demand
 - **WHEN** a player views a pending challenge from supported horizontal machine orientations
@@ -305,18 +305,17 @@ During a pending challenge, clients SHALL see the demanded item's icon, readable
 
 ### Requirement: Recipes and help explain the challenge
 
-Recipe viewers and machine/hatch help SHALL distinguish the two tokens, ACTIVE test and PREPARED real gates, tier-2/intention requirements, power-free single-run behavior, random demand payment, immediate success, tier-scaled deadlines, and timeout-only consequences. They SHALL NOT imply a fixed demanded component, a mandatory 30-second wait, collateral explosions, or punishment for cancellation. Tamer and ME Demand Hatch help SHALL additionally explain the optional real-run automation, its one startup opportunity, duplicate suppression, fire-and-forget crafting, and unchanged timeout risk. Preparation tests SHALL NOT be presented as automated by this hatch.
+Recipe viewers SHALL distinguish the two tokens, ACTIVE test and PREPARED real gates, tier-2/intention requirements, random demand payment, immediate success and tier-scaled deadlines. Machine and hatch help SHALL be short and localized, and SHALL NOT imply a fixed demanded component, collateral explosions, or punishment for cancellation. Preparation tests SHALL NOT be presented as automated by the ME Demand Hatch.
 
 #### Scenario: Discover the new progression step
 - **WHEN** a player inspects the tamer recipes and intention-hatch help
 - **THEN** the test shows a Desarium gem and preparation outcome, and the real run shows an Implementium gem and one essence ingot
-- **AND** the dynamic demand, deadline rule, Safety sacrifice, single Bravery victim, and harmless interruption behavior are explained without clipped or internal-only captions
+- **AND** the help names each hatch's timeout consequence without clipped or internal-only captions
 
 #### Scenario: Understand the automation upgrade
-- **WHEN** a player inspects the ME Demand Hatch recipe and tamer automation help
+- **WHEN** a player inspects the ME Demand Hatch recipe and help
 - **THEN** the hatch shows one ME Stocking Input Bus plus four normal Tamed world eater essense ingots in a shapeless recipe
-- **AND** the help distinguishes one startup attempt from continuous retries and explains that late job results remain ME stock
-- **AND** existing intention requirements, manual delivery, and timeout consequences are not hidden or described as bypassed
+- **AND** the help states the single autocrafting attempt without retries
 
 ### Requirement: Automation preserves challenge gates and outcomes
 

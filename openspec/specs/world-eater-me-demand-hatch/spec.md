@@ -155,12 +155,12 @@ Payment, timeout, or cancellation SHALL clear the hatch's request and stop furth
 
 ### Requirement: Hatch help explains automation boundaries
 
-The hatch's UI SHALL show its read-only demanded item and quantity when present and its ME connection state. Help SHALL explain placement, the four-ingot recipe, real-run-only use, one startup attempt, duplicate suppression, passive waiting, and fire-and-forget jobs. It SHALL NOT promise guaranteed delivery, continuous retry, or automatic timeout protection.
+The hatch's UI SHALL show only its ME connection state and its read-only demanded item and quantity, or that no real-run demand is present. Short localized help SHALL explain optional placement, real-run-only mirroring, the single autocrafting attempt and that there are no retries. It SHALL NOT promise guaranteed delivery, continuous retry, or automatic timeout protection.
 
 #### Scenario: Inspect the automation hatch
 - **WHEN** a player inspects the hatch and its help while online, offline, idle, and demanding an item
 - **THEN** the displayed demand and connection state are accurate and readable
-- **AND** the player can discover that busy CPUs, missing patterns, and existing jobs can leave the demand unmet without retrying
+- **AND** the help states the single attempt without retries
 
 ### Requirement: AE2 remains an optional integration
 
@@ -174,3 +174,11 @@ Without AE2 installed, the addon and existing tamer behavior SHALL remain usable
 #### Scenario: Launch with AE2
 - **WHEN** client and dedicated server start with the supported AE2 integration
 - **THEN** the hatch registers and its crafting and network behavior are available without client-only classes entering server execution
+
+### Requirement: Any-side ME connection
+
+The hatch SHALL accept AE2 cable connections on every face, regardless of and after changing its facing.
+
+#### Scenario: Cable on a non-front face
+- **WHEN** an ME cable touches the hatch on any face other than the front
+- **THEN** the hatch joins that ME network

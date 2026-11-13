@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gregecore:block/machine/safety_intention_hatch",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gregecore:block/machine/safety_intention_hatch"
+    },
+    "facing=south": {
+      "model": "gregecore:block/machine/safety_intention_hatch",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gregecore:block/machine/safety_intention_hatch",
+      "y": 270
+    }
+  }
+}

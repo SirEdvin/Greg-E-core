@@ -19,7 +19,7 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.StarFeederPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.renderer.renderRegistries.GregERenederRegistries;
-import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.recipe.GregERecipeTypes;
 import net.cu5tmtp.GregECore.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
@@ -207,14 +207,13 @@ public class StarMaykr extends WorkableElectricMultiblockMachine implements IRed
                         .aisle("CDFFFFFFFDC", "D         D", "F         F", "F         F", "F         F", "F         F", "F         F", "F         F", "F         F", "D         D", "CDFFFFFFFDC")
                         .aisle("CCDFFFFFDCC", "CE       EC", "D         D", "F         F", "F         F", "F         F", "F         F", "F         F", "D         D", "CE       EC", "CCDFFFFFDCC")
                         .aisle(" CCDDDDDCC ", "CEE     EEC", "CE       EC", "D         D", "D         D", "D         D", "D         D", "D         D", "CE       EC", "CEE     EEC", " CCDDDDDCC ")
-                        .aisle("  BBBABBB  ", " CCDDDDDCC ", "CCDFFFFFDCC", "CDFFFFFFFDC", "CDFFFFFFFDC", "CDFFFFFFFDC", "CDFFFFFFFDC", "CDFFFFFFFDC", "CCDFFFFFDCC", " CCDDDDDCC ", "  CCCCCCC  ")
+                        .aisle("  CCCACCC  ", " CCDDDDDCC ", "CCDFFFFFDCC", "CDFFFFFFFDC", "CDFFFFFFFDC", "CDFFFFFFFDC", "CDFFFFFFFDC", "CDFFFFFFFDC", "CCDFFFFFDCC", " CCDDDDDCC ", "  CCCCCCC  ")
                         .where('A', Predicates.controller(blocks(definition.getBlock())))
-                        .where('B', Predicates.blocks(GCYMBlocks.CASING_ATOMIC.get())
+                        .where('C', Predicates.blocks(GCYMBlocks.CASING_ATOMIC.get())
                                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2).setPreviewCount(2))
                                 .or(Predicates.abilities(StarFeederPartMachine.getPartAbility()).setMaxGlobalLimited(1).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1).setPreviewCount(1)))
-                        .where('C', Predicates.blocks(GCYMBlocks.CASING_ATOMIC.get()))
                         .where('D', Predicates.blocks(GCYMBlocks.CASING_VIBRATION_SAFE.get()))
                         .where('E', Predicates.blocks(GCYMBlocks.CASING_INDUSTRIAL_STEAM.get()))
                         .where('F', Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("connectedglass:clear_glass"))))

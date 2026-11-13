@@ -71,6 +71,7 @@ public class MultiThreadedRecipeLogic extends RecipeLogic {
         }
 
         if (isSuspend()) return;
+        if (!isWorkingEnabled()) return;
 
         boolean isWorking = false;
 

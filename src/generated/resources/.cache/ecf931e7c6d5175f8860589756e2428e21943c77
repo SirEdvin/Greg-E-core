@@ -1,4 +1,4 @@
-// 1.20.1	2026-08-29T16:08:39.9049495	Registrate Provider for gregecore [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.20.1	2026-10-27T22:21:06.0522807	Registrate Provider for gregecore [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 b3c78504318281555d96db9c7eab46d9091cf7bc assets/gregecore/blockstates/acceleratedebf.json
 624b7a3f9d408815e2f0474a1b95487f10f6ec43 assets/gregecore/blockstates/advanced_coolant_input_machine.json
 b5deca0f2f21cbbe20bf59893ff42cc80e314ab7 assets/gregecore/blockstates/advanced_heater_input_machine.json
@@ -14,9 +14,11 @@ a897d6c9f0c54882d4ac108317b0132888d46faf assets/gregecore/blockstates/atomic_eng
 5149abd834c886a1a94c53cc2acfb5fabcb4909c assets/gregecore/blockstates/autassemblyline.json
 d39974070ab0633c779fa72e45bf9636d9dc4b2f assets/gregecore/blockstates/awakened_draconium_coil.json
 67c5e302372a8b9604d3d417ca0d0bf169997d93 assets/gregecore/blockstates/bacteria_input_machine.json
+465988e277b68d302165b9b367b008e92909eb76 assets/gregecore/blockstates/bigchemical.json
 a61cb0a69e1418a9b71d47c3028e0c4046513df5 assets/gregecore/blockstates/bigfreezer.json
 68409167270562283e21e82cde476261c6c85d84 assets/gregecore/blockstates/bloodcathedral.json
 da8faf0f64d91687f0fcb6ddda437ae71be88128 assets/gregecore/blockstates/blood_storage_machine.json
+e05efd330866dc1dff219da66e5114b1164970d5 assets/gregecore/blockstates/convergencematrix.json
 c48b3a1afecf8664dec91c5b7bb5b2f2a454b25b assets/gregecore/blockstates/coolant_input_machine.json
 7e047bd2bf1cfa1d61b0bb34407cd15727e124c7 assets/gregecore/blockstates/coolant_output_machine.json
 8eb81398e191e2bbc0690bcd81aa6a8655fdeaa4 assets/gregecore/blockstates/deep_space_explorer.json
@@ -95,12 +97,13 @@ ca247348b271cdf45803beb0db958b74c558d64f assets/gregecore/blockstates/starmaykr.
 fa01b6d90c95b9959ccef7653cf8e498a5f0de3a assets/gregecore/blockstates/superelement_coil.json
 294417fea6517c56ad8286ad642d122f385d271c assets/gregecore/blockstates/terra_input_machine.json
 dbdaed3bea5ecadd222d9717e4234a6b4f394d3f assets/gregecore/blockstates/threading_one_machine.json
+57011a4902e59f724223cb8866820b7ca720e92b assets/gregecore/blockstates/threading_one_overlcock_machine.json
 8e20978841d3a51b3e180b1fc93e2d0e1dd3c90c assets/gregecore/blockstates/threading_three_machine.json
 8c9c4604d58077ce4cf9f78d22b5696d1f04c9c0 assets/gregecore/blockstates/threading_two_machine.json
 e5837a7a2f3ad102feb94b87b41c3d8c1b408d99 assets/gregecore/blockstates/twilight_coil.json
 1af622f1f41ecf9ca0b7f1da355673262c21dc57 assets/gregecore/blockstates/vibration_engine_intake.json
-85b2d401a89d7083c6e675810003d4db45b3926a assets/gregecore/lang/en_ud.json
-e685800705e7d826efdce06c6e315267ef7eb2f8 assets/gregecore/lang/en_us.json
+d2fae0d18895cd0a53f7ca8eae6e9014dfaf2416 assets/gregecore/lang/en_ud.json
+2406ec824b37b1588a169332b1e77f6038b744eb assets/gregecore/lang/en_us.json
 d0d40ce346a144fb0402f20755852211b19e9538 assets/gregecore/models/block/assembly_engine_intake.json
 a9561563c39e10400268c97ac9783bff175a3ca9 assets/gregecore/models/block/assembly_engine_intake_active.json
 efe345e03fe00196c60542bafe5b989e8c89f7c4 assets/gregecore/models/block/atomic_engine_intake.json
@@ -126,9 +129,11 @@ e40839a13984cb2bbe1a6d3e2ccb96a14d9a4e43 assets/gregecore/models/block/machine/a
 a3791c1c57289abb38f7a164e167cbd137d4e15f assets/gregecore/models/block/machine/assemblyhall.json
 e5ed8ab6ababc23c48ee7ef0f43a7beae3dcc2ae assets/gregecore/models/block/machine/autassemblyline.json
 1412a7b40a05213cd6a7fe161ae8c4be786b71d2 assets/gregecore/models/block/machine/bacteria_input_machine.json
+eae9bcaa6f76705581480d17eb5a639ffaa54c44 assets/gregecore/models/block/machine/bigchemical.json
 f36652b13e66f38e3a63d5e10027d204d8b445a8 assets/gregecore/models/block/machine/bigfreezer.json
 8e84cca641919944d11720a84c8fb1d608158d4d assets/gregecore/models/block/machine/bloodcathedral.json
 6c8312517aec74b765e38d969cdd414f794b8fb8 assets/gregecore/models/block/machine/blood_storage_machine.json
+154698a22dffd063cbd42afc0b57e30f7d3b0a66 assets/gregecore/models/block/machine/convergencematrix.json
 88b05c33d3b231484a8469b291da2c24981800dd assets/gregecore/models/block/machine/coolant_input_machine.json
 3dfbe58d5c7d1760659b2e4c700d5f67ba098084 assets/gregecore/models/block/machine/coolant_output_machine.json
 c9c28509b2b72ee12d3ad18c0622d8d8655c7667 assets/gregecore/models/block/machine/deep_space_explorer.json
@@ -196,6 +201,7 @@ f0d589f40d66cb78a96fa8749262eea9474855f4 assets/gregecore/models/block/machine/s
 ec70df107fef0e9e8f3c190d67fbea1c9d99b8c2 assets/gregecore/models/block/machine/star_feeder.json
 e05336b31616606a78bf44c095391f30cba52f6c assets/gregecore/models/block/machine/terra_input_machine.json
 a36eac2a83e04c494e2e003e150f1e63557907f8 assets/gregecore/models/block/machine/threading_one_machine.json
+e0a24e559ef31853a990afd4f997e56ee211d49f assets/gregecore/models/block/machine/threading_one_overlcock_machine.json
 49efe68ba84f477278791c918dfd202f4145f687 assets/gregecore/models/block/machine/threading_three_machine.json
 7a37ab24eddf6a2bb94c1117d66bac66221a976f assets/gregecore/models/block/machine/threading_two_machine.json
 6784116963c708d99da2c246d03977144046d000 assets/gregecore/models/block/malachite_coil.json
@@ -232,9 +238,11 @@ d7e23f0b29c4f30f21db5dbd15aac181084c1740 assets/gregecore/models/item/atomic_eng
 5de4d814e61e274e9e805bff2293bfe26b19bd1f assets/gregecore/models/item/autassemblyline.json
 833f58216cd4eb5c3589406aafa356f35c35daaa assets/gregecore/models/item/awakened_draconium_coil.json
 6d53ccdc67f0f049432b2c29c6358fa0e3889561 assets/gregecore/models/item/bacteria_input_machine.json
+7ac0d47bac9ccccc14d95f6ae89ca1f4c422c41f assets/gregecore/models/item/bigchemical.json
 04135f363f7f728a3e658af4f852c46e427836ab assets/gregecore/models/item/bigfreezer.json
 095b6a0bce8b0a5c9df20fa4cb8243eb808fc6a1 assets/gregecore/models/item/bloodcathedral.json
 e45c3d36861a407e7c22e30698b25a1dd1bb9029 assets/gregecore/models/item/blood_storage_machine.json
+90ae1fa8d5ce20a56606059b0ec8b371fb4a4fdb assets/gregecore/models/item/convergencematrix.json
 58b2ed0cf8378cb0c11c3470ec06056afef2cc57 assets/gregecore/models/item/coolant_input_machine.json
 a508d12a35fb7f28be04dc27172cb2b48da45eb6 assets/gregecore/models/item/coolant_output_machine.json
 52bbd9dde5b16b2158e0470d7685685bb645ceb2 assets/gregecore/models/item/deep_space_explorer.json
@@ -312,6 +320,7 @@ bb0a4f6568f0d2ded0700ae0719c0c80fe58ee44 assets/gregecore/models/item/specialize
 17c4677240553012d70c1d4905991c871d72de50 assets/gregecore/models/item/superelement_coil.json
 bfe1d0fef0f739512736a8dab0f67fe37b3bfc24 assets/gregecore/models/item/terra_input_machine.json
 cd617013a21883ef36ede211a6ffa0bb3da75b09 assets/gregecore/models/item/threading_one_machine.json
+3be8a124e8898f2936acf71e08b0126babaf6a05 assets/gregecore/models/item/threading_one_overlcock_machine.json
 8090e0ce47f997d4cbfbddaf82705b52f7834f5a assets/gregecore/models/item/threading_three_machine.json
 919f27320cc4292d25aff432b5c6c8abdc4b5cd5 assets/gregecore/models/item/threading_two_machine.json
 0ba4b9e746ff15bb1c48058eed71d36ac5c5da78 assets/gregecore/models/item/twilight_coil.json

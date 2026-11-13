@@ -1,6 +1,7 @@
 package net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.dyson;
 
 import com.gregtechceu.gtceu.GTCEu;
+import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.data.RotationState;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
@@ -12,8 +13,8 @@ import com.gregtechceu.gtceu.common.data.GCYMBlocks;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.managers.DysonSwarmManager;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.misc.DysonSwarmEnergyOutputPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.renderer.renderRegistries.GregERenederRegistries;
-import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregEModifiers;
-import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.recipe.GregEModifiers;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.recipe.GregERecipeTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -80,6 +81,11 @@ public class DysonSwarmEnergyCollector extends WorkableElectricMultiblockMachine
             .tooltips(Component.translatable("info.gregecore.dashline"))
             .tooltips(Component.translatable("info.gregecore.dysoncollector3").withStyle(style -> style.withColor(0x90EE90)))
             .register();
+
+    @Override
+    public boolean canVoidRecipeOutputs(RecipeCapability<?> capability) {
+        return true;
+    }
 
     @Override
     public void addDisplayText(@NotNull List<Component> textList) {

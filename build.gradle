@@ -154,6 +154,10 @@ repositories {
     maven {
         url = "https://api.modrinth.com/maven"
     }
+    maven {
+        url = 'https://modmaven.dev'
+        content { includeGroup 'appeng' }
+    }
 }
 
 dependencies {
@@ -166,6 +170,11 @@ dependencies {
     implementation fg.deobf("com.gregtechceu.gtceu:gtceu-$project.minecraft_version:7.5.2") { transitive = false }
 
     implementation fg.deobf("com.lowdragmc.ldlib:ldlib-forge-1.20.1:1.0.40.b") { transitive = false }
+
+    compileOnly fg.deobf('appeng:appliedenergistics2-forge:15.0.18') { transitive = false }
+    if (providers.gradleProperty('withAE2').getOrElse('true').toBoolean()) {
+        runtimeOnly fg.deobf('appeng:appliedenergistics2-forge:15.0.18') { transitive = false }
+    }
 
     compileOnly fg.deobf("com.tterrag.registrate:Registrate:MC1.20-1.3.11")
 

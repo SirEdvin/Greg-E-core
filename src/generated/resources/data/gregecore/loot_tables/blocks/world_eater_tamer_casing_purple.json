@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gregecore:world_eater_tamer_casing_purple"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gregecore:blocks/world_eater_tamer_casing_purple"
+}

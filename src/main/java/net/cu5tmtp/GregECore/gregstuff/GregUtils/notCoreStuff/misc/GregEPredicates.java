@@ -1,4 +1,4 @@
-package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff;
+package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.misc;
 
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;

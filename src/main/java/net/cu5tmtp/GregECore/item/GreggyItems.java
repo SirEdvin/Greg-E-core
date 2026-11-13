@@ -13,6 +13,7 @@ public class GreggyItems {
     public static Material DEIONIZED_WATER, SUPERHEATED_SOLAR;
     public static Material MANASTEEL_CABLE, TWILIGHT_ALLOY_CABLE, DESH_CABLE, MALACHITE_CABLE, FORGOTTEN_INGOT_CABLE, BLOOD_INFUSED_CABLE, BACTERIAL_MATTER_CABLE, DRACONIUM_CABLE;
     public static Material AER, AQUA, IGNIS, TERRA, ORDO, PERDITIO;
+    public static Material DESARIUM, IMPLEMENTIUM, TAMED_WORLD_EATER_ESSENSE;
 
     public static Material DESH_ROTOR, MALACHITE_ROTOR;
 
@@ -27,6 +28,13 @@ public class GreggyItems {
     }
 
     public static void register(){
+        DESARIUM = new Material.Builder(GregECore.id("desarium"))
+                .gem().color(0x9B59B6).iconSet(MaterialIconSet.DIAMOND).buildAndRegister();
+        IMPLEMENTIUM = new Material.Builder(GregECore.id("implementium"))
+                .gem().color(0x38A65A).iconSet(MaterialIconSet.EMERALD).buildAndRegister();
+        TAMED_WORLD_EATER_ESSENSE = new Material.Builder(GregECore.id("tamed_world_eater_essense"))
+                .ingot().color(0x3B1656).iconSet(MaterialIconSet.SHINY).buildAndRegister();
+
         //items
         MYTHRIL = new Material.Builder(GregECore.id("mythril"))
                 .ingot()

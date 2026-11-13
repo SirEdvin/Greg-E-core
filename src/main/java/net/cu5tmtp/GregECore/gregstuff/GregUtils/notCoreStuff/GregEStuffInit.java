@@ -12,6 +12,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.GiantAlloy
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.LearningAcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.endgame.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.misc.*;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.BigChemicalReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.EnhancedFusionReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.FissionReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.GiantChemicalReactor;
@@ -26,6 +27,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.essentiaParts.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.misc.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.parallel.AdvancedParallelBoosterPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.parallel.ParallelBoosterPartMachine;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT1OverclockPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT1PartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT2PartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT3PartMachine;
@@ -65,10 +67,16 @@ public class GregEStuffInit {
         GenesisCrucibleCases.init();
         AssemblyHall.init();
         PrecisionFabricationArray.init();
+        IncompleteWorldEaterTamer.init();
         QuantumSynergizer.init();
+        ConvergenceMatrix.init();
+        BigChemicalReactor.init();
     }
 
     public static void initGregEParts(){
+        IntentionHatchPartMachine.init();
+        if (com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded()) MEDemandHatchPartMachine.init();
+        if (com.gregtechceu.gtceu.GTCEu.Mods.isAE2Loaded()) CreativeDemandPatternProviderMachine.init();
         StarFeederPartMachine.init();
         ParallelBoosterPartMachine.init();
         AdvancedParallelBoosterPartMachine.init();
@@ -89,6 +97,7 @@ public class GregEStuffInit {
         PerditioInputPartMachine.init();
         CoolantOutputPartMachine.init();
         ThreadT1PartMachine.init();
+        ThreadT1OverclockPartMachine.init();
         ThreadT2PartMachine.init();
         ThreadT3PartMachine.init();
         PressurePartMachine.init();

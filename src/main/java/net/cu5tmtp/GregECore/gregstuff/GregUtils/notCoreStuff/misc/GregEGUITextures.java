@@ -1,4 +1,4 @@
-package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff;
+package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.misc;
 
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
 
@@ -38,4 +38,7 @@ public class GregEGUITextures {
 
     public static final ResourceTexture ALTAR = new ResourceTexture(
             "gregecore:textures/progress/altar.png");
+
+    public static final ResourceTexture MATRIX = new ResourceTexture(
+            "gregecore:textures/progress/matrix.png");
 }

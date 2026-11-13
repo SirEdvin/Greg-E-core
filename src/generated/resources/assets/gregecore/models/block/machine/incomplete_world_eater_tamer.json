@@ -1,0 +1,103 @@
+{
+  "parent": "minecraft:block/block",
+  "dynamic_renders": [
+    {
+      "type": "gregecore:world_eater_parts"
+    }
+  ],
+  "loader": "gtceu:machine",
+  "machine": "gregecore:incomplete_world_eater_tamer",
+  "texture_overrides": {
+    "all": "gregecore:block/casings/world_eater/black"
+  },
+  "variants": {
+    "is_formed=false,recipe_logic_status=idle": {
+      "model": {
+        "parent": "gregecore:block/world_eater_controller_template",
+        "textures": {
+          "all": "gregecore:block/casings/world_eater/black",
+          "glow": "gregecore:block/casings/world_eater/black_emissive",
+          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
+          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
+        }
+      }
+    },
+    "is_formed=false,recipe_logic_status=suspend": {
+      "model": {
+        "parent": "gregecore:block/world_eater_controller_template",
+        "textures": {
+          "all": "gregecore:block/casings/world_eater/black",
+          "glow": "gregecore:block/casings/world_eater/black_emissive",
+          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
+          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
+        }
+      }
+    },
+    "is_formed=false,recipe_logic_status=waiting": {
+      "model": {
+        "parent": "gregecore:block/world_eater_controller_template",
+        "textures": {
+          "all": "gregecore:block/casings/world_eater/black",
+          "glow": "gregecore:block/casings/world_eater/black_emissive",
+          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
+          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
+        }
+      }
+    },
+    "is_formed=false,recipe_logic_status=working": {
+      "model": {
+        "parent": "gregecore:block/world_eater_controller_template",
+        "textures": {
+          "all": "gregecore:block/casings/world_eater/black",
+          "glow": "gregecore:block/casings/world_eater/black_emissive",
+          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
+          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
+        }
+      }
+    },
+    "is_formed=true,recipe_logic_status=idle": {
+      "model": {
+        "parent": "gregecore:block/world_eater_controller_template",
+        "textures": {
+          "all": "gregecore:block/casings/world_eater/black",
+          "glow": "gregecore:block/casings/world_eater/black_emissive",
+          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
+          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
+        }
+      }
+    },
+    "is_formed=true,recipe_logic_status=suspend": {
+      "model": {
+        "parent": "gregecore:block/world_eater_controller_template",
+        "textures": {
+          "all": "gregecore:block/casings/world_eater/black",
+          "glow": "gregecore:block/casings/world_eater/black_emissive",
+          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front",
+          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_emissive"
+        }
+      }
+    },
+    "is_formed=true,recipe_logic_status=waiting": {
+      "model": {
+        "parent": "gregecore:block/world_eater_controller_template",
+        "textures": {
+          "all": "gregecore:block/casings/world_eater/black",
+          "glow": "gregecore:block/casings/world_eater/black_emissive",
+          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
+          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
+        }
+      }
+    },
+    "is_formed=true,recipe_logic_status=working": {
+      "model": {
+        "parent": "gregecore:block/world_eater_controller_template",
+        "textures": {
+          "all": "gregecore:block/casings/world_eater/black",
+          "glow": "gregecore:block/casings/world_eater/black_emissive",
+          "overlay_front": "gtceu:block/multiblock/research_station/overlay_front_active",
+          "overlay_front_emissive": "gtceu:block/multiblock/research_station/overlay_front_active_emissive"
+        }
+      }
+    }
+  }
+}

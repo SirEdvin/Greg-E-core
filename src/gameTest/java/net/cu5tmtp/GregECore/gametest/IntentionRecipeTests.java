@@ -30,8 +30,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 @PrefixGameTestTemplate(false)
 public class IntentionRecipeTests {
     static final String[] SAFETY_INPUTS = {"electric_furnace", "macerator", "alloy_smelter", "arc_furnace", "assembler",
-            "autoclave", "bender", "brewery", "centrifuge", "chemical_bath", "chemical_reactor", "circuit_assembler",
-            "cutter", "electrolyzer", "electromagnetic_separator", "extractor"};
+            "autoclave", "bender", "brewery"};
 
     static ItemStack book(int author, String page) {
         var book = BraveryBookIngredient.exampleBook();
@@ -51,7 +50,7 @@ public class IntentionRecipeTests {
     }
 
     static GTRecipe recipe(net.minecraft.world.level.Level level, boolean safety) {
-        return (GTRecipe) level.getRecipeManager().byKey(GregECore.id((safety ? "assembly_line/" : "world_eater_tamer/")
+        return (GTRecipe) level.getRecipeManager().byKey(GregECore.id((safety ? "assembler/" : "world_eater_tamer/")
                 + (safety ? "safety" : "bravery") + "_intention_hatch")).orElseThrow();
     }
 
@@ -104,7 +103,7 @@ public class IntentionRecipeTests {
     }
 
     static void assertRecipe(GameTestHelper helper, GTRecipe recipe, boolean safety) {
-        helper.assertTrue(recipe.recipeType == (safety ? GTRecipeTypes.ASSEMBLY_LINE_RECIPES : GregERecipeTypes.WORLD_EATER_TAMER), "Correct acquisition machine");
+        helper.assertTrue(recipe.recipeType == (safety ? GTRecipeTypes.ASSEMBLER_RECIPES : GregERecipeTypes.WORLD_EATER_TAMER), "Correct acquisition machine");
         helper.assertTrue(recipe.duration == 1200 && RecipeHelper.getRealEUt(recipe).getTotalEU() == (safety ? GTValues.VA[GTValues.LuV] : 0), "Base duration and machine-specific power");
         helper.assertTrue(recipe.conditions.isEmpty(), "No research or other hidden condition");
         helper.assertTrue(!recipe.inputs.containsKey(FluidRecipeCapability.CAP)
@@ -116,7 +115,7 @@ public class IntentionRecipeTests {
                 && recipe.data.getInt("required_casing_tier") == 2
                 && recipe.data.getString("operation").equals("bravery_crafting"), "ACTIVE tier-2 ordinary craft");
         var inputs = recipe.getInputContents(ItemRecipeCapability.CAP);
-        helper.assertTrue(inputs.size() == (safety ? 16 : 1), "Ordered input entry count");
+        helper.assertTrue(inputs.size() == (safety ? 8 : 1), "Ordered input entry count");
         for (int i = 0; i < inputs.size(); i++) {
             Ingredient input = ItemRecipeCapability.CAP.of(inputs.get(i).content);
             var candidates = input.getItems();
@@ -133,7 +132,8 @@ public class IntentionRecipeTests {
 
     @GameTest(template = "empty", batch = "loadedRecipeContracts")
     public static void loadedRecipeContracts(GameTestHelper helper) {
-        helper.assertTrue(helper.getLevel().getRecipeManager().byKey(GregECore.id("assembly_line/bravery_intention_hatch")).isEmpty(), "No obsolete Assembly Line Bravery recipe");
+        for (var obsolete : new String[]{"assembly_line/bravery_intention_hatch", "assembly_line/safety_intention_hatch"})
+            helper.assertTrue(helper.getLevel().getRecipeManager().byKey(GregECore.id(obsolete)).isEmpty(), "No obsolete Assembly Line recipe: " + obsolete);
         for (var loaded : helper.getLevel().getRecipeManager().getAllRecipesFor(GregERecipeTypes.WORLD_EATER_TAMER)) {
             var captions = loaded.recipeType.getDataInfos().stream().map(info -> info.apply(loaded.data)).toList();
             helper.assertTrue(captions.stream().noneMatch(java.util.Objects::isNull), "All tamer recipes retain renderable JEI captions: " + loaded.id);

@@ -206,7 +206,7 @@ final class IntentionClientChecks {
         for (boolean safety : new boolean[]{true, false}) {
             var recipe = IntentionRecipeTests.recipe(client.level, safety);
             var inputs = recipe.getInputContents(ItemRecipeCapability.CAP);
-            require(inputs.size() == (safety ? 16 : 1) && recipe.duration == 1200
+            require(inputs.size() == (safety ? 8 : 1) && recipe.duration == 1200
                     && RecipeHelper.getRealEUt(recipe).getTotalEU() == (safety ? 30720 : 0), "Synchronized input count/duration/power");
             if (!safety) require(!recipe.hasTick() && recipe.data.getString("required_state").equals("ACTIVE")
                     && recipe.data.getInt("required_casing_tier") == 2, "Synchronized power-free ACTIVE tier-2 gate");

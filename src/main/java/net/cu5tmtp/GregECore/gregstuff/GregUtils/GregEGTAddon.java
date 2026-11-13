@@ -57,7 +57,7 @@ public class GregEGTAddon implements IGTAddon {
                 .outputItems(ChemicalHelper.get(TagPrefix.ingot, GreggyItems.TAMED_WORLD_EATER_ESSENSE))
                 .duration(600).addData("required_state", "PREPARED").addData("required_casing_tier", 2)
                 .addData("operation", WorldEaterTamerRecipeLogic.REAL_OPERATION).save(provider);
-        GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder(GregECore.id("safety_intention_hatch"))
+        GTRecipeTypes.ASSEMBLER_RECIPES.recipeBuilder(GregECore.id("safety_intention_hatch"))
                 .inputItems(GTMachines.ELECTRIC_FURNACE[GTValues.LuV], 8)
                 .inputItems(GTMachines.MACERATOR[GTValues.LuV], 8)
                 .inputItems(GTMachines.ALLOY_SMELTER[GTValues.LuV], 8)
@@ -66,14 +66,6 @@ public class GregEGTAddon implements IGTAddon {
                 .inputItems(GTMachines.AUTOCLAVE[GTValues.LuV], 8)
                 .inputItems(GTMachines.BENDER[GTValues.LuV], 8)
                 .inputItems(GTMachines.BREWERY[GTValues.LuV], 8)
-                .inputItems(GTMachines.CENTRIFUGE[GTValues.LuV], 8)
-                .inputItems(GTMachines.CHEMICAL_BATH[GTValues.LuV], 8)
-                .inputItems(GTMachines.CHEMICAL_REACTOR[GTValues.LuV], 8)
-                .inputItems(GTMachines.CIRCUIT_ASSEMBLER[GTValues.LuV], 8)
-                .inputItems(GTMachines.CUTTER[GTValues.LuV], 8)
-                .inputItems(GTMachines.ELECTROLYZER[GTValues.LuV], 8)
-                .inputItems(GTMachines.ELECTROMAGNETIC_SEPARATOR[GTValues.LuV], 8)
-                .inputItems(GTMachines.EXTRACTOR[GTValues.LuV], 8)
                 .outputItems(IntentionHatchPartMachine.SAFETY)
                 .duration(1200).EUt(GTValues.VA[GTValues.LuV]).save(provider);
         GregERecipeTypes.WORLD_EATER_TAMER.recipeBuilder(GregECore.id("bravery_intention_hatch"))

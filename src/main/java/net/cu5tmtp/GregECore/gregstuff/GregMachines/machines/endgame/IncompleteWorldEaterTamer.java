@@ -135,23 +135,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                 builder.addTextureOverride("all", GregECore.id("block/casings/world_eater/black"));
                 builder.addDynamicRenderer(WorldEaterPartRender::new);
             })
-            .tooltips(Component.literal("Collects infrastructure information without power."),
-                    Component.literal("Scans the surrounding 9×9 chunks over 120 seconds."),
-                    Component.literal("A complete survey of at least 500 machines awakens the tamer."),
-                    Component.literal("Frame: black World Eater Tamer Casing; inner rings: any World Eater casing color."),
-                    Component.literal("Any black inner-ring casing: tier 1; all colored: tier 2. Reversible; progression is retained."),
-                    Component.literal("ACTIVE or PREPARED: 1 black casing + 16 matching terracotta → 1 colored casing in 5 seconds."),
-                    Component.literal("ACTIVE or PREPARED, tier 2: 1 signed acknowledgement book → 1 Bravery Hatch in 60 seconds, without power."),
-                    Component.literal("Tier 2 + intention: Desarium tests ACTIVE → PREPARED; Implementium produces essence in PREPARED."),
-                    Component.literal("Deliver the displayed 1–5 items to any input bus for immediate success; no power or fluids."),
-                    Component.literal("Deadline: 30 seconds per voltage tier (LV–UEV); quantity does not change it."),
-                    Component.literal("Only real timeout has consequences: Safety sacrifices itself; Bravery sacrifices one of your team's nearby machines. No collateral damage."),
-                    Component.literal("Test failures and interrupted runs are harmless. Preparation is permanent."),
-                    Component.literal("Accepts one optional parallel hatch; only casing conversions run in parallel."),
-                    Component.literal("Optional Safety or Bravery Hatch: rear face center, opposite the controller."))
-            .tooltips(Component.literal("Optional ME Demand Hatch: one at any ordinary frame I/O position, for real runs only."),
-                    Component.literal("One startup autocrafting attempt for missing demand; existing matching jobs suppress it. No retries."),
-                    Component.literal("Fire-and-forget jobs finish into ME storage, even after the run ends. Deadlines and timeout risks are unchanged."))
+            .tooltips(GregECore.tooltips("world_eater_tamer", 6))
             .register();
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
@@ -232,11 +216,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
     @Override
     public void addDisplayText(List<Component> text) {
         IDisplayUIMachine.super.addDisplayText(text);
-        if (getCasingTier() == 2) text.add(Component.literal("Casing tier: 2"));
-        var logic = (WorldEaterTamerRecipeLogic) getRecipeLogic();
-        text.add(logic.getCustomProgressLine());
-        if (logic.getProgressionState() == WorldEaterTamerRecipeLogic.State.DORMANT)
-            text.add(logic.getCurrentChunkLine());
+        if (isFormed()) text.add(((WorldEaterTamerRecipeLogic) getRecipeLogic()).getCustomProgressLine());
     }
 
     @Override

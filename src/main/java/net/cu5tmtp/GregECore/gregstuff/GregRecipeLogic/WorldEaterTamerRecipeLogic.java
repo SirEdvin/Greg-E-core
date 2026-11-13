@@ -167,11 +167,6 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     @Nullable
     public ChunkPos getCurrentChunk() { return scanning ? new ChunkPos(scanChunkX, scanChunkZ) : null; }
 
-    public Component getCurrentChunkLine() {
-        return scanning ? Component.translatable("gregecore.world_eater.current_chunk", scanChunkX, scanChunkZ)
-                : Component.translatable("gregecore.world_eater.no_current_chunk");
-    }
-
     private void updateCurrentChunk() {
         int scanned = progress - elapsedDelays;
         scanning = domain != null && !reportPending && scanned >= 0 && scanned < SCAN_TICKS;
@@ -622,18 +617,20 @@ public class WorldEaterTamerRecipeLogic extends RecipeLogic {
     @Override
     public boolean hasCustomProgressLine() { return true; }
 
+    /** The single next step toward real runs; casing tier and intention are only valid on the server. */
     @Override
     public Component getCustomProgressLine() {
-        if (rewardPending) return Component.literal("State: " + progression + " | Essence earned — output pending");
-        if (!demand.isEmpty()) return Component.literal("State: " + progression + " | Demand: " + demand.getCount() + " x ")
-                .append(demand.getHoverName()).append(" | Deadline: " + (Math.max(0, duration - progress) + 19) / 20 + "s remaining");
-        if (progression != State.DORMANT) {
-            return Component.literal("State: " + progression + " | " + (lastRecipe != null && duration > 0
-                    ? "Craft: " + progress + "/" + duration + " | Parallels: " + lastRecipe.parallels : "Idle"));
-        }
-        return Component.literal("State: " + progression + (reportPending ? " | Report pending" :
-                " | Scan: " + Math.max(0, progress - elapsedDelays) + "/" + SCAN_TICKS)
-                + (retryPending ? " | Retry " + attempts + "/" + MAX_RETRIES + ", delay " + delayRemaining + " ticks" : ""));
+        String hint = "gregecore.world_eater.hint.";
+        if (rewardPending) return Component.translatable(hint + "reward");
+        if (reportPending) return Component.translatable(hint + "report");
+        if (!demand.isEmpty()) return Component.translatable(hint + "demand", demand.getCount(), demand.getHoverName(),
+                (Math.max(0, duration - progress) + 19) / 20);
+        if (progression == State.DORMANT) return scanning
+                ? Component.translatable(hint + "surveying", Math.max(0, progress - elapsedDelays) * 100 / SCAN_TICKS)
+                : Component.translatable(hint + "survey");
+        if (controller.getCasingTier() != REQUIRED_TIER) return Component.translatable(hint + "casing");
+        if (controller.getIntention() == Intention.NONE) return Component.translatable(hint + "intention");
+        return Component.translatable(hint + (progression == State.ACTIVE ? "test" : "real"));
     }
 
     @Override

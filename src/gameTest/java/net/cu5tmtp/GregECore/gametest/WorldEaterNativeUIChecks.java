@@ -98,8 +98,8 @@ public final class WorldEaterNativeUIChecks {
                         + ": " + logic.getCustomProgressLine().getString()); done = true; }
                 return;
             }
-            if (stage == 2 && !logic.getCurrentChunkLine().getString().contains("X " + logic.getCurrentChunk().x))
-                failures.add("Current chunk translation did not resolve on native client");
+            if (stage == 2 && !logic.getCustomProgressLine().getString().startsWith("Surveying nearby machines"))
+                failures.add("Survey hint translation did not resolve on native client");
             screenshot(client, "ui-" + stage + ".png");
             stage++;
             if (stage < 3) client.getSingleplayerServer().execute(() -> {

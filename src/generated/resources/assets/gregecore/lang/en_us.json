@@ -1,7 +1,5 @@
 {
   "config.jade.plugin_gregecore.multithread_info": "Multithreaded Machine Information",
-  "gregecore.world_eater.current_chunk": "Currently scanning chunk: X %s, Z %s",
-  "gregecore.world_eater.no_current_chunk": "Currently scanning chunk: none",
   "block.gregecore.acceleratedebf": "§lAccelerated EBF§g",
   "block.gregecore.giantacceleratedebf": "§lGiant Accelerated EBF§g",
   "block.gregecore.giantchr": "§lGiant Chemical Reactor§g",
@@ -57,7 +55,6 @@
   "block.gregecore.safety_intention_hatch": "Safety Hatch",
   "block.gregecore.bravery_intention_hatch": "Bravery Hatch",
   "gtceu.world_eater_tamer": "World Eater tamer",
-
   "gtceu.pfarraycraft": "Precision Fabrication Array",
   "gtceu.recipe.cleanroom_dimensional.display_name": "Dimensional Simulator",
   "gtceu.infusion_altar_infusing": "Infusing",
@@ -80,7 +77,6 @@
   "gtceu.gccrafting": "Genesis Crucible",
   "gtceu.assemblyhall": "Assembly Hall",
   "gtceu.antimassspectro": "Anti-Mass Spectrometer",
-
   "block.gregecore.dyswarmoutput_machine": "Dyson Swarm Energy Output",
   "block.gregecore.dyswarmoutputeuclid_machine": "Euclid Dyson Swarm Energy Output",
   "block.gregecore.dimension_maintenance_hatch": "Dimensional Simulator Maintenance Hatch",
@@ -133,7 +129,6 @@
   "block.gregecore.grege_heat_sink_component": "Greg-E Active Cooling Component",
   "block.gregecore.grege_computation_component": "Greg-E Computation Component",
   "block.gregecore.dimensional_filter_casing": "Dimensional Filter Casing",
-
   "item.gregecore.energy_bacteria": "Energy Bacteria",
   "item.gregecore.parallel_bacteria": "Parallel Bacteria",
   "item.gregecore.speed_bacteria": "Speed Bacteria",
@@ -161,10 +156,8 @@
   "item.gregecore.tinyblood": "Tiny Drop Of Blood",
   "item.gregecore.mediumblood": "Drop Of Blood",
   "item.gregecore.largeblood": "Large Drop Of Blood",
-
   "item.gregecore.wand_of_puppetry": "Wand of Awakening",
   "entity.gregecore.animated_block": "Awakened Block",
-
   "material.gregecore.franklinite": "Franklinite",
   "material.gregecore.desarium": "Desarium",
   "material.gregecore.implementium": "Implementium",
@@ -174,11 +167,9 @@
   "material.gregecore.lithium_amalgamation": "Lithium Amalgamation",
   "material.gregecore.lithium_hydroxide": "Lithium Hydroxide",
   "material.gregecore.plutonium_hexafluoride": "Plutonium Hexafluoride",
-
   "material.gregecore.deionized_water": "Deionized Water",
   "material.gregecore.molten_franklinite": "Molten Franklinite",
   "material.gregecore.molten_mythril": "Molten Mythril",
-
   "material.gregecore.manasteel_cable": "Manasteel",
   "material.gregecore.desh_cable": "Desh",
   "material.gregecore.forgotten_ingot_cable": "Forgotten Ingot",
@@ -188,7 +179,6 @@
   "material.gregecore.bacterial_matter_cable": "Bacterial Matter",
   "material.gregecore.draconium_cable": "Draconium",
   "material.gregecore.awakened_draconium_cable": "Awakened Draconium",
-
   "material.gregecore.quadractik_gas": "Quadractik Gas",
   "material.gregecore.quenzin": "Quenzin Gas",
   "material.gregecore.verci_54": "Verci-54 Gas",
@@ -198,7 +188,6 @@
   "material.gregecore.jelenogas_gas": "Jelenogas Gas",
   "material.gregecore.superheated_solar": "Superheated Solar Plasma",
   "material.gregecore.superelement27": "Superelement-27",
-
   "material.gregecore.aer_essentia": "Aer",
   "material.gregecore.aqua_essentia": "Aqua",
   "material.gregecore.ignis_essentia": "Ignis",
@@ -210,5 +199,36 @@
   "block.gregecore.world_eater_tamer_casing_orange": "Very Dark Orange World Eater Casing",
   "block.gregecore.world_eater_tamer_casing_purple": "Dark Purple World Eater Casing",
   "block.gregecore.creative_demand_pattern_provider": "Creative Demand Pattern Provider",
-  "block.gregecore.me_demand_hatch": "ME Demand Hatch"
+  "block.gregecore.me_demand_hatch": "ME Demand Hatch",
+  "gregecore.world_eater.hint.reward": "Free output space for the earned essence",
+  "gregecore.world_eater.hint.report": "Free output space for the survey report",
+  "gregecore.world_eater.hint.demand": "Deliver %s x %s within %ss",
+  "gregecore.world_eater.hint.survey": "Insert an IV Sensor to survey nearby machines (500 needed)",
+  "gregecore.world_eater.hint.surveying": "Surveying nearby machines: %s%%",
+  "gregecore.world_eater.hint.casing": "Replace the casings in the middle with colored ones to upgrade to tier 2",
+  "gregecore.world_eater.hint.intention": "Install a Safety or Bravery Hatch at the rear face center",
+  "gregecore.world_eater.hint.test": "Insert Desarium to run the preparation test",
+  "gregecore.world_eater.hint.real": "Ready: insert Implementium for real runs",
+  "gregecore.me.online": "ME network: online",
+  "gregecore.me.offline": "ME network: offline",
+  "gregecore.me_demand_hatch.demand": "Demand: %s x %s",
+  "gregecore.me_demand_hatch.no_demand": "No real-run demand",
+  "gregecore.creative_demand_pattern_provider.pending": "Pending deliveries: %s",
+  "gregecore.tooltip.world_eater_tamer.0": "Surveys machines in the surrounding 9×9 chunks; 500 awaken the tamer.",
+  "gregecore.tooltip.world_eater_tamer.1": "Frame: black World Eater Tamer Casing; inner rings: any World Eater casing color.",
+  "gregecore.tooltip.world_eater_tamer.2": "Any black inner-ring casing: tier 1; all colored: tier 2.",
+  "gregecore.tooltip.world_eater_tamer.3": "Tier 2 + intention hatch: Desarium tests ACTIVE → PREPARED; Implementium makes essence.",
+  "gregecore.tooltip.world_eater_tamer.4": "Deliver the displayed demand to any input bus before the deadline.",
+  "gregecore.tooltip.world_eater_tamer.5": "Optional: one parallel hatch, one ME Demand Hatch, and an intention hatch at the rear face center.",
+  "gregecore.tooltip.safety_intention_hatch.0": "Optional World Eater tamer part: rear face center, opposite the controller.",
+  "gregecore.tooltip.safety_intention_hatch.1": "A real demand timeout destroys this hatch.",
+  "gregecore.tooltip.safety_intention_hatch.2": "No collateral damage; test failures and cancellations are harmless.",
+  "gregecore.tooltip.bravery_intention_hatch.0": "Optional World Eater tamer part: rear face center, opposite the controller.",
+  "gregecore.tooltip.bravery_intention_hatch.1": "A real demand timeout destroys one nearby machine of your team instead.",
+  "gregecore.tooltip.bravery_intention_hatch.2": "No collateral damage; test failures and cancellations are harmless.",
+  "gregecore.tooltip.me_demand_hatch.0": "Optional World Eater tamer part: one per frame, at any I/O position.",
+  "gregecore.tooltip.me_demand_hatch.1": "Mirrors the current real-run demand from ME storage and tries one autocraft for missing items.",
+  "gregecore.tooltip.me_demand_hatch.2": "No retries; late products stay in ME storage.",
+  "gregecore.tooltip.creative_demand_pattern_provider.0": "Creative-only testing tool; no recipe.",
+  "gregecore.tooltip.creative_demand_pattern_provider.1": "Crafts any World Eater demand item from 1 Iron Ingot in 2 seconds."
 }

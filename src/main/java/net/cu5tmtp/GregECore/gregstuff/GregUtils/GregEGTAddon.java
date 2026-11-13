@@ -19,7 +19,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.MEDemandHatchP
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterReport;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterScanDomain;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
-import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.recipe.GregERecipeTypes;
 import java.util.Map;
 import java.util.function.Consumer;
 

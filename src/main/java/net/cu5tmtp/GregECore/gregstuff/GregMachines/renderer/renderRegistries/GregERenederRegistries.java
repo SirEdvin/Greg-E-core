@@ -59,6 +59,9 @@ public class GregERenederRegistries {
     public static final ResourceLocation ROBOTICFABRICATOR_ID =
             new ResourceLocation("gregecore", "roboticfabricatorender");
 
+    public static final ResourceLocation CONVERGENCE_ID =
+            new ResourceLocation("gregecore", "convergencerender");
+
     public static DynamicRender<?, ?> createEnhancedFusionRingRender() {
         return new EnhancedFusionRingRender();
     }
@@ -85,8 +88,8 @@ public class GregERenederRegistries {
     public static DynamicRender<?, ?> createPressureChamberRender() { return new PressureChamberRender(); }
     public static DynamicRender<?, ?> createCathedralRender() { return new BloodCathedralRender(); }
     public static DynamicRender<?, ?> createGenesisCrucibleRender() { return new GCRender(); }
-
     public static DynamicRender<?, ?> createRoboticFabricatorRender() { return new QuantumSynergizerRender(); }
+    public static DynamicRender<?, ?> createConvergenceMatrixRender() { return new ConvergenceMatrixRender(); }
 
 
 
@@ -110,6 +113,7 @@ public class GregERenederRegistries {
         DynamicRenderManager.register(ResourceLocation.parse("gregecore:world_eater_parts"), WorldEaterPartRender.TYPE);
         DynamicRenderManager.register(GENESISC_ID, GCRender.TYPE);
         DynamicRenderManager.register(ROBOTICFABRICATOR_ID, QuantumSynergizerRender.TYPE);
+        DynamicRenderManager.register(CONVERGENCE_ID, ConvergenceMatrixRender.TYPE);
 
         EnhancedFusionRingRender.init();
         StarMaykrRender.init();
@@ -128,5 +132,6 @@ public class GregERenederRegistries {
         BloodCathedralRender.init();
         GCRender.init();
         QuantumSynergizerRender.init();
+        ConvergenceMatrixRender.init();
     }
 }

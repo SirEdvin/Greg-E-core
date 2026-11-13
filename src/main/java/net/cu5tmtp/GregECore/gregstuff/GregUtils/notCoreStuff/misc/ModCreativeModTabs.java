@@ -1,4 +1,4 @@
-package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff;
+package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.misc;
 
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
@@ -16,6 +16,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.GiantAlloy
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.LearningAcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.endgame.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.misc.*;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.BigChemicalReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.EnhancedFusionReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.FissionReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.GiantChemicalReactor;
@@ -29,6 +30,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.essentiaParts.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.misc.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.parallel.AdvancedParallelBoosterPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.parallel.ParallelBoosterPartMachine;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT1OverclockPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT1PartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT2PartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT3PartMachine;
@@ -90,6 +92,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(RealityFractureEngine.REALITYFRACTUREENGINE.getItem());
                         pOutput.accept(AscencionAltar.ASCENCION_ALTAR.getItem());
                         pOutput.accept(GiantChemicalReactor.GIANTCHR.getItem());
+                        pOutput.accept(BigChemicalReactor.BIGCHR.getItem());
                         pOutput.accept(DysonSwarmLauncher.DYSON_SWARM_LAUNCHER.getItem());
                         pOutput.accept(DysonSwarmEnergyCollector.DYSON_SWARM_LAUNCHER.getItem());
                         pOutput.accept(LearningAcceleratedEBF.LEARNING_ACC_EBF.getItem());
@@ -97,6 +100,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(FornaxUniversi.FORNAX_UNIVERSI.getItem());
                         pOutput.accept(FissionReactor.FISSIONREACTOR.getItem());
                         pOutput.accept(SpecializedAssemblyLine.SPECIALIZED_ASSEMBLY_LINE.getItem());
+                        pOutput.accept(AntiMassSpectrometer.ANTIMASSSPECTROMETER.getItem());
                         pOutput.accept(GiantAlloyBlastSmelter.GIANT_ABS.getItem());
                         pOutput.accept(SpaceElevator.SPACE_ELEVATOR.getItem());
                         pOutput.accept(InfusionAltar.INFUSION_ALTAR.getItem());
@@ -125,6 +129,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(GreggyBlocks.WORLD_EATER_TAMER_CASING_PURPLE);
                         pOutput.accept(GreggyBlocks.WORLD_EATER_TAMER_CASING_GREEN);
                         pOutput.accept(GreggyBlocks.WORLD_EATER_TAMER_CASING_ORANGE);
+                        pOutput.accept(ConvergenceMatrix.CONVERGENCEMATRIX.getItem());
 
                         for (MachineDefinition box : UHVMultiRegistry.ALL_MACHINES) {
                             pOutput.accept(box.getItem());
@@ -144,6 +149,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(CoolantInputPartMachine.COOLANT_INPUT_MACHINE.getItem());
                         pOutput.accept(CoolantOutputPartMachine.COOLANT_OUTPUT_MACHINE.getItem());
                         pOutput.accept(ThreadT1PartMachine.THREADING_1_MACHINE.getItem());
+                        pOutput.accept(ThreadT1OverclockPartMachine.THREADING_1_O_MACHINE.getItem());
                         pOutput.accept(ThreadT2PartMachine.THREADING_2_MACHINE.getItem());
                         pOutput.accept(ThreadT3PartMachine.THREADING_3_MACHINE.getItem());
                         pOutput.accept(TerraInputPartMachine.TERRA_INPUT_MACHINE.getItem());

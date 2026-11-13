@@ -25,7 +25,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.coolant.AdvancedCoolan
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.AdvancedHeaterInputPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.renderer.renderRegistries.GregERenederRegistries;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
-import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.recipe.GregERecipeTypes;
 import net.cu5tmtp.GregECore.item.GreggyItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
@@ -209,13 +209,13 @@ public class EnhancedFusionReactor extends WorkableElectricMultiblockMachine imp
             .appearanceBlock(GCYMBlocks.CASING_ATOMIC)
             .pattern(definition -> {
                 return FactoryBlockPattern.start()
-                        .aisle("             ", "    GGEGG    ", "    HHEHH    ", "    GGEGG    ", "             ")
-                        .aisle("    GGEGG    ", "   G     G   ", "   H     H   ", "   G     G   ", "    GGEGG    ")
-                        .aisle("   GHHEHHG   ", "  D       D  ", "  H   F   H  ", "  D       D  ", "   GHHEHHG   ")
-                        .aisle("  GHGGEGGHG  ", " G         G ", " H         H ", " G         G ", "  GHGGEGGHG  ")
-                        .aisle(" GHGG   GGHG ", "G    GEG    G", "H    GEG    H", "G    GEG    G", " GHGG   GGHG ")
+                        .aisle("             ", "    GGBGG    ", "    HHBHH    ", "    GGBGG    ", "             ")
+                        .aisle("    GGBGG    ", "   G     G   ", "   H     H   ", "   G     G   ", "    GGBGG    ")
+                        .aisle("   GHHBHHG   ", "  D       D  ", "  H   F   H  ", "  D       D  ", "   GHHBHHG   ")
+                        .aisle("  GHGGBGGHG  ", " G         G ", " H         H ", " G         G ", "  GHGGBGGHG  ")
+                        .aisle(" GHGG   GGHG ", "G    GBG    G", "H    GBG    H", "G    GBG    G", " GHGG   GGHG ")
                         .aisle(" GHG     GHG ", "G   G   G   G", "H   G   G   H", "G   G   G   G", " GHG     GHG ")
-                        .aisle(" EEE     EEE ", "E   E   E   E", "E F E   E F E", "E   E   E   E", " EEE     EEE ")
+                        .aisle(" BBB     BBB ", "B   B   B   B", "B F B   B F B", "B   B   B   B", " BBB     BBB ")
                         .aisle(" GHG     GHG ", "G   G   G   G", "H   G   G   H", "G   G   G   G", " GHG     GHG ")
                         .aisle(" GHGG   GGHG ", "G    GBG    G", "H    GBG    H", "G    GBG    G", " GHGG   GGHG ")
                         .aisle("  GHGGBGGHG  ", " G         G ", " H         H ", " G         G ", "  GHGGBGGHG  ")
@@ -232,7 +232,6 @@ public class EnhancedFusionReactor extends WorkableElectricMultiblockMachine imp
                                 .or(Predicates.abilities(AdvancedCoolantInputPartMachine.getPartAbility()).setMaxGlobalLimited(1).setPreviewCount(1))
                                 .or(Predicates.abilities(AdvancedHeaterInputPartMachine.getPartAbility()).setMaxGlobalLimited(1).setPreviewCount(1)))
                         .where('D', Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("gregecore:atomic_engine_intake"))))
-                        .where('E', Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("gregecore:draconiumfusion"))))
                         .where('F', Predicates.blocks(GTBlocks.FUSION_COIL.get()))
                         .where('G', Predicates.blocks(GCYMBlocks.CASING_ATOMIC.get()))
                         .where('H', Predicates.blocks(GTBlocks.FUSION_GLASS.get()))

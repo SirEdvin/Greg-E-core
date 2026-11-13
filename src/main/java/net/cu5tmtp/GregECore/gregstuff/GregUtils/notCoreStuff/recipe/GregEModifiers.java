@@ -1,4 +1,4 @@
-package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff;
+package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.recipe;
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.chillers.BigFreezer;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.chillers.EnhancedBlastChiller;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.dyson.DysonSwarmEnergyCollector;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.ConvergenceMatrix;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.QuantumSynergizer;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.AcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.GiantAcceleratedEBF;
@@ -18,7 +19,12 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.misc.PressureChambe
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.FissionReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.GiantChemicalReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.managers.DysonSwarmManager;
+import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.MultiThreadedRecipeLogic;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+
+import java.util.List;
 
 public class GregEModifiers {
 
@@ -209,6 +215,33 @@ public class GregEModifiers {
         return ModifierFunction.builder()
                 .durationMultiplier(speed)
                 .build();
+    }
+
+    public static ModifierFunction convergingMatrixBoost(
+            MetaMachine machine, GTRecipe recipe) {
+
+        if (!(machine instanceof ConvergenceMatrix cm)) {
+            return ModifierFunction.NULL;
+        }
+
+        if (!(cm.getRecipeLogic() instanceof MultiThreadedRecipeLogic logic) || !logic.isMultiThreaded()) {
+            return ModifierFunction.IDENTITY;
+        }
+
+        var threads = logic.getActiveThreads();
+
+        boolean hasActiveThreads = !threads.isEmpty();
+
+        boolean startupThreadActive = threads.stream().anyMatch(thread -> thread.duration == 100);
+
+        if (!hasActiveThreads) return recipe.duration <= 100 ? ModifierFunction.IDENTITY : ModifierFunction.NULL;
+        if (recipe.duration <= 100) return ModifierFunction.NULL;
+
+        if (startupThreadActive) return ModifierFunction.builder()
+                .durationMultiplier(0.000001d)
+                .build();
+
+        return ModifierFunction.IDENTITY;
     }
 
     public static ModifierFunction deepSpaceExplorerRocketBoost(MetaMachine machine, GTRecipe recipe){

@@ -1,4 +1,4 @@
-package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff;
+package net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.recipe;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.common.data.GTSoundEntries;
 import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture;
 import com.lowdragmc.lowdraglib.gui.widget.PhantomSlotWidget;
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.misc.GregEGUITextures;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
@@ -233,6 +234,12 @@ public class GregERecipeTypes {
             .setMaxIOSize(6,1,0,0)
             .setEUIO(IO.IN)
             .setProgressBar(GregEGUITextures.PRECISION_ARRAY_PROGRESS, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+            .setSound(GTSoundEntries.ASSEMBLER);
+
+    public static GTRecipeType CONVERGINGMATRIXXX = GTRecipeTypes.register("convergingmatrixxx", "euclid")
+            .setMaxIOSize(9,1,0,0)
+            .setEUIO(IO.IN)
+            .setProgressBar(GregEGUITextures.MATRIX, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.ASSEMBLER);
 
     public static GTRecipeType DUMMYRECIPE = GTRecipeTypes.register("dummydontuse", GTRecipeTypes.MULTIBLOCK)

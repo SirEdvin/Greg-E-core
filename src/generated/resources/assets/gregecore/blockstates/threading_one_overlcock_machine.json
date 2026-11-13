@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gregecore:block/machine/threading_one_overlcock_machine",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gregecore:block/machine/threading_one_overlcock_machine"
+    },
+    "facing=south": {
+      "model": "gregecore:block/machine/threading_one_overlcock_machine",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gregecore:block/machine/threading_one_overlcock_machine",
+      "y": 270
+    }
+  }
+}

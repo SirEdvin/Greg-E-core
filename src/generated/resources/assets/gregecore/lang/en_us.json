@@ -543,7 +543,7 @@
   "gregecore.me_demand_hatch.demand": "Demand: %s x %s",
   "gregecore.me_demand_hatch.no_demand": "No real-run demand",
   "gregecore.creative_demand_pattern_provider.pending": "Pending deliveries: %s",
-  "gregecore.tooltip.world_eater_tamer.0": "Taming a World Eater is not an easy task, for those who are brave",
+  "gregecore.tooltip.world_eater_tamer.0": "Taming a World Eater is not an easy or simple task, but a steady mind and dedication bring results",
   "gregecore.tooltip.world_eater_tamer.1": "To start, build it in the center of your factory with enough machines around it and follow the instructions from the controller",
   "gregecore.tooltip.safety_intention_hatch.0": "Compressed factory that can potentially work as a lightning rod",
   "gregecore.tooltip.safety_intention_hatch.1": "Use this intention hatch if you like safety",

@@ -138,7 +138,7 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                 builder.addDynamicRenderer(WorldEaterPartRender::new);
             })
             .tooltips(REGISTRATE.addRawLang("gregecore.tooltip.world_eater_tamer.0",
-                            "Taming a World Eater is not an easy task, for those who are brave").withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC),
+                            "Taming a World Eater is not an easy or simple task, but a steady mind and dedication bring results").withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC),
                     REGISTRATE.addRawLang("gregecore.tooltip.world_eater_tamer.1",
                             "To start, build it in the center of your factory with enough machines around it and follow the instructions from the controller"))
             .register();

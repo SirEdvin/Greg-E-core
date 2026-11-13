@@ -28,6 +28,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -47,7 +48,9 @@ public class CreativeDemandPatternProviderMachine extends MEBusPartMachine imple
             .tier(GTValues.LuV)
             .rotationState(RotationState.ALL)
             .colorOverlayTieredHullModel(GTCEu.id("block/overlay/appeng/me_buffer_hatch"))
-            .tooltips(GregECore.tooltips("creative_demand_pattern_provider", 2))
+            .tooltips(REGISTRATE.addRawLang("gregecore.tooltip.creative_demand_pattern_provider.0",
+                    "Cursed machine, created by evil programmers, that exists only for testing purposes")
+                    .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC))
             .register();
 
     private static List<IPatternDetails> patterns;

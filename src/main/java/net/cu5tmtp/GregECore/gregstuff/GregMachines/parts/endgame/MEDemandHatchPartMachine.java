@@ -16,6 +16,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
@@ -73,7 +74,10 @@ public class MEDemandHatchPartMachine extends MEStockingBusPartMachine {
             .abilities(DEMAND)
             .modelProperty(GTMachineModelProperties.IS_FORMED, false)
             .colorOverlayTieredHullModel(GregECore.id("block/overlay/me_demand"))
-            .tooltips(GregECore.tooltips("me_demand_hatch", 3))
+            .tooltips(REGISTRATE.addRawLang("gregecore.tooltip.me_demand_hatch.0",
+                            "Really? Automation of challenges? In my automation modpack?").withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC),
+                    REGISTRATE.addRawLang("gregecore.tooltip.me_demand_hatch.1",
+                            "The simplest way to properly automate World Eater tamer runs: it requests the demanded items and even schedules crafting jobs for them automatically."))
             .register();
 
     public MEDemandHatchPartMachine(IMachineBlockEntity holder, Object... args) {

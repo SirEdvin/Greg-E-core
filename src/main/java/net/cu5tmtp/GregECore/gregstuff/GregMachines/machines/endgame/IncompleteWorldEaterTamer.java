@@ -37,7 +37,9 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.renderer.thingsToRender.Worl
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterTamerRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.WorldEaterLang;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -135,7 +137,10 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
                 builder.addTextureOverride("all", GregECore.id("block/casings/world_eater/black"));
                 builder.addDynamicRenderer(WorldEaterPartRender::new);
             })
-            .tooltips(GregECore.tooltips("world_eater_tamer", 6))
+            .tooltips(REGISTRATE.addRawLang("gregecore.tooltip.world_eater_tamer.0",
+                            "Taming a World Eater is not an easy task, for those who are brave").withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC),
+                    REGISTRATE.addRawLang("gregecore.tooltip.world_eater_tamer.1",
+                            "To start, build it in the center of your factory with enough machines around it and follow the instructions from the controller"))
             .register();
 
     public IncompleteWorldEaterTamer(IMachineBlockEntity holder, Object... args) { super(holder, args); }
@@ -234,5 +239,5 @@ public class IncompleteWorldEaterTamer extends WorkableMultiblockMachine impleme
         return new ModularUI(198, 208, this, player).widget(new FancyMachineUIWidget(this, 198, 208));
     }
 
-    public static void init() {}
+    public static void init() { WorldEaterLang.init(); }
 }

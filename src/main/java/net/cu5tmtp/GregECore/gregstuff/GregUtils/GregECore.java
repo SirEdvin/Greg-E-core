@@ -84,13 +84,6 @@ public class GregECore {
         return new ResourceLocation(MOD_ID, path);
     }
 
-    /** Numbered lang-key tooltip lines {@code gregecore.tooltip.<name>.0..count-1}. */
-    public static net.minecraft.network.chat.Component[] tooltips(String name, int count) {
-        var lines = new net.minecraft.network.chat.Component[count];
-        for (int i = 0; i < count; i++) lines[i] = net.minecraft.network.chat.Component.translatable("gregecore.tooltip." + name + "." + i);
-        return lines;
-    }
-
     private void registerGregERecipeTypes(GTCEuAPI.RegisterEvent<ResourceLocation, GTRecipeType> event) {
         GregERecipeTypes.init();
     }

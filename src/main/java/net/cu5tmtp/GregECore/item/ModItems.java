@@ -1,5 +1,6 @@
 package net.cu5tmtp.GregECore.item;
 
+import net.cu5tmtp.GregECore.wandOfPuppetry.AVARITIAWandOfPuppetry;
 import net.cu5tmtp.GregECore.wandOfPuppetry.WandOfPuppetry;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -99,8 +100,10 @@ public class ModItems {
     public static final RegistryObject<Item> LARGEBLOOD = ITEMS.register("largeblood",
             () -> new Item(new Item.Properties()));
 
-    public static final RegistryObject<Item> WAND_OF_PUPPETRY = ITEMS.register("wand_of_puppetry",
-            () -> new WandOfPuppetry(new Item.Properties().stacksTo(1).durability(64)));
+    //public static final RegistryObject<Item> WAND_OF_PUPPETRY = ITEMS.register("wand_of_puppetry", () -> new WandOfPuppetry(new Item.Properties().stacksTo(1).durability(64)));
+
+    public static final RegistryObject<Item> AVARITIA_WAND_OF_PUPPETRY = ITEMS.register("avaritia_wand_of_puppetry",
+            () -> new AVARITIAWandOfPuppetry(new Item.Properties().stacksTo(1).durability(64)));
     
 }
 

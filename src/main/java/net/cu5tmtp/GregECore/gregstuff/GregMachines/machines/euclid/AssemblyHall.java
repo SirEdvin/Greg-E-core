@@ -124,14 +124,12 @@ public class AssemblyHall extends WorkableElectricMultiblockMachine {
                     GTCEu.id("block/casings/gcym/stress_proof_casing"),
                     GTCEu.id("block/multiblock/distillation_tower")
             )
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Pressure Assembly").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("An erratic piece of technology, seemingly incapable of compacting outer machine shells on its own. " +
-                    "Providing a physical outline might assist the process.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Each recipe requires a specific 3x3x3 hollow cube to be built inside the structure (indicated by red blocks in the preview). " +
-                    "Place the required blocks in this exact location; the machine will consume them upon activation. The recipe can't start without it.").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.assemblyhall1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.assemblyhall2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.assemblyhall3").withStyle(style -> style.withColor(0x90EE90)))
             .register();
 
     public static void init() {

@@ -41,7 +41,7 @@ public class PedestalPartMachine extends ItemBusPartMachine {
                         new ConfiguredModel(customModel)
                 );
             })
-            .tooltips(Component.literal("Use this to input items to Infusion Altar.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.pedestal1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
 

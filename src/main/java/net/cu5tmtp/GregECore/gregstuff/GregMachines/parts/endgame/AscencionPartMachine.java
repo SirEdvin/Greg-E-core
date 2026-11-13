@@ -8,6 +8,8 @@ import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.ItemBusPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
 
@@ -28,6 +30,7 @@ public class AscencionPartMachine extends ItemBusPartMachine {
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(AscencionPartMachine.ASCENCION_HOLDER)
             .workableCasingModel(GregECore.id("block/blankrune"), GregECore.id("block/overlay/feeder"))
+            .tooltips(Component.translatable("info.gregecore.tome1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
     public static void init() {
     }

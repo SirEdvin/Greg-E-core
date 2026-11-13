@@ -34,10 +34,10 @@ public class GregERecipeTypes {
         return Language.getInstance().has(key) ? Component.translatable(key).getString() : "";
     }
 
-    public static GTRecipeType LAUNCH_SAILS = GTRecipeTypes.register("launch_sails", GTRecipeTypes.MULTIBLOCK)
-            .setMaxIOSize(3,3,3,3)
+    public static GTRecipeType LAUNCH_SAILS = GTRecipeTypes.register("launch_sails", "dyson")
+            .setMaxIOSize(2,1,0,0)
             .setEUIO(IO.IN)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_FUSION, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+            .setProgressBar(GregEGUITextures.SAILUP, ProgressTexture.FillDirection.DOWN_TO_UP)
             .setSound(GTSoundEntries.COOLING)
             .addDataInfo(data -> {
                 if (data.contains("sailMultiplier")) {
@@ -57,10 +57,10 @@ public class GregERecipeTypes {
                 return null;
             });
 
-    public static GTRecipeType GET_SOLAR_SAIL_ENERGY = GTRecipeTypes.register("get_solar_sail_energy", GTRecipeTypes.MULTIBLOCK)
-            .setMaxIOSize(3,3,3,3)
+    public static GTRecipeType GET_SOLAR_SAIL_ENERGY = GTRecipeTypes.register("get_solar_sail_energy", "dyson")
+            .setMaxIOSize(1,1,0,0)
             .setEUIO(IO.OUT)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_FUSION, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+            .setProgressBar(GregEGUITextures.ENERGYIN, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.TURBINE);
 
     public static GTRecipeType INFUSION_ALTAR_INFUSING = GTRecipeTypes.register("infusion_altar_infusing", GTRecipeTypes.MULTIBLOCK)
@@ -68,6 +68,12 @@ public class GregERecipeTypes {
             .setEUIO(IO.IN)
             .setProgressBar(GuiTextures.PROGRESS_BAR_FUSION, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.FIRE);
+
+    public static GTRecipeType ROBOTICFABRICATION = GTRecipeTypes.register("robotic_fabrication", "euclid")
+            .setMaxIOSize(21,1,0,0)
+            .setEUIO(IO.IN)
+            .setProgressBar(GregEGUITextures.QUANTUM, ProgressTexture.FillDirection.DOWN_TO_UP)
+            .setSound(GTSoundEntries.ASSEMBLER);
     
     public static GTRecipeType STAR_MAYKR_SINGULARITIES = GTRecipeTypes.register("star_maykr_singularities", "endgame")
             .setMaxIOSize(9,1,0,0)
@@ -188,9 +194,9 @@ public class GregERecipeTypes {
             });
 
     public static GTRecipeType GCCRAFTING = GTRecipeTypes.register("gccrafting", "euclid")
-            .setMaxIOSize(6,3,3,3)
+            .setMaxIOSize(6,1,3,0)
             .setEUIO(IO.IN)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW_MULTIPLE, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+            .setProgressBar(GregEGUITextures.GCCRAFT, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.ASSEMBLER)
             .addDataInfo(data -> {
                 if (data.contains("insertedc")) {
@@ -206,7 +212,7 @@ public class GregERecipeTypes {
                                 case "genesiscruciblecaseone" -> "D";
                                 case "genesiscruciblecasetwo" -> "K";
                                 case "genesiscruciblecasethree" -> "G";
-                                case "genesiscruciblecasefour" -> "Placeholder 4";
+                                case "genesiscruciblecasefour" -> "X";
                                 default -> internalName;
                             };
 
@@ -248,10 +254,10 @@ public class GregERecipeTypes {
                 return null;
             });
 
-    public static GTRecipeType ASCENCION_ALTAR_DONATION = GTRecipeTypes.register("ascention_altar_donation", GTRecipeTypes.MULTIBLOCK)
+    public static GTRecipeType ASCENCION_ALTAR_DONATION = GTRecipeTypes.register("ascention_altar_donation", "endgame")
             .setMaxIOSize(9,1,0,0)
             .setEUIO(IO.IN)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+            .setProgressBar(GregEGUITextures.ALTAR, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.FIRE)
             .addDataInfo(data -> {
                 if (data.contains("tome")){

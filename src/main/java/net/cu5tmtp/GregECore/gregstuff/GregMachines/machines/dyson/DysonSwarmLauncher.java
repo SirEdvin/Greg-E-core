@@ -105,13 +105,12 @@ public class DysonSwarmLauncher extends WorkableElectricMultiblockMachine {
                     GTCEu.id("block/casings/hpca/computer_casing/front"),
                     GTCEu.id("block/multiblock/fusion_reactor"))
                     .andThen(b -> b.addDynamicRenderer(GregERenederRegistries::createDysonSwarmLauncherRender)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Dyson Swarm Launcher").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This machine launches solar sails into the sun orbit. Depending on the number of launched sails, " +
-                    "various boosts are given to Dyson Swarm Energy Collector.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Energy output is multiplied by the amount of sails shot.").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.dysonlauncher1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.dysonlauncher2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.dysonlauncher3").withStyle(style -> style.withColor(0x90EE90)))
             .register();
 
 
@@ -129,7 +128,7 @@ public class DysonSwarmLauncher extends WorkableElectricMultiblockMachine {
                 currentSails = manager.getTotalSails();
             }
 
-            textList.add(Component.literal("Solar sails in orbit:").withStyle(ChatFormatting.GREEN));
+            textList.add(Component.translatable("info.gregecore.dysonlauncher4").withStyle(ChatFormatting.GREEN));
             textList.add(Component.literal("" + (int) currentSails).withStyle(ChatFormatting.AQUA));
         }
     }

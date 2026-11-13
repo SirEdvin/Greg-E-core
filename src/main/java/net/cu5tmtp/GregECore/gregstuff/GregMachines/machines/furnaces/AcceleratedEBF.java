@@ -15,13 +15,9 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT1PartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.MultiThreadedRecipeLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregEModifiers;
-import net.cu5tmtp.GregECore.tag.ModTag;
-import net.minecraft.core.BlockPos;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregEPredicates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -54,48 +50,7 @@ public class AcceleratedEBF extends WorkableElectricMultiblockMachine {
                 }
             }
         }
-        this.checkCoil();
-    }
-
-    private void checkCoil() {
-        Level level = getLevel();
-        if (level == null || level.isClientSide) return;
-
-        var back = getFrontFacing().getOpposite();
-
-        BlockPos scanStart = getPos().above().relative(back);
-
-        java.util.Set<Block> foundCoils = new java.util.HashSet<>();
-
-        for (int y = 0; y <= 1; y++) {
-            BlockPos currentCenter = scanStart.above(y);
-
-            for (int x = -1; x <= 1; x++) {
-                for (int z = -1; z <= 1; z++) {
-                    if (x == 0 && z == 0) continue;
-
-                    BlockPos coilPos = currentCenter.offset(x, 0, z);
-                    Block block = level.getBlockState(coilPos).getBlock();
-
-                    foundCoils.add(block);
-                }
-            }
-        }
-
-        if (foundCoils.size() != 1) {
-            this.coilTemp = 0;
-            return;
-        }
-
-        Block coilBlock = foundCoils.iterator().next();
-        String registryName = ForgeRegistries.BLOCKS.getKey(coilBlock).toString();
-
-        this.coilTemp = switch (registryName) {
-            case "gregecore:manasteel_coil" -> 1800;
-            case "gregecore:twilight_coil"  -> 3600;
-            case "gregecore:desh_coil"      -> 5400;
-            default -> 0;
-        };
+        this.coilTemp = GregEPredicates.getMagicalCoilTemperature(getMultiblockState().getMatchContext());
     }
 
     @Override
@@ -104,6 +59,8 @@ public class AcceleratedEBF extends WorkableElectricMultiblockMachine {
         if (getRecipeLogic() instanceof MultiThreadedRecipeLogic logic) {
             logic.setMultiThreaded(false);
         }
+
+        this.coilTemp = 0;
         super.onStructureInvalid();
     }
 
@@ -137,24 +94,22 @@ public class AcceleratedEBF extends WorkableElectricMultiblockMachine {
                                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2))
                                 .or(Predicates.abilities(ThreadT1PartMachine.getPartAbility()).setMaxGlobalLimited(1).setPreviewCount(1)))
                         .where('C', Predicates.abilities(PartAbility.MUFFLER).setMaxGlobalLimited(1))
-                        .where('D', Predicates.blockTag(ModTag.Blocks.MAGICAL_COILS_T1))
+                        .where('D', GregEPredicates.tierOneMagicalCoils())
                         .where(' ', Predicates.any())
 
                         .build();
             })
             .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_heatproof"),
                                  GTCEu.id("block/multiblock/electric_blast_furnace"))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Perfect Overclock, Magical Coils and Threading").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Avaible coils: Manasteel, Twilight and Desh").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("The machine starts speeding up with the power of the magic remnants in the coils." +
-                    " Depending on the coil, the machine speeds up faster. The coils tell you the exact amount of recipe time reduction.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("The machine only accepts 16 of the same coil. Do not mix them. After the machine forms, " +
-                    "you can see activated Magical Coil abilities in the controller.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Accepts Threading Core T1.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.aebf1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.aebf2").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline").withStyle(s -> s.withColor(0xff0000)))
+            .tooltips(Component.translatable("info.gregecore.aebf3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.aebf4").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.threading1"))
             .tooltips()
             .register();
 
@@ -173,12 +128,12 @@ public class AcceleratedEBF extends WorkableElectricMultiblockMachine {
                 }
             }
 
-            textList.add(Component.literal("Coil temperature: " + coilTemp + "K").withStyle(ChatFormatting.AQUA));
+            textList.add(Component.translatable("info.gregecore.aebf5").append(coilTemp + "K").withStyle(ChatFormatting.AQUA));
             switch (coilTemp){
-                case 1800 -> textList.add(Component.literal("Recipes are shortened by 15%." ).withStyle(ChatFormatting.GREEN));
-                case 3600 -> textList.add(Component.literal("Recipes are shortened by 30%.").withStyle(ChatFormatting.GREEN));
-                case 5400 -> textList.add(Component.literal("Recipes are shortened by 45%.").withStyle(ChatFormatting.GREEN));
-                default -> textList.add(Component.literal("Different coils detected!").withStyle(ChatFormatting.RED));
+                case 1800 -> textList.add(Component.translatable("info.gregecore.aebf6" ).withStyle(ChatFormatting.GREEN));
+                case 3600 -> textList.add(Component.translatable("info.gregecore.aebf7").withStyle(ChatFormatting.GREEN));
+                case 5400 -> textList.add(Component.translatable("info.gregecore.aebf8").withStyle(ChatFormatting.GREEN));
+                default -> textList.add(Component.translatable("info.gregecore.aebf9").withStyle(ChatFormatting.RED));
             }
         }
     }

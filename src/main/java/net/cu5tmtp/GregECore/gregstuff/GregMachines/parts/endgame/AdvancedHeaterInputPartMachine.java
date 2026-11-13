@@ -30,7 +30,7 @@ public class AdvancedHeaterInputPartMachine extends FluidHatchPartMachine {
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(AdvancedHeaterInputPartMachine.ADVANCED_HEATER_INPUT)
             .workableCasingModel(GregECore.id("block/draconium_fusion"), GregECore.id("block/overlay/feeder"))
-            .tooltips(Component.literal("Use this to input heater fluid into advanced machines.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.advancedheater1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
     public static void init() {

@@ -11,6 +11,9 @@ import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.renderer.renderRegistries.GregERenederRegistries;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.notCoreStuff.GregERecipeTypes;
 import net.minecraft.ChatFormatting;
@@ -26,20 +29,56 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.createWorkableCasingMachineModel;
 import static net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore.REGISTRATE;
 
 public class GenesisCrucible extends WorkableElectricMultiblockMachine {
 
-    private TickableSubscription logicSubscription;
-    private final Map<String, Boolean> caseStates = new HashMap<>();
-    private record CaseOffset(int forward, int above, int right, String expectedName) {}
-    private String requiredCartridges;
+    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
+            GenesisCrucible.class,
+            WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
 
-    private final CaseOffset[] caseOffsets = new CaseOffset[]{
-            new CaseOffset(6, 13, 10, "genesiscruciblecaseone"), // Front left
-            new CaseOffset(6, 13, -10, "genesiscruciblecasetwo"), // Front right
-            new CaseOffset(-18, 13, -10, "genesiscruciblecasethree"), // Back right
-            new CaseOffset(-18, 13, 10, "genesiscruciblecasefour") // Back left
+    @Override
+    public ManagedFieldHolder getFieldHolder() {
+        return MANAGED_FIELD_HOLDER;
+    }
+
+    private TickableSubscription logicSubscription;
+
+    public final Map<String, Boolean> caseStates = new HashMap<>();
+    @DescSynced
+    public int activeCasesMask = 0;
+
+    private record PosOffset(int forward, int above, int right) {}
+    private record CaseGroup(String expectedName, PosOffset[] offsets) {}
+
+    private final CaseGroup[] caseGroups = new CaseGroup[]{
+            // Front left
+            new CaseGroup("genesiscruciblecaseone", new PosOffset[]{
+                    new PosOffset(6, 13, 10),
+                    new PosOffset(4, 13, 8),
+                    new PosOffset(4, 13, 12),
+                    new PosOffset(2, 13, 10)
+            }),
+            // Front right
+            new CaseGroup("genesiscruciblecasetwo", new PosOffset[]{
+                    new PosOffset(6, 13, -10),
+                    new PosOffset(4, 13, -12),
+                    new PosOffset(4, 13, -8),
+                    new PosOffset(2, 13, -10)
+            }),
+            new CaseGroup("genesiscruciblecasethree", new PosOffset[]{
+                    new PosOffset(-18, 13, -10),
+                    new PosOffset(-16, 13, -12),
+                    new PosOffset(-16, 13, -8),
+                    new PosOffset(-14, 13, -10)
+            }),
+            new CaseGroup("genesiscruciblecasefour", new PosOffset[]{
+                    new PosOffset(-18, 13, 10),
+                    new PosOffset(-16, 13, 8),
+                    new PosOffset(-16, 13, 12),
+                    new PosOffset(-14, 13, 10)
+            })
     };
 
     public GenesisCrucible(IMachineBlockEntity holder, Object... args) {
@@ -58,6 +97,7 @@ public class GenesisCrucible extends WorkableElectricMultiblockMachine {
     @Override
     public void onStructureInvalid() {
         this.caseStates.clear();
+        this.activeCasesMask = 0;
 
         if (this.logicSubscription != null) {
             this.logicSubscription.unsubscribe();
@@ -79,32 +119,48 @@ public class GenesisCrucible extends WorkableElectricMultiblockMachine {
         Direction forward = getFrontFacing();
         Direction right = forward.getClockWise();
 
-        for (CaseOffset offset : caseOffsets) {
-            BlockPos targetPos = center.relative(forward, offset.forward())
-                    .above(offset.above())
-                    .relative(right, offset.right());
+        int newMask = 0;
 
-            boolean isFormed = false;
+        for (int i = 0; i < caseGroups.length; i++) {
+            CaseGroup group = caseGroups[i];
+            boolean anyPartFormed = false;
 
-            if (getLevel().getBlockEntity(targetPos) instanceof IMachineBlockEntity mbe) {
-                if (mbe.getMetaMachine() instanceof GenesisCrucibleCases crucibleCase) {
+            for (PosOffset offset : group.offsets()) {
+                BlockPos targetPos = center.relative(forward, offset.forward())
+                        .above(offset.above())
+                        .relative(right, offset.right());
 
-                    String actualName = crucibleCase.getDefinition().getName();
+                boolean partFormed = false;
 
-                    if (actualName.equals(offset.expectedName())) {
-                        isFormed = crucibleCase.isFormed();
+                if (getLevel().getBlockEntity(targetPos) instanceof IMachineBlockEntity mbe) {
+                    if (mbe.getMetaMachine() instanceof GenesisCrucibleCases crucibleCase) {
+                        String actualName = crucibleCase.getDefinition().getName();
+                        if (actualName.equals(group.expectedName())) {
+                            partFormed = crucibleCase.isFormed();
+                        }
                     }
+                }
+
+                if (partFormed) {
+                    anyPartFormed = true;
+                    break;
                 }
             }
 
-            this.caseStates.put(offset.expectedName(), isFormed);
+            this.caseStates.put(group.expectedName(), anyPartFormed);
+
+            if (anyPartFormed) {
+                newMask |= (1 << i);
+            }
         }
+
+        this.activeCasesMask = newMask;
     }
 
     @Override
     public boolean beforeWorking(@Nullable GTRecipe recipe) {
         assert recipe != null;
-        requiredCartridges = recipe.data.getString("insertedc");
+        String requiredCartridges = recipe.data.getString("insertedc");
 
         if (!requiredCartridges.isEmpty()) {
             String[] parts = requiredCartridges.split(",");
@@ -184,10 +240,22 @@ public class GenesisCrucible extends WorkableElectricMultiblockMachine {
                         .where("z", Predicates.controller(Predicates.blocks(definition.get())))
                         .build();
             })
-            .workableCasingModel(
+            .model(createWorkableCasingMachineModel(
                     GregECore.id("block/machine_casing_tiled_gray"),
-                    GTCEu.id("gtceu:block/multiblock/distillation_tower")
+                    GTCEu.id("gtceu:block/multiblock/distillation_tower"))
+                    .andThen(b -> b.addDynamicRenderer(GregERenederRegistries::createGenesisCrucibleRender))
             )
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.genesiscrucible1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.genesiscrucible2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.genesiscrucible3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.genesiscrucible4").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.genesiscrucible5").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.genesiscrucible6").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.genesiscrucible7").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.genesiscrucible8").withStyle(style -> style.withColor(0x90EE90)))
             .register();
 
     @Override
@@ -195,23 +263,23 @@ public class GenesisCrucible extends WorkableElectricMultiblockMachine {
         super.addDisplayText(textList);
 
         if (isFormed()) {
-            textList.add(Component.literal("Genesis Crucible Cartridges:").withStyle(ChatFormatting.LIGHT_PURPLE));
+            textList.add(Component.translatable("info.gregecore.genesiscrucible9").withStyle(ChatFormatting.LIGHT_PURPLE));
 
             boolean case1 = caseStates.getOrDefault("genesiscruciblecaseone", false);
-            textList.add(Component.literal(" - Delirium: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(case1 ? "Formed" : "Incomplete").withStyle(case1 ? ChatFormatting.GREEN : ChatFormatting.RED)));
+            textList.add(Component.translatable("info.gregecore.genesiscrucible10").withStyle(ChatFormatting.GRAY)
+                    .append(Component.translatable(case1 ? "info.gregecore.genesiscrucible14" : "info.gregecore.genesiscrucible15").withStyle(case1 ? ChatFormatting.GREEN : ChatFormatting.RED)));
 
             boolean case2 = caseStates.getOrDefault("genesiscruciblecasetwo", false);
-            textList.add(Component.literal(" - Kamenium : ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(case2 ? "Formed" : "Incomplete").withStyle(case2 ? ChatFormatting.GREEN : ChatFormatting.RED)));
+            textList.add(Component.translatable("info.gregecore.genesiscrucible11").withStyle(ChatFormatting.GRAY)
+                    .append(Component.translatable(case2 ? "info.gregecore.genesiscrucible14" : "info.gregecore.genesiscrucible15").withStyle(case2 ? ChatFormatting.GREEN : ChatFormatting.RED)));
 
             boolean case3 = caseStates.getOrDefault("genesiscruciblecasethree", false);
-            textList.add(Component.literal(" - Grympl: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(case3 ? "Formed" : "Incomplete").withStyle(case3 ? ChatFormatting.GREEN : ChatFormatting.RED)));
+            textList.add(Component.translatable("info.gregecore.genesiscrucible12").withStyle(ChatFormatting.GRAY)
+                    .append(Component.translatable(case3 ? "info.gregecore.genesiscrucible14" : "info.gregecore.genesiscrucible15").withStyle(case3 ? ChatFormatting.GREEN : ChatFormatting.RED)));
 
             boolean case4 = caseStates.getOrDefault("genesiscruciblecasefour", false);
-            textList.add(Component.literal(" - Placeholder 4: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(case4 ? "Formed" : "Incomplete").withStyle(case4 ? ChatFormatting.GREEN : ChatFormatting.RED)));
+            textList.add(Component.translatable("info.gregecore.genesiscrucible13").withStyle(ChatFormatting.GRAY)
+                    .append(Component.translatable(case4 ? "info.gregecore.genesiscrucible14" : "info.gregecore.genesiscrucible15").withStyle(case4 ? ChatFormatting.GREEN : ChatFormatting.RED)));
         }
     }
 

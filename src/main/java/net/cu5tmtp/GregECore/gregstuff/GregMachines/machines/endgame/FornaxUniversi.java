@@ -220,7 +220,7 @@ public class FornaxUniversi extends WorkableElectricMultiblockMachine implements
             .multiblock("fornaxuniversi", FornaxUniversi::new)
             .rotationState(RotationState.NON_Y_AXIS)
             .recipeType(GregERecipeTypes.FORNAX_UNIVERSI_ACCELERETION)
-            .appearanceBlock(GCYMBlocks.CASING_ATOMIC)
+            .appearanceBlock(GCYMBlocks.CASING_HIGH_TEMPERATURE_SMELTING)
             .pattern(definition -> {
                 return FactoryBlockPattern.start()
                         .aisle("             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "C           C", "E           E", "C           C", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ")
@@ -254,22 +254,18 @@ public class FornaxUniversi extends WorkableElectricMultiblockMachine implements
                     GTCEu.id("block/casings/gcym/high_temperature_smelting_casing"),
                     GTCEu.id("block/multiblock/fusion_reactor"))
                     .andThen(b -> b.addDynamicRenderer(GregERenederRegistries::createFornaxUniversiRender)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Black Hole Diving").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("One of the mysteries of cosmos lies at your feet." +
-                    " Create a sturdy rocket and make haste for the materials created by the black hole itself.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("The black hole tries to crush your spaceship with inconceivable gravitational forces. You will need to repair " +
-                    "the spaceship mid-flight to survive the voyage and come back home with the spoils. Supply correct items to the machine, you will know which is the correct one by " +
-                    "the redstone signal. Failure to do so results in the machine exploding. " +
-                    "Below are the repair items with their signal strength.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Controller emits redstone:").withStyle(ChatFormatting.GOLD))
-            .tooltips(Component.literal("Server Rack: Redstone strength - 5").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("Rocket Cone: Redstone strength - 10").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("Quantum Accelerator: Redstone strength - 15").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("Tip: After correct formation, the first recipe is always repaired with Server Rack!").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fornax1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fornax2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fornax3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fornax4").withStyle(ChatFormatting.GOLD))
+            .tooltips(Component.translatable("info.gregecore.fornax5").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.fornax6").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.fornax7").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.fornax8").withStyle(style -> style.withColor(0x90EE90)))
             .register();
 
     @Override
@@ -277,7 +273,7 @@ public class FornaxUniversi extends WorkableElectricMultiblockMachine implements
         super.addDisplayText(textList);
         
         if (isFormed()) {
-            textList.add(Component.literal("Redstone Power: " + getOutputSignal(null)).withStyle(ChatFormatting.RED));
+            textList.add(Component.translatable("info.gregecore.fornax9").append(getOutputSignal(null) + "").withStyle(ChatFormatting.RED));
         }
     }
 

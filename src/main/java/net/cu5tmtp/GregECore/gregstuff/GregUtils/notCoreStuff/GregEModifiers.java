@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.chillers.BigFreezer;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.chillers.EnhancedBlastChiller;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.dyson.DysonSwarmEnergyCollector;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.QuantumSynergizer;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.AcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.GiantAcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.LearningAcceleratedEBF;
@@ -39,8 +40,8 @@ public class GregEModifiers {
 
         double speedMultiplier = switch (blastFurnaceTemperature) {
             case 1800 -> 0.85;
-            case 3600 -> 0.7;
-            case 5400 -> 0.55;
+            case 3600 -> 0.70;
+            case 5400 -> 0.60;
             default -> 0.85;
         };
 
@@ -68,7 +69,7 @@ public class GregEModifiers {
 
 
         double speedMultiplier = switch (blastFurnaceTemperature) {
-            case 7400 -> 0.8;
+            case 7400 -> 0.75;
             case 9300 -> 0.6;
             case 11000 -> 0.4;
             default -> 0.8;
@@ -152,27 +153,6 @@ public class GregEModifiers {
                 .durationMultiplier(durationMult)
                 .build();
     }
-
-    public static ModifierFunction fissionBoost(MetaMachine machine, GTRecipe recipe){
-        if (!(machine instanceof FissionReactor f)) {
-            return ModifierFunction.NULL;
-        }
-
-        float min = 0.1f;
-        float max = 5.2f;
-        float progress = (f.controlRodInsertion - min) / (max - min);
-        progress = Math.max(0.0f, Math.min(1.0f, progress));
-
-        float minMultiplier = 1.0f;
-        float maxMultiplier = 0.2f;
-
-        float durationMultiplier = minMultiplier + progress * (maxMultiplier - minMultiplier);
-
-        return ModifierFunction.builder()
-                .durationMultiplier(durationMultiplier)
-                .build();
-    }
-
     public static ModifierFunction learningEBF(MetaMachine machine, GTRecipe recipe){
         if(!(machine instanceof LearningAcceleratedEBF laebf)){
             return ModifierFunction.NULL;
@@ -210,6 +190,24 @@ public class GregEModifiers {
                 .parallels(parallelsAvailableEBC)
                 .modifyAllContents(ContentModifier.multiplier(parallelsAvailableEBC))
                 .durationMultiplier(speedModifier)
+                .build();
+    }
+
+    public static ModifierFunction quantumSynergizerBoost(MetaMachine machine, GTRecipe recipe){
+
+        if (!(machine instanceof QuantumSynergizer qs)) {
+            return ModifierFunction.NULL;
+        }
+
+        int combo = qs.getComboCount();
+        double speed = 1.0d;
+
+        if(combo == 3){
+            speed = 0.000001d;
+        }
+
+        return ModifierFunction.builder()
+                .durationMultiplier(speed)
                 .build();
     }
 

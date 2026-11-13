@@ -30,7 +30,7 @@ public class AdvancedCoolantInputPartMachine extends FluidHatchPartMachine {
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(AdvancedCoolantInputPartMachine.ADVANCED_COOLANT_INPUT)
             .workableCasingModel(GregECore.id("block/draconium_fusion"), GregECore.id("block/overlay/feeder"))
-            .tooltips(Component.literal("Use this to input coolant into advanced machines.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.advancedcoolant1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
     public static void init() {

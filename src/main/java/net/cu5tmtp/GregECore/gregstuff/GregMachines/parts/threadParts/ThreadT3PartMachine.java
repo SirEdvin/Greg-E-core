@@ -34,7 +34,7 @@ public class ThreadT3PartMachine extends TieredPartMachine {
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(ThreadT3PartMachine.THREADING_3)
             .colorOverlayTieredHullModel(GregECore.id("block/overlay/threading/threading_3/overlay_front"))
-            .tooltips(Component.literal("Use this to enable threading on the compatible machines.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.textthreading1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .editableUI(new EditableMachineUI("threading_tier_three", GregECore.id("threading_tier_three"), WidgetGroup::new, (group, machine) -> {
                 group.addWidget(new LabelWidget(-40, 1, "This machine can now use"));
                 group.addWidget(new LabelWidget(0, 29, "§5Threading!"));

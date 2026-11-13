@@ -73,13 +73,12 @@ public class DysonSwarmEnergyCollector extends WorkableElectricMultiblockMachine
                     GTCEu.id("block/casings/hpca/computer_casing/front"),
                     GTCEu.id("block/multiblock/fusion_reactor"))
                     .andThen(b -> b.addDynamicRenderer(GregERenederRegistries::createDysonSwarmEnergyCollectorRender)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Dyson Swarm Energy Collector").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This machine collects the energy reflected from the solar sails, " +
-                    "boosted by the amount of the launched solar sails.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Energy output is multiplied by the amount of sails shot.").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.dysoncollector1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.dysoncollector2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.dysoncollector3").withStyle(style -> style.withColor(0x90EE90)))
             .register();
 
     @Override
@@ -94,7 +93,8 @@ public class DysonSwarmEnergyCollector extends WorkableElectricMultiblockMachine
                 currentBoost = manager.getBoost();
             }
 
-            textList.add(Component.literal("Energy generation boost: " + (int) currentBoost).withStyle(ChatFormatting.AQUA));
+            textList.add(Component.translatable("info.gregecore.dysoncollector4").withStyle(ChatFormatting.GREEN));
+            textList.add(Component.literal((int) currentBoost + "").withStyle(ChatFormatting.AQUA));
         }
     }
 

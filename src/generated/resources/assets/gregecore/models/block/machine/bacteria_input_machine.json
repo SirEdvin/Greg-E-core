@@ -2,43 +2,53 @@
   "parent": "minecraft:block/block",
   "loader": "gtceu:machine",
   "machine": "gregecore:bacteria_input_machine",
-  "texture_overrides": {
-    "all": "gtceu:block/casings/solid/machine_casing_solid_steel"
-  },
+  "replaceable_textures": [
+    "bottom",
+    "top",
+    "side"
+  ],
   "variants": {
-    "recipe_logic_status=idle": {
+    "is_formed=false,is_painted=false": {
       "model": {
-        "parent": "gtceu:block/machine/template/cube_all/sided",
+        "parent": "gtceu:block/machine/template/part/hatch_machine",
         "textures": {
-          "all": "gtceu:block/casings/solid/machine_casing_solid_steel",
-          "overlay_front": "gregecore:block/overlay/feeder/overlay_front"
+          "bottom": "gtceu:block/casings/voltage/zpm/bottom",
+          "overlay": "gregecore:block/overlay/feeder/overlay_front",
+          "side": "gtceu:block/casings/voltage/zpm/side",
+          "top": "gtceu:block/casings/voltage/zpm/top"
         }
       }
     },
-    "recipe_logic_status=suspend": {
+    "is_formed=false,is_painted=true": {
       "model": {
-        "parent": "gtceu:block/machine/template/cube_all/sided",
+        "parent": "gtceu:block/machine/template/part/hatch_machine_color_ring",
         "textures": {
-          "all": "gtceu:block/casings/solid/machine_casing_solid_steel",
-          "overlay_front": "gregecore:block/overlay/feeder/overlay_front"
+          "bottom": "gtceu:block/casings/voltage/zpm/bottom",
+          "overlay": "gregecore:block/overlay/feeder/overlay_front",
+          "side": "gtceu:block/casings/voltage/zpm/side",
+          "top": "gtceu:block/casings/voltage/zpm/top"
         }
       }
     },
-    "recipe_logic_status=waiting": {
+    "is_formed=true,is_painted=false": {
       "model": {
-        "parent": "gtceu:block/machine/template/cube_all/sided",
+        "parent": "gtceu:block/machine/template/part/hatch_machine",
         "textures": {
-          "all": "gtceu:block/casings/solid/machine_casing_solid_steel",
-          "overlay_front": "gregecore:block/overlay/feeder/overlay_front_active"
+          "bottom": "gtceu:block/casings/voltage/zpm/bottom",
+          "overlay": "gregecore:block/overlay/feeder/overlay_front",
+          "side": "gtceu:block/casings/voltage/zpm/side",
+          "top": "gtceu:block/casings/voltage/zpm/top"
         }
       }
     },
-    "recipe_logic_status=working": {
+    "is_formed=true,is_painted=true": {
       "model": {
-        "parent": "gtceu:block/machine/template/cube_all/sided",
+        "parent": "gtceu:block/machine/template/part/hatch_machine_color_ring",
         "textures": {
-          "all": "gtceu:block/casings/solid/machine_casing_solid_steel",
-          "overlay_front": "gregecore:block/overlay/feeder/overlay_front_active"
+          "bottom": "gtceu:block/casings/voltage/zpm/bottom",
+          "overlay": "gregecore:block/overlay/feeder/overlay_front",
+          "side": "gtceu:block/casings/voltage/zpm/side",
+          "top": "gtceu:block/casings/voltage/zpm/top"
         }
       }
     }

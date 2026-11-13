@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
+import com.gregtechceu.gtceu.common.data.GCYMBlocks;
 import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.threadParts.ThreadT3PartMachine;
@@ -37,7 +38,7 @@ public class SubatomicAntimatterSyntheticator extends WorkableElectricMultiblock
             .rotationState(RotationState.ALL)
             .recipeType(GregERecipeTypes.SASCRAFTING)
             .recipeModifier(GTRecipeModifiers.OC_NON_PERFECT)
-            .appearanceBlock(GTBlocks.CASING_STEEL_SOLID)
+            .appearanceBlock(GCYMBlocks.CASING_SECURE_MACERATION)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("aabbbaaaaaaaaaaaaabbbaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aabbbaaaaaaaaaaaaabbbaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aabbbaaaaaaaaaaaaabbbaa", "aaaaabaaabaaabaaabaaaaa", "aaaaabaaabaaabaaabaaaaa", "aaaaabaaabaaabaaabaaaaa", "aabbbaaaaaaaaaaaaabbbaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aabbbaaaaaaaaaaaaabbbaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaa", "aabbbaaaaaaaaaaaaabbbaa")
                     .aisle("abdddbbbaaaaaaabbbdddba", "aaefeaaaaaaaaaaaaaefeaa", "aaefeaaaaaaaaaaaaaefeaa", "aaefeaaaaaaaaaaaaaefeaa", "abdddbaaaaaaaaaaabdddba", "aaefeaaaaaaaaaaaaaefeaa", "aaefeaaaaaaaaaaaaaefeaa", "aaefeaaaaaaaaaaaaaefeaa", "abdddbaaabaaabaaabdddba", "aagggdeeedgggdeeedgggaa", "aagggdfffdgggdfffdgggaa", "aagggdeeedgggdeeedgggaa", "abdddbaaabaaabaaabdddba", "aaefeaaaaaaaaaaaaaefeaa", "aaefeaaaaaaaaaaaaaefeaa", "aaefeaaaaaaaaaaaaaefeaa", "abdddbaaaaaaaaaaabdddba", "aaefeaaaaaaaaaaaaaefeaa", "aaefeaaaaaaaaaaaaaefeaa", "aaefeaaaaaaaaaaaaaefeaa", "abdddbbbaaaaaaabbbdddba")
@@ -82,13 +83,13 @@ public class SubatomicAntimatterSyntheticator extends WorkableElectricMultiblock
                     .where('l', Predicates.controller(Predicates.blocks(definition.get())))
                     .build()
             )
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Antimatter Syntheticating").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Turn valuable materials into Antimatter. The more valuable the materials are, the more antimatter you will get.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("For every 100000 EMC value, you will get 1mb of Antimatter.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Circuit alloys are worth more.").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.antimatter1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.antimatter2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.antimatter3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.antimatter4").withStyle(style -> style.withColor(0x90EE90)))
             .model(createWorkableCasingMachineModel(
                     GTCEu.id("block/casings/gcym/secure_maceration_casing"),
                     GTCEu.id("block/multiblock/distillation_tower"))

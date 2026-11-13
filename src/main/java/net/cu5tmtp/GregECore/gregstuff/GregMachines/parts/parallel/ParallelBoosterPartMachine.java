@@ -34,7 +34,7 @@ public class ParallelBoosterPartMachine extends TieredPartMachine {
             .abilities(ParallelBoosterPartMachine.PARALLEL_BOOSTER)
             .tier(GTValues.ZPM)
             .colorOverlayTieredHullModel(GregECore.id("block/overlay/parallel_booster/overlay_front"))
-            .tooltips(Component.literal("Use this to double the parallels that the machine can achieve.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.parallelbooster1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .editableUI(new EditableMachineUI("parallel_booster", GregECore.id("parallel_booster"), WidgetGroup::new, (group, machine) -> {
                 group.addWidget(new LabelWidget(-24, 1, "Parallel multiplier: 2"));
             }))

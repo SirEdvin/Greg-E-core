@@ -144,34 +144,32 @@ public class GiantChemicalReactor extends WorkableElectricMultiblockMachine {
             })
             .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_solid_steel"),
                     GTCEu.id("block/multiblock/distillation_tower"))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Perfect Overclock and Bacterial Infestation").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This machine is the pinnacle of bioengineering, thanks to special bred bacteria it can reach new heights." +
-                    " Depending on the bacteria inserted in a Bacteria Input, the machine posseses different abilities.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Energy bacteria: ").withStyle(s -> s.withColor(0x90EE90))
-                    .append(Component.literal("90%").withStyle(s -> s.withColor(0xFF0000)))
-                    .append(Component.literal(" energy discount.").withStyle(s -> s.withColor(0x90EE90))))
-            .tooltips(Component.literal("Speed bacteria: ").withStyle(s -> s.withColor(0x90EE90))
-                    .append(Component.literal("90%").withStyle(s -> s.withColor(0xFF0000)))
-                    .append(Component.literal(" speed increase.").withStyle(s -> s.withColor(0x90EE90))))
-            .tooltips(Component.literal("Parallel bacteria: ").withStyle(s -> s.withColor(0x90EE90))
-                    .append(Component.literal("64").withStyle(s -> s.withColor(0xFF0000)))
-                    .append(Component.literal(" parallels.").withStyle(s -> s.withColor(0x90EE90))))
-            .tooltips(Component.literal("Ultimate bacteria: ").withStyle(s -> s.withColor(0x90EE90))
-                    .append(Component.literal("All of the boosts above.").withStyle(s -> s.withColor(0xFF0000))))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("The machine can only have 1 active bacteria boost, " +
-                    "place the bacteria which boost you want in the Bacteria Input.").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.gcr1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.gcr2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.gcr3").withStyle(s -> s.withColor(0x90EE90))
+                    .append(Component.translatable("info.gregecore.gcr4").withStyle(s -> s.withColor(0xFF0000)))
+                    .append(Component.translatable("info.gregecore.gcr5").withStyle(s -> s.withColor(0x90EE90))))
+            .tooltips(Component.translatable("info.gregecore.gcr6").withStyle(s -> s.withColor(0x90EE90))
+                    .append(Component.translatable("info.gregecore.gcr7").withStyle(s -> s.withColor(0xFF0000)))
+                    .append(Component.translatable("info.gregecore.gcr8").withStyle(s -> s.withColor(0x90EE90))))
+            .tooltips(Component.translatable("info.gregecore.gcr9").withStyle(s -> s.withColor(0x90EE90))
+                    .append(Component.translatable("info.gregecore.gcr10").withStyle(s -> s.withColor(0xFF0000)))
+                    .append(Component.translatable("info.gregecore.gcr11").withStyle(s -> s.withColor(0x90EE90))))
+            .tooltips(Component.translatable("info.gregecore.gcr12").withStyle(s -> s.withColor(0x90EE90))
+                    .append(Component.translatable("info.gregecore.gcr13").withStyle(s -> s.withColor(0xFF0000))))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.gcr14").withStyle(style -> style.withColor(0x90EE90)))
             .register();
 
     @Override
     public void addDisplayText(@NotNull List<Component> textList) {
         if (isFormed()) {
-            textList.add(Component.literal("Recipe time reduction: " + (int) (100 - (speedBoost * 100)) + "%").withStyle(ChatFormatting.AQUA));
-            textList.add(Component.literal("Energy reduction: " + (int) (100 - (energyBoost * 100)) + "%").withStyle(ChatFormatting.AQUA));
-            textList.add(Component.literal("Parallels: " + parallelBoost).withStyle(ChatFormatting.AQUA));
+            textList.add(Component.translatable("info.gregecore.gcr15").append((int) (100 - (speedBoost * 100)) + "%").withStyle(ChatFormatting.AQUA));
+            textList.add(Component.translatable("info.gregecore.gcr16").append((int) (100 - (energyBoost * 100)) + "%").withStyle(ChatFormatting.AQUA));
+            textList.add(Component.translatable("info.gregecore.gcr17").append(parallelBoost + "").withStyle(ChatFormatting.AQUA));
         }
         super.addDisplayText(textList);
     }

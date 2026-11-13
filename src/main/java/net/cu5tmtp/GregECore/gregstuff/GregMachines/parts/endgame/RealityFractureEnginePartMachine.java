@@ -31,7 +31,7 @@ public class RealityFractureEnginePartMachine extends ItemBusPartMachine {
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(RealityFractureEnginePartMachine.REALITY_FRACTURE_PART)
             .workableCasingModel(GTCEu.id("block/casings/gcym/industrial_steam_casing"), GregECore.id("block/overlay/feeder"))
-            .tooltips(Component.literal("Use this to hold the ancient eyes.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.realityholder1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
 

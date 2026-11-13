@@ -196,25 +196,24 @@ public class LearningAcceleratedEBF extends WorkableElectricMultiblockMachine {
             .workableCasingModel(
                     GTCEu.id("block/casings/gcym/shock_proof_cutting_casing"),
                     GTCEu.id("block/multiblock/distillation_tower"))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Perfect Overclock, Learning and Threading").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This machine is able to optimize its processes, " +
-                    "greatly increasing its capabilities by reducing the energy usage, speeding the recipes up and adding more parallels.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("T1: Blast 15000 items with 1K or higher blasting temperature.").withStyle(style -> style.withColor(0xFF8C00)))
-            .tooltips(Component.literal("Reward: 50% Energy reduction.").withStyle(style -> style.withColor(0xFF8C00)))
-            .tooltips(Component.literal("T2: Blast 10000 items with 3000K or higher blasting temperature.").withStyle(style -> style.withColor(0xFFEE00)))
-            .tooltips(Component.literal("Reward: 30% Energy reduction and 50% speed boost.").withStyle(style -> style.withColor(0xFFEE00)))
-            .tooltips(Component.literal("T3: Blast 4000 items with 5000K or higher blasting temperature.").withStyle(style -> style.withColor(0x4DE94C)))
-            .tooltips(Component.literal("Reward: 15% Energy reduction, 30% speed boost and 16 parallels.").withStyle(style -> style.withColor(0x4DE94C)))
-            .tooltips(Component.literal("T4: Blast 2000 items with 7000K or higher blasting temperature.").withStyle(style -> style.withColor(0x3783FF)))
-            .tooltips(Component.literal("Reward: 15% speed boost and 80 parallels.").withStyle(style -> style.withColor(0x3783FF)))
-            .tooltips(Component.literal("T5: Blast 1000 items with 9000K or higher blasting temperature.").withStyle(style -> style.withColor(0x4815AA)))
-            .tooltips(Component.literal("Reward: 160 parallels.").withStyle(style -> style.withColor(0x4815AA)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("You can check your progress in the GUI of the machine controller.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Accepts Threading Core T3.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.laebf1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.laebf2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.laebf3").withStyle(style -> style.withColor(0xFF8C00)))
+            .tooltips(Component.translatable("info.gregecore.laebf4").withStyle(style -> style.withColor(0xFF8C00)))
+            .tooltips(Component.translatable("info.gregecore.laebf5").withStyle(style -> style.withColor(0xFFEE00)))
+            .tooltips(Component.translatable("info.gregecore.laebf6").withStyle(style -> style.withColor(0xFFEE00)))
+            .tooltips(Component.translatable("info.gregecore.laebf7").withStyle(style -> style.withColor(0x4DE94C)))
+            .tooltips(Component.translatable("info.gregecore.laebf8").withStyle(style -> style.withColor(0x4DE94C)))
+            .tooltips(Component.translatable("info.gregecore.laebf9").withStyle(style -> style.withColor(0x3783FF)))
+            .tooltips(Component.translatable("info.gregecore.laebf10").withStyle(style -> style.withColor(0x3783FF)))
+            .tooltips(Component.translatable("info.gregecore.laebf11").withStyle(style -> style.withColor(0x2266dd)))
+            .tooltips(Component.translatable("info.gregecore.laebf12").withStyle(style -> style.withColor(0x2266dd)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.laebf13").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.threading3"))
             .register();
 
     @Override
@@ -222,19 +221,19 @@ public class LearningAcceleratedEBF extends WorkableElectricMultiblockMachine {
         super.addDisplayText(textList);
 
         if (isFormed()) {
-            textList.add(Component.literal("T1 items smelted: ").withStyle(ChatFormatting.AQUA)
+            textList.add(Component.translatable("info.gregecore.laebf14").withStyle(ChatFormatting.AQUA)
                     .append(tier1 >= 15000 ? Component.literal("DONE!").withStyle(ChatFormatting.GREEN) : Component.literal(tier1 + "/" + 15000).withStyle(ChatFormatting.AQUA)));
 
-            textList.add(Component.literal("T2 items smelted: ").withStyle(ChatFormatting.AQUA)
+            textList.add(Component.translatable("info.gregecore.laebf15").withStyle(ChatFormatting.AQUA)
                     .append(tier2 >= 10000 ? Component.literal("DONE!").withStyle(ChatFormatting.GREEN) : Component.literal(tier2 + "/" + 10000).withStyle(ChatFormatting.AQUA)));
 
-            textList.add(Component.literal("T3 items smelted: ").withStyle(ChatFormatting.AQUA)
+            textList.add(Component.translatable("info.gregecore.laebf16").withStyle(ChatFormatting.AQUA)
                     .append(tier3 >= 4000 ? Component.literal("DONE!").withStyle(ChatFormatting.GREEN) : Component.literal(tier3 + "/" + 4000).withStyle(ChatFormatting.AQUA)));
 
-            textList.add(Component.literal("T4 items smelted: ").withStyle(ChatFormatting.AQUA)
+            textList.add(Component.translatable("info.gregecore.laebf17").withStyle(ChatFormatting.AQUA)
                     .append(tier4 >= 2000 ? Component.literal("DONE!").withStyle(ChatFormatting.GREEN) : Component.literal(tier4 + "/" + 2000).withStyle(ChatFormatting.AQUA)));
 
-            textList.add(Component.literal("T5 items smelted: ").withStyle(ChatFormatting.AQUA)
+            textList.add(Component.translatable("info.gregecore.laebf18").withStyle(ChatFormatting.AQUA)
                     .append(tier5 >= 1000 ? Component.literal("DONE!").withStyle(ChatFormatting.GREEN) : Component.literal(tier5 + "/" + 1000).withStyle(ChatFormatting.AQUA)));
 
             if (getRecipeLogic() instanceof MultiThreadedRecipeLogic logic && logic.isMultiThreaded()) {

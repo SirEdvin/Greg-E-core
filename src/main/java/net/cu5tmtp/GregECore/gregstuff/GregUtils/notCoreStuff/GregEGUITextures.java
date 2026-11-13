@@ -23,4 +23,19 @@ public class GregEGUITextures {
 
     public static final ResourceTexture AMSPEC = new ResourceTexture(
             "gregecore:textures/progress/amspec.png");
+
+    public static final ResourceTexture GCCRAFT = new ResourceTexture(
+            "gregecore:textures/progress/genesis.png");
+
+    public static final ResourceTexture QUANTUM = new ResourceTexture(
+            "gregecore:textures/progress/quantum.png");
+
+    public static final ResourceTexture ENERGYIN = new ResourceTexture(
+            "gregecore:textures/progress/energyin.png");
+
+    public static final ResourceTexture SAILUP = new ResourceTexture(
+            "gregecore:textures/progress/sailup.png");
+
+    public static final ResourceTexture ALTAR = new ResourceTexture(
+            "gregecore:textures/progress/altar.png");
 }

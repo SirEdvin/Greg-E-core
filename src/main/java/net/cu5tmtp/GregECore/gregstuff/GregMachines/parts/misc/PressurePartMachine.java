@@ -31,7 +31,7 @@ public class PressurePartMachine extends FluidHatchPartMachine {
             .abilities(PressurePartMachine.PRESSURE_INPUT)
             .tier(GTValues.LV)
             .colorOverlayTieredHullModel(GregECore.id("block/overlay/coolant_input/overlay_front"))
-            .tooltips(Component.literal("Use this to input Steam into Pressure Chamber.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.pressure1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
     public static void init() {

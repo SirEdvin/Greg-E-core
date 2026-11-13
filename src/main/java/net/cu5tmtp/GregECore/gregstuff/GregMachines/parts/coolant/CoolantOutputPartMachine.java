@@ -32,7 +32,7 @@ public class CoolantOutputPartMachine extends FluidHatchPartMachine {
             .abilities(CoolantOutputPartMachine.COOLANT_OUTPUT)
             .tier(GTValues.EV)
             .colorOverlayTieredHullModel(GregECore.id("block/overlay/coolant_output/overlay_front"))
-            .tooltips(Component.literal("Use this to output coolant from machines.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.coolantoutput1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
 

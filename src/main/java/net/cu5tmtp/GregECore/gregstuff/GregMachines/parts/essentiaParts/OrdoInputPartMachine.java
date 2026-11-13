@@ -37,8 +37,7 @@ public class OrdoInputPartMachine extends EssentiaInputPartMachine {
             .workableCasingModel(
                     GTCEu.id("block/casings/solid/machine_casing_solid_steel"),
                     GregECore.id("block/overlay/ordo_input"))
-            .tooltips(Component.literal("Use this to input Ordo Essentia to Infusion Altar.")
-                    .withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.essentia4").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
     public static void init() {

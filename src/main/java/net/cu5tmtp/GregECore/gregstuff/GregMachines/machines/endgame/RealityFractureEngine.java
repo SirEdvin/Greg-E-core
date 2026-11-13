@@ -188,7 +188,7 @@ public class RealityFractureEngine extends WorkableElectricMultiblockMachine{
             .multiblock("realityfractureengine", RealityFractureEngine::new)
             .rotationState(RotationState.NON_Y_AXIS)
             .recipeType(GregERecipeTypes.OPEN_THE_RIFT)
-            .appearanceBlock(GCYMBlocks.CASING_ATOMIC)
+            .appearanceBlock(GCYMBlocks.CASING_HIGH_TEMPERATURE_SMELTING)
             .pattern(definition -> {
                 return FactoryBlockPattern.start()
                         .aisle("aaaaaaaaaaaaaaaaaaacccaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaacccaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaeeeaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaeeeaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaeeeaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaeeeaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaacccaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaabcbaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaacccaaaaaaaaaaaaaaaaaaa")
@@ -246,16 +246,16 @@ public class RealityFractureEngine extends WorkableElectricMultiblockMachine{
                     GTCEu.id("block/casings/gcym/high_temperature_smelting_casing"),
                     GTCEu.id("block/multiblock/fusion_reactor"))
                     .andThen(b -> b.addDynamicRenderer(GregERenederRegistries::createRealityEngineRender)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Rift Opening").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Make the 3 following items:").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Eye of the Red Menace, Ysha'lotha").withStyle(style -> style.withColor(0xC41E3A)))
-            .tooltips(Component.literal("Eye of the Purple Stalker, Kal'dora").withStyle(style -> style.withColor(0x702963)))
-            .tooltips(Component.literal("Eye of the Green Soldier, Ar'thas").withStyle(style -> style.withColor(0x228B22)))
-            .tooltips(Component.literal("And insert them into Reality Fracture Holders. Then you can open the rift with Infinity Catalyst.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Do not enter without full infinity gear. The dimension you are stepping into will kill you without it.").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fracture1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fracture2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.fracture3").withStyle(style -> style.withColor(0xC41E3A)))
+            .tooltips(Component.translatable("info.gregecore.fracture4").withStyle(style -> style.withColor(0x702963)))
+            .tooltips(Component.translatable("info.gregecore.fracture5").withStyle(style -> style.withColor(0x228B22)))
+            .tooltips(Component.translatable("info.gregecore.fracture6").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fracture7").withStyle(style -> style.withColor(0x90EE90)))
             .register();
 
     @Override

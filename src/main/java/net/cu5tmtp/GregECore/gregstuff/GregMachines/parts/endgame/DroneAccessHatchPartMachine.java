@@ -30,8 +30,9 @@ public class DroneAccessHatchPartMachine extends ItemBusPartMachine {
                     new DroneAccessHatchPartMachine(holder, GTValues.ULV))
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(DroneAccessHatchPartMachine.DRONE_ACCESS)
-            .workableCasingModel(GTCEu.id("block/casings/gcym/atomic_casing"), GregECore.id("block/overlay/feeder"))
-            .tooltips(Component.literal("Use this hold drones.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tier(GTValues.UHV)
+            .colorOverlayTieredHullModel(GregECore.id("block/overlay/feeder/overlay_front"))
+            .tooltips(Component.translatable("info.gregecore.droneaccess1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
 

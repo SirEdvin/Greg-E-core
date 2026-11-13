@@ -29,6 +29,7 @@ public class BloodStoragePartMachine extends ItemBusPartMachine {
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(BloodStoragePartMachine.BLOODSTORAGE_INPUT)
             .colorOverlayTieredHullModel(GregECore.id("block/overlay/feeder/overlay_front"))
+            .tooltips(Component.translatable("info.gregecore.bloodstorage1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .tier(GTValues.ZPM)
             .register();
 

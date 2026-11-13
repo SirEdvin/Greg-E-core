@@ -162,7 +162,7 @@ public class BigFreezer extends WorkableElectricMultiblockMachine {
             .rotationState(RotationState.NON_Y_AXIS)
             .recipeType(GTRecipeTypes.VACUUM_RECIPES)
             .recipeModifiers(GregEModifiers::bigFreezerBoost, GTRecipeModifiers.OC_PERFECT)
-            .appearanceBlock(CASING_INVAR_HEATPROOF)
+            .appearanceBlock(CASING_ALUMINIUM_FROSTPROOF)
             .pattern(definition -> {
                 return FactoryBlockPattern.start()
                         .aisle("BBBBB", "GCCCG", "GCCCG", "GCCCG", "BBBBB")
@@ -190,19 +190,19 @@ public class BigFreezer extends WorkableElectricMultiblockMachine {
             })
             .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_frost_proof"),
                                  GTCEu.id("block/multiblock/distillation_tower"))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Improved Cooling, Perfect Overclock and Threading").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This freezer can cool inputs faster than the base one, but requires a bit of help with it.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Due to the older model of the freezing device, it requires a").withStyle(style -> style.withColor(0x90EE90))
-                    .append(Component.literal(" 100mb of Liquid Ice per 10 ticks.").withStyle(style -> style.withColor(0xFF0000))))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This machine scales with parallels:").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Base version: 4 parallels and 10% recipe time reduction.").withStyle(style -> style.withColor(0xBF40BF)))
-            .tooltips(Component.literal("With parallel multiplication part: 8 parallels and 20% recipe time reduction.").withStyle(style -> style.withColor(0xBF40BF)))
-            .tooltips(Component.literal("With enhanced parallel multiplication part: 16 parallels and 30% recipe time reduction.").withStyle(style -> style.withColor(0xBF40BF)))
-            .tooltips(Component.literal("Accepts Threading Core T2.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.bigfreezer1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.bigfreezer2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.bigfreezer3").withStyle(style -> style.withColor(0x90EE90))
+                    .append(Component.translatable("info.gregecore.bigfreezer4").withStyle(style -> style.withColor(0xFF0000))))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.bigfreezer5").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.bigfreezer6").withStyle(style -> style.withColor(0xBF40BF)))
+            .tooltips(Component.translatable("info.gregecore.bigfreezer7").withStyle(style -> style.withColor(0xBF40BF)))
+            .tooltips(Component.translatable("info.gregecore.bigfreezer8").withStyle(style -> style.withColor(0xBF40BF)))
+            .tooltips(Component.translatable("info.gregecore.threading2"))
             .register();
 
     @Override
@@ -221,16 +221,16 @@ public class BigFreezer extends WorkableElectricMultiblockMachine {
         switch (parallelBooster)
         {
             case 2 -> {
-                textList.add(Component.literal("Parallels: 16").withStyle(ChatFormatting.AQUA));
-                textList.add(Component.literal("Recipe time reduction: 30%").withStyle(ChatFormatting.AQUA));
+                textList.add(Component.translatable("info.gregecore.bigfreezer9").withStyle(ChatFormatting.AQUA));
+                textList.add(Component.translatable("info.gregecore.bigfreezer10").withStyle(ChatFormatting.AQUA));
             }
             case 1 -> {
-                textList.add(Component.literal("Parallels: 8").withStyle(ChatFormatting.AQUA));
-                textList.add(Component.literal("Recipe time reduction: 20%").withStyle(ChatFormatting.AQUA));
+                textList.add(Component.translatable("info.gregecore.bigfreezer11").withStyle(ChatFormatting.AQUA));
+                textList.add(Component.translatable("info.gregecore.bigfreezer12").withStyle(ChatFormatting.AQUA));
             }
             default -> {
-                textList.add(Component.literal("Parallels: 4").withStyle(ChatFormatting.AQUA));
-                textList.add(Component.literal("Recipe time reduction: 10%").withStyle(ChatFormatting.AQUA));
+                textList.add(Component.translatable("info.gregecore.bigfreezer13").withStyle(ChatFormatting.AQUA));
+                textList.add(Component.translatable("info.gregecore.bigfreezer14").withStyle(ChatFormatting.AQUA));
             }
         }
     }

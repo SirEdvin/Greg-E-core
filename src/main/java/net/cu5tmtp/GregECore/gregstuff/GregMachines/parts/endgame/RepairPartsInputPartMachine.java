@@ -30,8 +30,9 @@ public class RepairPartsInputPartMachine extends ItemBusPartMachine {
                     new RepairPartsInputPartMachine(holder, GTValues.ULV))
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(RepairPartsInputPartMachine.REPAIR_PART_INPUT)
-            .workableCasingModel(GTCEu.id("block/casings/gcym/high_temperature_smelting_casing"), GregECore.id("block/overlay/feeder"))
-            .tooltips(Component.literal("Use this to input repair parts, which will be used to repair the spaceship.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tier(GTValues.UHV)
+            .colorOverlayTieredHullModel(GregECore.id("block/overlay/feeder/overlay_front"))
+            .tooltips(Component.translatable("info.gregecore.repairinput1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
 

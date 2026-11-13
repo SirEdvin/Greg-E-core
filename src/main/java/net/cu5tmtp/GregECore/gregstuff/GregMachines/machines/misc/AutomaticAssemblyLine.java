@@ -68,7 +68,7 @@ public class AutomaticAssemblyLine extends WorkableElectricMultiblockMachine {
             .rotationState(RotationState.NON_Y_AXIS)
             .recipeType(GTRecipeTypes.ASSEMBLY_LINE_RECIPES)
             .recipeModifiers(GTRecipeModifiers.OC_PERFECT)
-            .appearanceBlock(GCYMBlocks.CASING_ATOMIC)
+            .appearanceBlock(GCYMBlocks.CASING_LARGE_SCALE_ASSEMBLING)
             .pattern(definition -> {
                 return FactoryBlockPattern.start()
                         .aisle("aaabbbaaa", "cccbbbccc", "dddbbbddd", "dddbbbddd", "dddbbbddd", "cicbbbcic", "dddbbbddd", "dddbbbddd", "dddbbbddd", "cccbbbccc", "aaabbbaaa")
@@ -102,14 +102,13 @@ public class AutomaticAssemblyLine extends WorkableElectricMultiblockMachine {
             .workableCasingModel(
                     GTCEu.id("block/casings/gcym/large_scale_assembling_casing"),
                     GTCEu.id("block/multiblock/assembly_line"))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Assembly Line, Perfect Overclock and Threading").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Are you tired of making a lot of Assembly Lines for only 1 recipe? Well have I got a solution for you.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This multiblock allows you to craft Assembly Lines recipes without the need to place the inputs in correct slots. " +
-                    "You have to use Optical Data Reception Hatch to input the data.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Accepts Threading Core T2.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.autassembly1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.autassembly2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.autassembly3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.threading2"))
             .register();
 
     @Override

@@ -2,6 +2,7 @@ package net.cu5tmtp.GregECore.item;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
+import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlag;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
 import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
@@ -13,6 +14,8 @@ public class GreggyItems {
     public static Material MANASTEEL_CABLE, TWILIGHT_ALLOY_CABLE, DESH_CABLE, MALACHITE_CABLE, FORGOTTEN_INGOT_CABLE, BLOOD_INFUSED_CABLE, BACTERIAL_MATTER_CABLE, DRACONIUM_CABLE;
     public static Material AER, AQUA, IGNIS, TERRA, ORDO, PERDITIO;
     public static Material DESARIUM, IMPLEMENTIUM, TAMED_WORLD_EATER_ESSENSE;
+
+    public static Material DESH_ROTOR, MALACHITE_ROTOR;
 
     public static Material buildFluidMaterial(String name, int color, String formula) {
         return new Material.Builder(GregECore.id(name))
@@ -79,7 +82,8 @@ public class GreggyItems {
                 .formula("(Qz₂Mp)+(C₉HeVr),(NbQt₆ZnMnFe)+(XeJeQt)")
                 .color(0x023020)
                 .cableProperties(GTValues.V[GTValues.LuV], 24, 0, true)
-                .flags(MaterialFlags.GENERATE_FOIL)
+                .rotorStats(800, 400, 100.0f, 100000)
+                .flags(MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_ROTOR)
                 .buildAndRegister();
 
         AWAKENED_DRACONIUM = new Material.Builder(GregECore.id("awakened_draconium_cable"))
@@ -106,12 +110,16 @@ public class GreggyItems {
                 .cableProperties(GTValues.V[GTValues.HV], 12, 0, true)
                 .color(0xF28C28)
                 .formula("Dh")
+                //.rotorStats(400, 200, 20.0f, 25000)
+                //.flags(MaterialFlags.GENERATE_ROTOR)
                 .buildAndRegister();
 
         MALACHITE_CABLE = new Material.Builder(GregECore.id("malachite_cable"))
                 .cableProperties(GTValues.V[GTValues.EV], 16, 0, true)
                 .color(0x0BDA51)
                 .formula("Ml")
+                //.rotorStats(600, 300, 50.0f, 50000)
+                //.flags(MaterialFlags.GENERATE_ROTOR)
                 .buildAndRegister();
 
         FORGOTTEN_INGOT_CABLE = new Material.Builder(GregECore.id("forgotten_ingot_cable"))
@@ -138,6 +146,22 @@ public class GreggyItems {
                 .color(0x5D3FD3)
                 .formula("Dc")
                 .buildAndRegister();
+
+        //rotors
+        MALACHITE_ROTOR = new Material.Builder(GregECore.id("malachite_rotor"))
+                .color(0x0BDA51)
+                .formula("Ml")
+                .rotorStats(600, 300, 50.0f, 50000)
+                .flags(MaterialFlags.GENERATE_ROTOR)
+                .buildAndRegister();
+
+        DESH_ROTOR = new Material.Builder(GregECore.id("desh_rotor"))
+                .color(0xF28C28)
+                .formula("Dh")
+                .rotorStats(400, 200, 20.0f, 25000)
+                .flags(MaterialFlags.GENERATE_ROTOR)
+                .buildAndRegister();
+
 
         //fluids
         DEIONIZED_WATER = new Material.Builder(GregECore.id("deionized_water"))

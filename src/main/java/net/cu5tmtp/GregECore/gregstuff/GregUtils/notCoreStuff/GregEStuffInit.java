@@ -5,10 +5,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.chillers.BigFreezer
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.chillers.EnhancedBlastChiller;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.dyson.DysonSwarmEnergyCollector;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.dyson.DysonSwarmLauncher;
-import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.AssemblyHall;
-import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.GenesisCrucible;
-import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.GenesisCrucibleCases;
-import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.PrecisionFabricationArray;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.AcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.GiantAcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.GiantAlloyBlastSmelter;
@@ -19,6 +16,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.EnhancedFu
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.FissionReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.GiantChemicalReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.single.DimensionalCleaningMaintenance;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.single.EpicParallelControllHatch;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.uhvmulti.UHVMultiRegistry;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.coolant.AdvancedCoolantInputPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.coolant.CoolantInputPartMachine;
@@ -68,6 +66,7 @@ public class GregEStuffInit {
         AssemblyHall.init();
         PrecisionFabricationArray.init();
         IncompleteWorldEaterTamer.init();
+        QuantumSynergizer.init();
     }
 
     public static void initGregEParts(){
@@ -102,6 +101,7 @@ public class GregEStuffInit {
         BloodStoragePartMachine.init();
         DysonSwarmEnergyOutputPartMachine.init();
         DysonSwarmEuclidEnergyOutputPartMachine.init();
+        EpicParallelControllHatch.init();
     }
 
     public static void initHPCAParts(){

@@ -99,7 +99,7 @@ public class EnhancedBlastChiller extends WorkableElectricMultiblockMachine {
             .rotationState(RotationState.ALL)
             .recipeType(GTRecipeTypes.VACUUM_RECIPES)
             .recipeModifiers(GregEModifiers::enhancedBlastChillerCoreBoost, GTRecipeModifiers.OC_PERFECT)
-            .appearanceBlock(CASING_INVAR_HEATPROOF)
+            .appearanceBlock(CASING_ALUMINIUM_FROSTPROOF)
             .pattern(definition -> {
                 return FactoryBlockPattern.start(RIGHT, UP, BACK)
                         .aisle("BBBBB", "BDBDB", "BBABB", "BDBDB", "BBBBB")
@@ -122,15 +122,13 @@ public class EnhancedBlastChiller extends WorkableElectricMultiblockMachine {
             })
             .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_frost_proof"),
                                  GTCEu.id("block/multiblock/distillation_tower"))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Glacial Core, Perfect Overclock and Threading").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This freezer gets better with every core you supply it. " +
-                    "Each core improves the speed at which the machine is chilling the inputs.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("For every Glacial Core in this machine, it gets 16 parallels and 6.5% faster recipes. " +
-                    "Maximum Glacial Cores in a machine is 14, minimum is 3.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Accepts Threading Core T2.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.enhancedblastchiller1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.enhancedblastchiller2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.enhancedblastchiller3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.threading2"))
             .register();
 
     @Override
@@ -146,9 +144,9 @@ public class EnhancedBlastChiller extends WorkableElectricMultiblockMachine {
             }
         }
 
-        textList.add(Component.literal("Glacial Cores: " + this.numberOfCores).withStyle(ChatFormatting.AQUA));
-        textList.add(Component.literal("Recipe time reduction: " + this.numberOfCores * 6.5 + "%").withStyle(ChatFormatting.AQUA));
-        textList.add(Component.literal("Parallels: " + this.numberOfCores * 16).withStyle(ChatFormatting.AQUA));
+        textList.add(Component.translatable("info.gregecore.enhancedblastchiller4" + this.numberOfCores).withStyle(ChatFormatting.AQUA));
+        textList.add(Component.translatable("info.gregecore.enhancedblastchiller5" + this.numberOfCores * 6.5 + "%").withStyle(ChatFormatting.AQUA));
+        textList.add(Component.translatable("info.gregecore.enhancedblastchiller6" + this.numberOfCores * 16).withStyle(ChatFormatting.AQUA));
     }
 
     public int getNumberOfCores() {

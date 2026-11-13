@@ -31,8 +31,10 @@ public class DysonSwarmEuclidEnergyOutputPartMachine extends EnergyHatchPartMach
             .abilities(DysonSwarmEuclidEnergyOutputPartMachine.DYSON_SWARM_EN_EUCLID_OUTPUT)
             .tier(GTValues.UIV)
             .colorOverlayTieredHullModel(GTCEu.id("block/overlay/machine/overlay_energy_16a_in"))
-            .tooltips(Component.literal("Outputs up to 1024A.").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal(ChatFormatting.LIGHT_PURPLE + "Outputs only in " + ChatFormatting.RED + "UIV" + ChatFormatting.LIGHT_PURPLE + " Amperage!"))
+            .tooltips(Component.translatable("info.gregecore.dysonoutput1").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dysonoutput2").withStyle(ChatFormatting.LIGHT_PURPLE)
+                    .append(Component.translatable("info.gregecore.dysonoutput5").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("info.gregecore.dysonoutput4").withStyle(ChatFormatting.LIGHT_PURPLE)))
             .register();
 
 

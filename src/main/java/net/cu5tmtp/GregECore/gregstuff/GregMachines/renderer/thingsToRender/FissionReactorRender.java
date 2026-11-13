@@ -71,7 +71,7 @@ public class FissionReactorRender extends DynamicRender<FissionReactor, FissionR
                     .getBlockModel(Blocks.IRON_BLOCK.defaultBlockState()).getParticleIcon();
         }
 
-        float insertionLevel = machine.controlRodInsertion;
+        float insertionLevel = 0f;
 
         if(machine.getRecipeLogic().isWorking()){
             heatLevel = LightTexture.FULL_BRIGHT;

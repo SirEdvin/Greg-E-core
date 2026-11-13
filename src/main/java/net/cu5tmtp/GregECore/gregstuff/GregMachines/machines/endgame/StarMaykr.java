@@ -225,25 +225,22 @@ public class StarMaykr extends WorkableElectricMultiblockMachine implements IRed
                     GTCEu.id("block/casings/gcym/atomic_casing"),
                     GTCEu.id("block/multiblock/fusion_reactor"))
                     .andThen(b -> b.addDynamicRenderer(GregERenederRegistries::createStarMaykrRender)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Material Compressing").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("You have done it. You made a machine capable of making and sustaining stars. While some might say its useful for energy," +
-                    " you have different ideas. Using the immense gravitational forces inside a stars core, you just might forge unthinkable items.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Star starts with 1 x 10³⁰ tons. If your star drops below 0 or over 500 x 10³⁰ tons, the multiblock explodes. Each crafting recipe has some sort of weight cost," +
-                    " due to the star fusing some of its own weight into it whenever it forms a singularity. " +
-                    "You can increase the weight of the star if you feed it correct items. The correct items are shown below with their weight value. Place them in the Star Feeder.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Brass Pellet: 0.1 x 10³⁰ tons").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("Americium Pellet: 3 x 10³⁰ tons").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("Neutronium Pellet: 10 x 10³⁰ tons").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Controller emits redstone: ").withStyle(ChatFormatting.GOLD)
-                    .append(Component.literal("1 redstone strength").withStyle(ChatFormatting.RED))
-                    .append(Component.literal(" per ").withStyle(style -> style.withColor(0x90EE90)))
-                    .append(Component.literal("30 x 10³⁰").withStyle(ChatFormatting.RED))
-                    .append(Component.literal(" tons.").withStyle(style -> style.withColor(0x90EE90))))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.starmaykr1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.starmaykr2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.starmaykr3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.starmaykr4").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.starmaykr5").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.starmaykr6").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.starmaykr7").withStyle(ChatFormatting.GOLD)
+                    .append(Component.translatable("info.gregecore.starmaykr8").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("info.gregecore.starmaykr9").withStyle(style -> style.withColor(0x90EE90)))
+                    .append(Component.translatable("info.gregecore.starmaykr10").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("info.gregecore.starmaykr11").withStyle(style -> style.withColor(0x90EE90))))
             .register();
 
     @Override
@@ -251,8 +248,8 @@ public class StarMaykr extends WorkableElectricMultiblockMachine implements IRed
         super.addDisplayText(textList);
 
         if (isFormed()) {
-            textList.add(Component.literal("Weight: " + (int) weight + " x 10³⁰").withStyle(ChatFormatting.AQUA));
-            textList.add(Component.literal("Redstone Power: " + getOutputSignal(null)).withStyle(ChatFormatting.RED));
+            textList.add(Component.translatable("info.gregecore.starmaykr12").append((int) weight + " x 10³⁰").withStyle(ChatFormatting.AQUA));
+            textList.add(Component.translatable("info.gregecore.starmaykr13").append(getOutputSignal(null) + "").withStyle(ChatFormatting.RED));
         }
     }
 

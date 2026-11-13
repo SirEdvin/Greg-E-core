@@ -32,8 +32,10 @@ public class DysonSwarmEnergyOutputPartMachine extends EnergyHatchPartMachine {
             .abilities(DysonSwarmEnergyOutputPartMachine.DYSON_SWARM_EN_OUTPUT)
             .tier(GTValues.UHV)
             .colorOverlayTieredHullModel(GTCEu.id("block/overlay/machine/overlay_energy_16a_in"))
-            .tooltips(Component.literal("Outputs up to 1024A.").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal(ChatFormatting.LIGHT_PURPLE + "Outputs only in " + ChatFormatting.RED + "UHV" + ChatFormatting.LIGHT_PURPLE + " Amperage!"))
+            .tooltips(Component.translatable("info.gregecore.dysonoutput1").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dysonoutput2").withStyle(ChatFormatting.LIGHT_PURPLE)
+                    .append(Component.translatable("info.gregecore.dysonoutput3").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("info.gregecore.dysonoutput4").withStyle(ChatFormatting.LIGHT_PURPLE)))
             .register();
 
 

@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.cu5tmtp.GregECore.mixin.gregtech",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "gregecore.refmap.json",
+  "mixins": [
+    "GTMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

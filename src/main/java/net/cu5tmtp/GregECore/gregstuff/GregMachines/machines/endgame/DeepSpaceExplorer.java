@@ -178,22 +178,19 @@ public class DeepSpaceExplorer extends WorkableElectricMultiblockMachine{
                     GTCEu.id("block/casings/gcym/atomic_casing"),
                     GTCEu.id("block/multiblock/fusion_reactor"))
                     .andThen(b -> b.addDynamicRenderer(GregERenederRegistries::createDeepSpaceRender)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Deep Space Exploration").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Due to the immense strain put on your body by traveling at near-light speeds, you decided it is better to send unmanned drones into deep space. " +
-                    "These autonomous units can travel vast distances without requiring maintenance or refueling, routinely sending back recovery probes with their findings. " +
-                    "Utilize these returned exotic materials to manufacture revolutionary new technologies").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Avaible drones & their avaible solar systems:").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Milano: 61 Cygni, Struve 2398, 100% recipe time").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("Bebop: Lacaille 8760, Gliese 1, 80% recipe time").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("Cepheus: 70 Ophiuchi, Stein 2051, 60% recipe time").withStyle(ChatFormatting.LIGHT_PURPLE))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Put the drones in the drone access hatch.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Better drones can also reach the systems reachable by the previous drones.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Accepts Threading Core T3.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.deepspaceexplorer1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.deepspaceexplorer2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.deepspaceexplorer3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.deepspaceexplorer4").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.deepspaceexplorer5").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.deepspaceexplorer6").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.deepspaceexplorer7").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.deepspaceexplorer8").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.threading3"))
             .register();
 
     @Override
@@ -201,10 +198,10 @@ public class DeepSpaceExplorer extends WorkableElectricMultiblockMachine{
         super.addDisplayText(textList);
 
         switch (droneIn){
-            case 1 -> textList.add(Component.literal("Drone in: Milano").withStyle(ChatFormatting.GOLD));
-            case 2 -> textList.add(Component.literal("Drone in: Bebop").withStyle(ChatFormatting.GOLD));
-            case 3 -> textList.add(Component.literal("Drone in: Cepheus").withStyle(ChatFormatting.GOLD));
-            default -> textList.add(Component.literal("No drone inserted!").withStyle(ChatFormatting.RED));
+            case 1 -> textList.add(Component.translatable("info.gregecore.deepspaceexplorer9").withStyle(ChatFormatting.GOLD));
+            case 2 -> textList.add(Component.translatable("info.gregecore.deepspaceexplorer10").withStyle(ChatFormatting.GOLD));
+            case 3 -> textList.add(Component.translatable("info.gregecore.deepspaceexplorer11").withStyle(ChatFormatting.GOLD));
+            default -> textList.add(Component.translatable("info.gregecore.deepspaceexplorer12").withStyle(ChatFormatting.RED));
         }
     }
 

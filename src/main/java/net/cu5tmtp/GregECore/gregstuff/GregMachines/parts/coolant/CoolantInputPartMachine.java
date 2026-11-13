@@ -32,7 +32,7 @@ public class CoolantInputPartMachine extends FluidHatchPartMachine {
             .abilities(CoolantInputPartMachine.COOLANT_INPUT)
             .tier(GTValues.EV)
             .colorOverlayTieredHullModel(GregECore.id("block/overlay/coolant_input/overlay_front"))
-            .tooltips(Component.literal("Use this to input coolant into machines.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.coolant1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
 

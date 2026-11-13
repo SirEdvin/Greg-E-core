@@ -96,7 +96,7 @@ public class SpaceElevator extends WorkableElectricMultiblockMachine implements 
 
         if (widget instanceof WidgetGroup group) {
 
-            group.addWidget(new LabelWidget(-80, 125, Component.literal("Target Height:").withStyle(ChatFormatting.GOLD)));
+            group.addWidget(new LabelWidget(-80, 125, Component.translatable("info.gregecore.elevator4").withStyle(ChatFormatting.GOLD)));
 
             var frequencyInput = new TextFieldWidget(
                     -70, 140, 60, 12,
@@ -194,14 +194,13 @@ public class SpaceElevator extends WorkableElectricMultiblockMachine implements 
                     GTCEu.id("block/casings/gcym/stress_proof_casing"),
                     GTCEu.id("block/multiblock/fusion_reactor"))
                     .andThen(b -> b.addDynamicRenderer(GregERenederRegistries::createSpaceElevatorRender)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Orbital Extraction and Threading").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("No longer a theoretical concept, the Space Elevator bridges the gap between planetary surface and orbit. " +
-                    "Use it to accelerate resource generation.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Each recipe has a target height that needs to be set in the controller before the recipe can start.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("Accepts Threading Core T3.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.elevator1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.elevator2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.elevator3").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.threading3"))
             .register();
 
     @Override

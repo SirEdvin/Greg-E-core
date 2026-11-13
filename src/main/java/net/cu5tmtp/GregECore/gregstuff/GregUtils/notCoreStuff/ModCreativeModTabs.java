@@ -9,10 +9,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.chillers.BigFreezer
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.chillers.EnhancedBlastChiller;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.dyson.DysonSwarmEnergyCollector;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.dyson.DysonSwarmLauncher;
-import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.AssemblyHall;
-import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.GenesisCrucible;
-import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.GenesisCrucibleCases;
-import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.PrecisionFabricationArray;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.euclid.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.AcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.GiantAcceleratedEBF;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.furnaces.GiantAlloyBlastSmelter;
@@ -22,6 +19,7 @@ import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.misc.*;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.EnhancedFusionReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.FissionReactor;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.reactors.GiantChemicalReactor;
+import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.single.EpicParallelControllHatch;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.machines.uhvmulti.UHVMultiRegistry;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.coolant.AdvancedCoolantInputPartMachine;
 import net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.coolant.CoolantInputPartMachine;
@@ -81,7 +79,8 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.TINYBLOOD.get());
                         pOutput.accept(ModItems.MEDIUMBLOOD.get());
                         pOutput.accept(ModItems.LARGEBLOOD.get());
-                        pOutput.accept(ModItems.WAND_OF_PUPPETRY.get());
+                        //pOutput.accept(ModItems.WAND_OF_PUPPETRY.get());
+                        pOutput.accept(ModItems.AVARITIA_WAND_OF_PUPPETRY.get());
                         pOutput.accept(AcceleratedEBF.ACCELERATEDEBF.getItem());
                         pOutput.accept(GiantAcceleratedEBF.GIANTACCELERATEDEBF.getItem());
                         pOutput.accept(EnhancedFusionReactor.ENHANCED_FUSION_REACTOR.getItem());
@@ -107,9 +106,11 @@ public class ModCreativeModTabs {
                         pOutput.accept(NetherDrillRig.NETHERDRILLRIG.getItem());
                         pOutput.accept(BloodCathedral.BLODDCATHEDRAL.getItem());
                         pOutput.accept(GenesisCrucible.GENESISCRUCIBLE.getItem());
+                        pOutput.accept(QuantumSynergizer.QUANTUMSYNERGIZER.getItem());
                         pOutput.accept(GenesisCrucibleCases.GENESISCRUCIBLECASE1.getItem());
                         pOutput.accept(GenesisCrucibleCases.GENESISCRUCIBLECASE2.getItem());
                         pOutput.accept(GenesisCrucibleCases.GENESISCRUCIBLECASE3.getItem());
+                        pOutput.accept(GenesisCrucibleCases.GENESISCRUCIBLECASE4.getItem());
                         pOutput.accept(AssemblyHall.ASSEMBLYHALL.getItem());
                         pOutput.accept(PrecisionFabricationArray.PFARRAY.getItem());
                         pOutput.accept(IncompleteWorldEaterTamer.INCOMPLETE_WORLD_EATER_TAMER.getItem());
@@ -161,6 +162,8 @@ public class ModCreativeModTabs {
                         pOutput.accept(DimensionalRelicsPartMachine.DIMENSIONAL_RELICS_MACHINE.getItem());
                         pOutput.accept(DysonSwarmEnergyOutputPartMachine.DYSON_SWARM_EN_OUTPUT_MACHINE.getItem());
                         pOutput.accept(DysonSwarmEuclidEnergyOutputPartMachine.DYSON_SWARM_EN_OUTPUT_EUCLID_MACHINE.getItem());
+                        pOutput.accept(EpicParallelControllHatch.EPIC_PARALLEL_HATCH.getItem());
+                        pOutput.accept(BloodStoragePartMachine.BLOOD_STORAGE_MACHINE.getItem());
 
                     })
                     .build());

@@ -101,6 +101,32 @@ public class GenesisCrucibleCases extends WorkableElectricMultiblockMachine {
             )
             .register();
 
+    public static MachineDefinition GENESISCRUCIBLECASE4 = REGISTRATE
+            .multiblock("genesiscruciblecasefour", GenesisCrucibleCases::new)
+            .rotationState(RotationState.NON_Y_AXIS)
+            .recipeTypes(GregERecipeTypes.DUMMYRECIPE)
+            .pattern(definition -> {
+                return FactoryBlockPattern.start()
+                        .aisle("bbbbb", "aaaaa", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "aaaaa", "bbbbb")
+                        .aisle("baaab", "abbba", "cbbbc", "cbbbc", "cbbbc", "cbbdc", "cbdbc", "cdbbc", "cbbbc", "cbbdc", "cbdbc", "cbbbc", "cbbbc", "abbba", "baaab")
+                        .aisle("baeab", "abdba", "cbdbc", "cbdbc", "cdbdc", "cbbbc", "cbbbc", "cbbbc", "cdbdc", "cbbbc", "cbbbc", "cbdbc", "cbdbc", "abdba", "baeab")
+                        .aisle("baaab", "abbba", "cbbbc", "cbbbc", "cbbbc", "cdbbc", "cbdbc", "cbbdc", "cbbbc", "cdbbc", "cbdbc", "cbbbc", "cbbbc", "abbba", "baaab")
+                        .aisle("bbbbb", "aazaa", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "accca", "aaaaa", "bbbbb")
+
+                        .where("a", Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("kubejs:machine_casing_tiled_dark_gray"))))
+                        .where("b", Predicates.any())
+                        .where("c", Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("gtceu:fusion_glass"))))
+                        .where("d", Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("gtceu:xynredar_block"))))
+                        .where("e", Predicates.blocks(ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("kubejs:machine_casing_block_purple"))))
+                        .where("z", Predicates.controller(Predicates.blocks(definition.get())))
+                        .build();
+            })
+            .workableCasingModel(
+                    GregECore.id("block/machine_casing_tiled_dark_gray"),
+                    GTCEu.id("gtceu:block/multiblock/distillation_tower")
+            )
+            .register();
+
     public static void init() {
     }
 }

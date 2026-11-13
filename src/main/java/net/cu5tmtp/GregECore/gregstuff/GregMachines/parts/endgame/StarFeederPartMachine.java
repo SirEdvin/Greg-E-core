@@ -30,8 +30,9 @@ public class StarFeederPartMachine extends ItemBusPartMachine {
                     new StarFeederPartMachine(holder, GTValues.ULV))
             .rotationState(RotationState.NON_Y_AXIS)
             .abilities(StarFeederPartMachine.STAR_FEEDER)
-            .workableCasingModel(GTCEu.id("block/casings/gcym/atomic_casing"), GregECore.id("block/overlay/feeder"))
-            .tooltips(Component.literal("Use this to feed the star items. Items are inserted every 5 ticks.").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .tier(GTValues.UHV)
+            .colorOverlayTieredHullModel(GregECore.id("block/overlay/feeder/overlay_front"))
+            .tooltips(Component.translatable("info.gregecore.feeder1").withStyle(ChatFormatting.LIGHT_PURPLE))
             .register();
 
 

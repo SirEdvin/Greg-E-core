@@ -33,6 +33,6 @@ public class ReanimationLogic {
             return InteractionResult.SUCCESS;
         }
 
-        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 }

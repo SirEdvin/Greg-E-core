@@ -20,9 +20,9 @@ public class DysonSwarmLauncherRender extends DynamicRender<DysonSwarmLauncher, 
     public static final Codec<DysonSwarmLauncherRender> CODEC = Codec.unit(DysonSwarmLauncherRender::new);
     public static final DynamicRenderType<DysonSwarmLauncher, DysonSwarmLauncherRender> TYPE = new DynamicRenderType<>(DysonSwarmLauncherRender.CODEC);
 
-    private static final float COLOR_R = 0.6f;
-    private static final float COLOR_G = 0.6f;
-    private static final float COLOR_B = 0.6f;
+    private static final float COLOR_R = 0.53f;
+    private static final float COLOR_G = 0.81f;
+    private static final float COLOR_B = 0.92f;
 
     private static final float SPEED = 0.2f;
     private static final float MAX_DISTANCE = 15.0f;

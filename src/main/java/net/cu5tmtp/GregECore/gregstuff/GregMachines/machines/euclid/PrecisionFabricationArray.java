@@ -153,14 +153,12 @@ public class PrecisionFabricationArray extends WorkableElectricMultiblockMachine
                     GTCEu.id("block/casings/solid/machine_casing_solid_steel"),
                     GTCEu.id("block/multiblock/distillation_tower")
             )
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Abilities: Precision Assembly").withStyle(style -> style.withColor(0xFFD700)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("Due to the densinty of the new materials, normal Assembly Lines won't cut it anymore. " +
-                    "This machine is the upgraded version of the Assembly Lines, strong enough to handle almost every material.").withStyle(style -> style.withColor(0x90EE90)))
-            .tooltips(Component.literal("----------------------------------------").withStyle(s -> s.withColor(0xff0000)))
-            .tooltips(Component.literal("This machine needs you to insert the items in the correct order, " +
-                    "the closest input bus to the controller is slot 1, the one behind is slot 2, etc.").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fabricationarray1").withStyle(style -> style.withColor(0xFFD700)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fabricationarray2").withStyle(style -> style.withColor(0x90EE90)))
+            .tooltips(Component.translatable("info.gregecore.dashline"))
+            .tooltips(Component.translatable("info.gregecore.fabricationarray3").withStyle(style -> style.withColor(0x90EE90)))
             .register();
 
     public static void init() {

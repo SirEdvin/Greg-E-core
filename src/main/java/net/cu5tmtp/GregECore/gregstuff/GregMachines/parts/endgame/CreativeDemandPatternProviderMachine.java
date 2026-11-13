@@ -23,6 +23,8 @@ import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import net.cu5tmtp.GregECore.gregstuff.GregRecipeLogic.WorldEaterDemands;
+import net.cu5tmtp.GregECore.gregstuff.GregUtils.GregECore;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -31,6 +33,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -44,9 +47,7 @@ public class CreativeDemandPatternProviderMachine extends MEBusPartMachine imple
             .tier(GTValues.LuV)
             .rotationState(RotationState.ALL)
             .colorOverlayTieredHullModel(GTCEu.id("block/overlay/appeng/me_buffer_hatch"))
-            .tooltips(Component.literal("Creative-only testing tool for World Eater demands. Has no recipe."),
-                    Component.literal("Provides an ME processing pattern for every World Eater real-run demand item."),
-                    Component.literal("Each pattern consumes 1 Iron Ingot and delivers its item to ME storage after 2 seconds."))
+            .tooltips(GregECore.tooltips("creative_demand_pattern_provider", 2))
             .register();
 
     private static List<IPatternDetails> patterns;
@@ -58,6 +59,13 @@ public class CreativeDemandPatternProviderMachine extends MEBusPartMachine imple
     public CreativeDemandPatternProviderMachine(IMachineBlockEntity holder, Object... args) {
         super(holder, IO.IN, args);
         getMainNode().addService(ICraftingProvider.class, this);
+        getMainNode().setExposedOnSides(EnumSet.allOf(Direction.class));
+    }
+
+    @Override
+    public void onRotated(Direction oldFacing, Direction newFacing) {
+        super.onRotated(oldFacing, newFacing);
+        getMainNode().setExposedOnSides(EnumSet.allOf(Direction.class));
     }
 
     /** One native processing pattern per demand pool item: 1 Iron Ingot -> 1 item. */
@@ -169,10 +177,8 @@ public class CreativeDemandPatternProviderMachine extends MEBusPartMachine imple
     @Override
     public Widget createUIWidget() {
         Consumer<List<Component>> text = lines -> {
-            lines.add(Component.literal("Creative Demand Pattern Provider"));
-            lines.add(Component.literal(isOnline() ? "ME network: online" : "ME network: offline"));
-            lines.add(Component.literal("Pending deliveries: " + deliveries.size()));
-            lines.add(Component.literal("1 Iron Ingot -> 1 demand item, 2 s delay."));
+            lines.add(Component.translatable(isOnline() ? "gregecore.me.online" : "gregecore.me.offline"));
+            lines.add(Component.translatable("gregecore.creative_demand_pattern_provider.pending", deliveries.size()));
         };
         return new WidgetGroup(0, 0, 190, 80)
                 .addWidget(new ComponentPanelWidget(6, 6, text).textSupplier(isRemote() ? null : text).setMaxWidthLimit(178))

@@ -390,11 +390,11 @@ public class WorldEaterStructureTests {
             helper.runAfterDelay(1, () -> lifecycle(helper, fixtures, stage, waited + 1));
             return;
         }
-        for (var f : fixtures) {
+        for (int i = 0; i < fixtures.length; i++) {
             var text = new ArrayList<Component>();
-            f.controller().addDisplayText(text);
-            helper.assertTrue(text.stream().anyMatch(line -> line.getString().equals("Casing tier: 2")) == (expected == 2),
-                    "Tier UI shown only at tier 2, lifecycle stage " + stage);
+            fixtures[i].controller().addDisplayText(text);
+            helper.assertTrue(text.stream().anyMatch(line -> line.getString().contains("upgrade to tier 2")) == (i == 0 && expected == 1),
+                    "Upgrade hint only for a formed tier-1 ACTIVE tamer, lifecycle stage " + stage);
         }
         if (stage == 7) { helper.succeed(); return; }
         for (var f : fixtures) {

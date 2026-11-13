@@ -37,7 +37,7 @@ public class WorldEaterMERegistrationTests {
             helper.assertTrue(drops.get(0).getHoverName().getString().equals("ME Demand Hatch"), "Readable localized hatch name");
             var help = drops.get(0).getTooltipLines(null, net.minecraft.world.item.TooltipFlag.Default.NORMAL).stream()
                     .map(net.minecraft.network.chat.Component::getString).collect(java.util.stream.Collectors.joining("\n"));
-            for (var phrase : java.util.List.of("Optional", "4 Tamed world eater essense", "one startup", "already scheduled", "No retries", "Fire-and-forget", "never tracked or cancelled", "deadlines"))
+            for (var phrase : java.util.List.of("Optional", "real-run demand", "one autocraft", "No retries"))
                 helper.assertTrue(help.contains(phrase), "Native hatch help explains: " + phrase);
         }
         helper.succeed();

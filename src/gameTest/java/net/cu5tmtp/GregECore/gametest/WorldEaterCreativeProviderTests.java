@@ -148,6 +148,28 @@ final class WorldEaterCreativeProviderTests {
         }));
     }
 
+    /** Both ME blocks face away from the only cell, then rotate, and stay on its grid. */
+    static void anySideConnection(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var cell = WorldEaterStructureTests.far(helper, new BlockPos(330000, 5, 330000));
+        level.setChunkForced(cell.getX() >> 4, cell.getZ() >> 4, true);
+        level.setBlockAndUpdate(cell, AEBlocks.CREATIVE_ENERGY_CELL.block().defaultBlockState());
+        level.setBlockAndUpdate(cell.east(), net.cu5tmtp.GregECore.gregstuff.GregMachines.parts.endgame.MEDemandHatchPartMachine.HATCH.defaultBlockState());
+        level.setBlockAndUpdate(cell.west(), CreativeDemandPatternProviderMachine.PROVIDER.defaultBlockState());
+        var hatch = (com.gregtechceu.gtceu.integration.ae2.machine.MEBusPartMachine) MetaMachine.getMachine(level, cell.east());
+        var provider = (CreativeDemandPatternProviderMachine) MetaMachine.getMachine(level, cell.west());
+        hatch.setFrontFacing(Direction.EAST);
+        provider.setFrontFacing(Direction.WEST);
+        // The cell is the only power source, so powered nodes sharing a grid joined through their back faces.
+        BooleanSupplier joined = () -> hatch.getMainNode().isPowered() && provider.getMainNode().isPowered()
+                && hatch.getMainNode().getGrid() == provider.getMainNode().getGrid();
+        ticks(helper, joined, 0, () -> {
+            hatch.setFrontFacing(Direction.SOUTH);
+            provider.setFrontFacing(Direction.NORTH);
+            helper.runAfterDelay(5, () -> ticks(helper, joined, 0, helper::succeed));
+        });
+    }
+
     static void reloadAndRemoval(GameTestHelper helper) {
         var f = fixture(helper, 335000);
         ready(helper, f, () -> {

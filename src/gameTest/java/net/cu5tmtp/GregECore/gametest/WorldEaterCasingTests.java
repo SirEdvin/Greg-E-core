@@ -183,7 +183,7 @@ public class WorldEaterCasingTests {
                 helper.assertTrue(outputCount(f, casings()[color + 1].asItem()) == 1, "One output at exactly 100 ticks");
                 helper.assertTrue(f.logic().getProgressionState() == WorldEaterTamerRecipeLogic.State.ACTIVE
                         && f.logic().getCurrentChunk() == null && f.logic().getCounts().isEmpty()
-                        && !f.logic().hasPendingReport() && !f.logic().getCustomProgressLine().getString().contains("Scan:"), "No scan side effects");
+                        && !f.logic().hasPendingReport() && !f.logic().getCustomProgressLine().getString().contains("Surveying"), "No scan side effects");
                 f.logic().resetRecipeLogic();
             }
             f.logic().setWorkingEnabled(false);

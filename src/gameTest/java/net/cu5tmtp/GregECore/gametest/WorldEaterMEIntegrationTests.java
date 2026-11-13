@@ -100,6 +100,12 @@ public class WorldEaterMEIntegrationTests {
         WorldEaterCreativeProviderTests.reloadAndRemoval(helper);
     }
 
+    @GameTest(template = "empty", timeoutTicks = 600, batch = "meBlocksConnectFromAnySide")
+    public static void meBlocksConnectFromAnySide(GameTestHelper helper) {
+        if (!GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }
+        WorldEaterCreativeProviderTests.anySideConnection(helper);
+    }
+
     @GameTest(template = "empty", timeoutTicks = 1600, batch = "creativeProviderPaysDemandHatch")
     public static void creativeProviderPaysDemandHatch(GameTestHelper helper) {
         if (!GTCEu.Mods.isAE2Loaded()) { helper.succeed(); return; }

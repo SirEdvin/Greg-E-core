@@ -107,15 +107,11 @@ The scan SHALL NOT load or force-load chunks or create chunk tickets. If a chunk
 
 ### Requirement: Live scan feedback
 
-The native machine UI SHALL display the pending scan chunk's chunk-grid X/Z coordinates. It SHALL retain the unavailable chunk during retries and the pending chunk during suspension, reconstruct it from existing persisted scan progress on reload, and clear the display when idle or awaiting report delivery. Every newly counted eligible machine SHALL emit one purple particle from the center of its block to the geometric center of the structure. Ordinary blocks, excluded parts, failed batch preflights, suspension and completed report delivery SHALL NOT emit discovery particles. The cosmetic effect SHALL use native particle networking without loading chunks or introducing client-only classes into server execution.
+The native machine UI SHALL NOT display scan chunk coordinates; scan progress is reported only through the next-step hint. Every newly counted eligible machine SHALL emit one purple particle from the center of its block to the geometric center of the structure. Ordinary blocks, excluded parts, failed batch preflights, suspension and completed report delivery SHALL NOT emit discovery particles. The cosmetic effect SHALL use native particle networking without loading chunks or introducing client-only classes into server execution.
 
 #### Scenario: Pending chunk feedback
-- **WHEN** a running scan advances into another chunk or waits for an unavailable chunk
-- **THEN** the native client UI displays the corresponding X/Z chunk coordinates
-- **WHEN** processing is suspended or saved and resumed
-- **THEN** the pending chunk remains consistent with the scan cursor and retry state
-- **WHEN** scanning finishes or is cancelled
-- **THEN** no chunk is displayed as currently scanning
+- **WHEN** a survey is running
+- **THEN** the native UI hint reports survey progress and no chunk coordinates
 
 #### Scenario: Discovery effect
 - **WHEN** the server scan counts an eligible machine
@@ -513,3 +509,15 @@ Frame casing positions SHALL accept only the black World Eater Tamer Casing, or 
 - **THEN** the structure forms in each horizontal orientation
 - **WHEN** a tier-ring position holds UHV casing, an unrelated block, or a part
 - **THEN** the structure does not form
+
+### Requirement: One next-step hint in the controller UI
+
+Below the native GTCEu display lines, a formed tamer's UI SHALL show exactly one localized line naming the player's next step toward real runs, and no other tamer-specific line. An unformed tamer SHALL show no hint. Steps in priority order: free output space for a waiting reward or report; deliver the open demand (count, item, seconds left); DORMANT survey progress or IV Sensor; casing upgrade below tier 2; intention hatch; Desarium (ACTIVE) or Implementium (PREPARED).
+
+#### Scenario: Tier-1 ACTIVE tamer
+- **WHEN** an ACTIVE tamer is formed with a black inner-ring casing
+- **THEN** its only tamer-specific line tells the player to replace the middle casings with colored ones to upgrade to tier 2
+
+#### Scenario: Ready for real runs
+- **WHEN** a PREPARED tier-2 tamer has an intention hatch and no open demand
+- **THEN** its hint tells the player to insert Implementium for real runs

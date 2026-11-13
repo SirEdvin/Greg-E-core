@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -72,16 +73,19 @@ public class MEDemandHatchPartMachine extends MEStockingBusPartMachine {
             .abilities(DEMAND)
             .modelProperty(GTMachineModelProperties.IS_FORMED, false)
             .colorOverlayTieredHullModel(GregECore.id("block/overlay/me_demand"))
-            .tooltips(Component.literal("Optional World Eater tamer input: one per frame, at any ordinary I/O position."),
-                    Component.literal("Craft shapelessly: 1 ME Stocking Input Bus + 4 Tamed world eater essense ingots."),
-                    Component.literal("Mirrors only the current paid real-run demand; preparation tests are not automated."),
-                    Component.literal("Uses ME stock; one startup autocrafting attempt for missing items, unless matching production is already scheduled."),
-                    Component.literal("No retries: offline networks, missing patterns or ingredients, and busy CPUs can leave the demand unmet."),
-                    Component.literal("Fire-and-forget: submitted jobs are never tracked or cancelled. Late products stay in ME storage."),
-                    Component.literal("Manual delivery still works. Intention requirements, deadlines and timeout consequences are unchanged."))
+            .tooltips(GregECore.tooltips("me_demand_hatch", 3))
             .register();
 
-    public MEDemandHatchPartMachine(IMachineBlockEntity holder, Object... args) { super(holder, args); }
+    public MEDemandHatchPartMachine(IMachineBlockEntity holder, Object... args) {
+        super(holder, args);
+        getMainNode().setExposedOnSides(EnumSet.allOf(Direction.class));
+    }
+
+    @Override
+    public void onRotated(Direction oldFacing, Direction newFacing) {
+        super.onRotated(oldFacing, newFacing);
+        getMainNode().setExposedOnSides(EnumSet.allOf(Direction.class));
+    }
 
     private static final ManagedFieldHolder FIELDS = new ManagedFieldHolder(
             MEDemandHatchPartMachine.class, MEStockingBusPartMachine.MANAGED_FIELD_HOLDER);
@@ -301,12 +305,9 @@ public class MEDemandHatchPartMachine extends MEStockingBusPartMachine {
     @Override
     public Widget createUIWidget() {
         Consumer<List<Component>> text = lines -> {
-            lines.add(Component.literal("ME Demand Hatch"));
-            lines.add(Component.literal(isOnline() ? "ME network: online" : "ME network: offline"));
-            lines.add(request.isEmpty() ? Component.literal("No real-run demand")
-                    : Component.literal("Demand: " + request.getCount() + " x ").append(request.getHoverName()));
-            lines.add(Component.literal("One startup attempt. No retries."));
-            lines.add(Component.literal("Submitted jobs stay with AE2."));
+            lines.add(Component.translatable(isOnline() ? "gregecore.me.online" : "gregecore.me.offline"));
+            lines.add(request.isEmpty() ? Component.translatable("gregecore.me_demand_hatch.no_demand")
+                    : Component.translatable("gregecore.me_demand_hatch.demand", request.getCount(), request.getHoverName()));
         };
         return new WidgetGroup(0, 0, 190, 100)
                 .addWidget(new ComponentPanelWidget(6, 6, text).textSupplier(isRemote() ? null : text).setMaxWidthLimit(178))
